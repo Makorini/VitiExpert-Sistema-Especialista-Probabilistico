@@ -1,0 +1,34 @@
+
+/* ============================================================
+   1. CORES E VARIÁVEIS GLOBAIS
+   ============================================================ */
+
+:root {
+    --deep: #21152f;
+    --grape: #75449a;
+    --lilac: #b59acb;
+    --vine: #a5cc83;
+    --paper: #f7f5f6;
+    --text: #2d2431;
+    --muted: #746b79;
+    --line: #ded9e0;
+}
+
+/* ============================================================
+   2. ESTILOS GLOBAIS
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--text);
+    font-family: "Times New Roman", Times, serif;
+}

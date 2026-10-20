@@ -1,0 +1,1085 @@
+
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+
+<head>
+    <!-- =====================================================
+         VITIEXPERT — CONFIGURAÇÕES DA PÁGINA
+         ===================================================== -->
+
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <meta
+        name="theme-color"
+        content="#21152f"
+    >
+
+    <title>
+        VitiExpert — {{ t[page] if page in t else 'Videiras' }}
+    </title>
+
+    <!-- Ícone do VitiExpert. -->
+    <link
+        rel="icon"
+        href="{{ url_for('static', filename='icone-vitiexpert.png') }}"
+        type="image/png"
+    >
+
+    <!-- Folha de estilos principal. -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body class="page-{{ page }}">
+
+    <!-- =====================================================
+         1. CABEÇALHO E NAVEGAÇÃO
+         ===================================================== -->
+
+    <header
+        class="header"
+        id="site-header"
+    >
+
+        <!-- Identidade visual do projeto. -->
+        <a
+            class="brand"
+            href="/?lang={{ lang }}"
+            aria-label="VitiExpert — {{ t.home }}"
+        >
+            Viti<span>Expert</span>
+            <span class="brand-leaf">❧</span>
+        </a>
+
+        <!-- Menu principal. -->
+        <nav
+            id="navigation"
+            class="nav"
+            aria-label="Menu principal"
+        >
+
+            <a
+                class="{{ 'active' if page == 'home' else '' }}"
+                href="/?lang={{ lang }}"
+            >
+                {{ t.home }}
+            </a>
+
+            <a
+                class="{{ 'active' if page == 'expert' else '' }}"
+                href="/expert?lang={{ lang }}"
+            >
+                {{ t.expert }}
+            </a>
+
+            <a
+                class="{{ 'active' if page == 'climate' else '' }}"
+                href="/climate?lang={{ lang }}"
+            >
+                {{ t.climate }}
+            </a>
+
+            <a
+                class="{{ 'active' if page == 'diseases' else '' }}"
+                href="/diseases?lang={{ lang }}"
+            >
+                {{ t.diseases }}
+            </a>
+
+        </nav>
+
+        <!-- Ações do cabeçalho. -->
+        <div class="header-actions">
+
+            <!-- =============================================
+                 1.1. SELETOR DE IDIOMAS
+                 ============================================= -->
+
+            <div class="lang-control">
+
+                <button
+                    class="icon-action"
+                    id="lang-toggle"
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="Selecionar idioma"
+                >
+
+                    <!-- Ícone de globo. -->
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                        />
+
+                        <path
+                            d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"
+                        />
+                    </svg>
+
+                    <!-- Idioma selecionado. -->
+                    <span>
+                        {{ lang|upper }}
+                    </span>
+
+                    <!-- Ícone de expansão. -->
+                    <svg
+                        class="chevron"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="m6 9 6 6 6-6" />
+                    </svg>
+
+                </button>
+
+                <!-- Lista de idiomas disponíveis. -->
+                <div
+                    class="lang-menu"
+                    id="lang-menu"
+                    hidden
+                >
+
+                    <a
+                        href="?lang=pt"
+                        data-lang="pt"
+                        lang="pt"
+                    >
+                        Português
+                        <span>PT</span>
+                    </a>
+
+                    <a
+                        href="?lang=en"
+                        data-lang="en"
+                        lang="en"
+                    >
+                        English
+                        <span>EN</span>
+                    </a>
+
+                    <a
+                        href="?lang=es"
+                        data-lang="es"
+                        lang="es"
+                    >
+                        Español
+                        <span>ES</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <!-- =============================================
+                 1.2. ACESSO À CONTA
+                 ============================================= -->
+
+            <a
+                class="icon-action account-action"
+                href="/login?lang={{ lang }}"
+                aria-label="{{ t.login }}"
+                title="{{ t.login }}"
+            >
+
+                <!-- Ícone de usuário. -->
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <circle
+                        cx="12"
+                        cy="8"
+                        r="3.5"
+                    />
+
+                    <path
+                        d="M5.5 20v-2c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5v2"
+                    />
+                </svg>
+
+                <span class="account-label">
+                    {{ t.login }}
+                </span>
+
+            </a>
+
+            <!-- =============================================
+                 1.3. MENU PARA DISPOSITIVOS MÓVEIS
+                 ============================================= -->
+
+            <button
+                class="menu-button"
+                id="menu-button"
+                type="button"
+                aria-label="{{ t.navopen }}"
+                aria-expanded="false"
+                aria-controls="navigation"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         2. PÁGINA INICIAL
+         ===================================================== -->
+
+    {% if page == 'home' %}
+
+        <!-- =============================================
+             2.1. BANNER PRINCIPAL
+             ============================================= -->
+
+        <section
+            class="hero"
+            aria-label="VitiExpert"
+        >
+
+            <!-- Camada escura sobre a imagem de fundo. -->
+            <div class="hero-shade"></div>
+
+            <div class="hero-content">
+
+                <div class="eyebrow">
+                    {{ t.eyebrow }}
+                </div>
+
+                <!-- Nome do sistema. -->
+                <h1 class="hero-logo">
+                    Viti<span>Expert</span><i>❧</i>
+                </h1>
+
+                <!-- Apresentação principal. -->
+                <h2>
+                    {{ t.headline }}
+                </h2>
+
+                <p>
+                    {{ t.subtitle }}
+                </p>
+
+                <!-- Acesso ao sistema especialista. -->
+                <a
+                    class="cta hero-cta"
+                    href="/expert?lang={{ lang }}"
+                >
+                    {{ t.explore }}
+
+                    <span aria-hidden="true">
+                        ↗
+                    </span>
+                </a>
+
+            </div>
+
+            <!-- Indicador de rolagem. -->
+            <a
+                class="scroll-mark"
+                href="#sobre"
+                aria-label="Rolar para conteúdo"
+            >
+                <span></span>
+            </a>
+
+        </section>
+
+
+        <main>
+
+            <!-- =========================================
+                 2.2. APRESENTAÇÃO DO VITIEXPERT
+                 ========================================= -->
+
+            <section
+                class="editorial-section intro"
+                id="sobre"
+            >
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            VITIEXPERT
+                            <span class="label-line"></span>
+                            2026
+                        </div>
+
+                        <h2>
+                            {{ t.welcome }}
+                        </h2>
+
+                    </div>
+
+                    <p>
+                        {{ t.intro }}
+                    </p>
+
+                </div>
+
+
+                <!-- =====================================
+                     2.3. FUNCIONALIDADES DO SISTEMA
+                     ===================================== -->
+
+                <div class="feature-grid">
+
+                    <!-- Sistema especialista. -->
+                    <a
+                        href="/expert?lang={{ lang }}"
+                        class="feature"
+                    >
+
+                        <span class="feature-number">
+                            01 /
+                        </span>
+
+                        <div class="feature-body">
+
+                            <span class="feature-icon">
+                                ✳
+                            </span>
+
+                            <h3>
+                                {{ t.feature1 }}
+                            </h3>
+
+                            <p>
+                                {{ t.feature1body }}
+                            </p>
+
+                        </div>
+
+                        <span class="feature-arrow">
+                            ↗
+                        </span>
+
+                    </a>
+
+
+                    <!-- Informações climáticas. -->
+                    <a
+                        href="/climate?lang={{ lang }}"
+                        class="feature"
+                    >
+
+                        <span class="feature-number">
+                            02 /
+                        </span>
+
+                        <div class="feature-body">
+
+                            <span class="feature-icon">
+                                ☼
+                            </span>
+
+                            <h3>
+                                {{ t.feature2 }}
+                            </h3>
+
+                            <p>
+                                {{ t.feature2body }}
+                            </p>
+
+                        </div>
+
+                        <span class="feature-arrow">
+                            ↗
+                        </span>
+
+                    </a>
+
+
+                    <!-- Biblioteca de doenças. -->
+                    <a
+                        href="/diseases?lang={{ lang }}"
+                        class="feature"
+                    >
+
+                        <span class="feature-number">
+                            03 /
+                        </span>
+
+                        <div class="feature-body">
+
+                            <span class="feature-icon">
+                                ❧
+                            </span>
+
+                            <h3>
+                                {{ t.feature3 }}
+                            </h3>
+
+                            <p>
+                                {{ t.feature3body }}
+                            </p>
+
+                        </div>
+
+                        <span class="feature-arrow">
+                            ↗
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 2.4. COMO FUNCIONA O SISTEMA
+                 ========================================= -->
+
+            <section class="editorial-section how-section">
+
+                <div class="section-label">
+                    {{ t.how_eyebrow }}
+                </div>
+
+                <div class="how-layout">
+
+                    <!-- Apresentação do funcionamento. -->
+                    <div class="how-title">
+
+                        <h2>
+                            {{ t.how_title }}
+                        </h2>
+
+                        <p>
+                            {{ t.how_intro }}
+                        </p>
+
+                    </div>
+
+                    <!-- Etapas do funcionamento. -->
+                    <div class="steps">
+
+                        <!-- Primeira etapa. -->
+                        <div class="step">
+
+                            <span>01</span>
+
+                            <div>
+
+                                <h3>
+                                    {{ t.step1 }}
+                                </h3>
+
+                                <p>
+                                    {{ t.step1body }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Segunda etapa. -->
+                        <div class="step">
+
+                            <span>02</span>
+
+                            <div>
+
+                                <h3>
+                                    {{ t.step2 }}
+                                </h3>
+
+                                <p>
+                                    {{ t.step2body }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Terceira etapa. -->
+                        <div class="step">
+
+                            <span>03</span>
+
+                            <div>
+
+                                <h3>
+                                    {{ t.step3 }}
+                                </h3>
+
+                                <p>
+                                    {{ t.step3body }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 2.5. NOTÍCIAS E ATUALIDADES
+                 ========================================= -->
+
+            <section
+                class="editorial-section news-section"
+                id="atualidades"
+            >
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <div class="section-label">
+                            {{ t.news_eyebrow }}
+                        </div>
+
+                        <h2>
+                            {{ t.news_title }}
+                        </h2>
+
+                    </div>
+
+                    <p>
+                        {{ t.news_intro }}
+                    </p>
+
+                </div>
+
+                <!--
+                    As notícias são carregadas pelo app.js
+                    por meio da API disponibilizada pelo Flask.
+                -->
+                <div
+                    id="news-grid"
+                    class="news-grid"
+                    aria-live="polite"
+                >
+
+                    <p class="news-status">
+                        {{ t.news_loading }}
+                    </p>
+
+                </div>
+
+                <!-- Identificação da fonte das notícias. -->
+                <div class="news-credit">
+                    {{ t.news_source }}
+                </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 2.6. APRESENTAÇÃO DA PROPOSTA
+                 ========================================= -->
+
+            <section class="about-band">
+
+                <div class="section-label">
+                    VITIEXPERT / VIDEIRA — SC
+                </div>
+
+                <div class="about-band-inner">
+
+                    <h2>
+                        {{ t.approach_title }}
+                    </h2>
+
+                    <div>
+
+                        <p>
+                            {{ t.approach_body }}
+                        </p>
+
+                        <a
+                            href="/expert?lang={{ lang }}"
+                            class="text-link"
+                        >
+                            {{ t.approach_link }}
+
+                            <span>↗</span>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+    <!-- =====================================================
+         3. PÁGINA DO SISTEMA ESPECIALISTA
+         ===================================================== -->
+
+    {% elif page == 'expert' %}
+
+        <main class="inner">
+
+            <!-- Cabeçalho da página. -->
+            <div class="inner-heading">
+
+                <div class="section-label">
+                    VITIEXPERT / {{ t.expert_kicker }}
+                </div>
+
+                <h1>
+                    {{ t.expert_title }}
+                </h1>
+
+                <p class="lead">
+                    {{ t.expert_sub }}
+                </p>
+
+            </div>
+
+
+            <!-- =========================================
+                 3.1. ÁREA DE DIAGNÓSTICO
+                 ========================================= -->
+
+            <section class="workspace">
+
+                <!-- Informações sobre a demonstração. -->
+                <div class="workspace-side">
+
+                    <span class="section-label">
+                        01 / {{ t.demo }}
+                    </span>
+
+                    <h2>
+                        {{ t.question }}
+                    </h2>
+
+                    <p>
+                        {{ t.demo_note }}
+                    </p>
+
+                </div>
+
+
+                <!-- Formulário e resultados. -->
+                <div class="workspace-main">
+
+                    <!-- =================================
+                         3.2. SELEÇÃO DOS SINTOMAS
+                         ================================= -->
+
+                    <form id="diagnose-form">
+
+                        <div class="symptom-grid">
+
+                            {% for key, labels in symptoms.items() %}
+
+                                <label class="symptom">
+
+                                    <input
+                                        type="checkbox"
+                                        name="symptom"
+                                        value="{{ key }}"
+                                    >
+
+                                    <span>
+                                        {{ labels[lang] }}
+                                    </span>
+
+                                    <span
+                                        class="check-indicator"
+                                        aria-hidden="true"
+                                    >
+                                        ✓
+                                    </span>
+
+                                </label>
+
+                            {% endfor %}
+
+                        </div>
+
+
+                        <!-- Botão para iniciar a análise. -->
+                        <button
+                            class="cta solid"
+                            type="submit"
+                        >
+
+                            {{ t.submit }}
+
+                            <span>↗</span>
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- =================================
+                         3.3. RESULTADOS DO DIAGNÓSTICO
+                         ================================= -->
+
+                    <!--
+                        O app.js adiciona os resultados
+                        retornados pela API Flask nesta área.
+
+                        A versão atual é demonstrativa.
+                    -->
+                    <div
+                        id="results"
+                        class="results"
+                        aria-live="polite"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Aviso sobre as limitações do sistema. -->
+            <p class="notice">
+                {{ t.warning }}
+            </p>
+
+        </main>
+
+
+    <!-- =====================================================
+         4. PÁGINA DE DOENÇAS E PRAGAS
+         ===================================================== -->
+
+    {% elif page == 'diseases' %}
+
+        <main class="inner">
+
+            <!-- Cabeçalho da biblioteca. -->
+            <div class="inner-heading">
+
+                <div class="section-label">
+                    VITIEXPERT / {{ t.library_kicker }}
+                </div>
+
+                <h1>
+                    {{ t.library_title }}
+                </h1>
+
+                <p class="lead">
+                    {{ t.library_sub }}
+                </p>
+
+            </div>
+
+
+            <!-- =========================================
+                 4.1. LISTAGEM DAS DOENÇAS
+                 ========================================= -->
+
+            <div class="disease-grid">
+
+                <!--
+                    Percorre as doenças cadastradas
+                    no dicionário de regras do Flask.
+                -->
+                {% for d, weights in rules.items() %}
+
+                    <article class="disease-card">
+
+                        <div class="disease-top">
+
+                            <span>
+                                0{{ loop.index }} /
+                            </span>
+
+                            <span>
+                                ❧
+                            </span>
+
+                        </div>
+
+                        <!-- Nome da doença. -->
+                        <h2>
+                            {{ t[d] }}
+                        </h2>
+
+                        <!-- Identificação dos sintomas. -->
+                        <p>
+                            {{ t.reasons }}
+                        </p>
+
+                        <!-- Sintomas associados à doença. -->
+                        <ul>
+
+                            {% for s in weights %}
+
+                                <li>
+                                    {{ symptoms[s][lang] }}
+                                </li>
+
+                            {% endfor %}
+
+                        </ul>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- Aviso da versão em desenvolvimento. -->
+            <p class="notice">
+                {{ t.warning }}
+            </p>
+
+        </main>
+
+
+    <!-- =====================================================
+         5. PÁGINA DE CLIMA
+         ===================================================== -->
+
+    {% elif page == 'climate' %}
+
+        <main class="inner">
+
+            <!-- Cabeçalho da página. -->
+            <div class="inner-heading">
+
+                <div class="section-label">
+                    VITIEXPERT / {{ t.climate_kicker }}
+                </div>
+
+                <h1>
+                    {{ t.climate_title }}
+                </h1>
+
+                <p class="lead">
+                    {{ t.climate_body }}
+                </p>
+
+            </div>
+
+
+            <!-- =========================================
+                 5.1. MÓDULO EM DESENVOLVIMENTO
+                 ========================================= -->
+
+            <section class="simple-panel">
+
+                <span class="section-label">
+                    VITIEXPERT / 2026
+                </span>
+
+                <h2>
+                    {{ t.soon }}
+                </h2>
+
+                <p>
+                    {{ t.climate_body }}
+                </p>
+
+            </section>
+
+        </main>
+
+
+    <!-- =====================================================
+         6. PÁGINA DE LOGIN
+         ===================================================== -->
+
+    {% elif page == 'login' %}
+
+        <main class="inner">
+
+            <!-- Cabeçalho da página. -->
+            <div class="inner-heading">
+
+                <div class="section-label">
+                    VITIEXPERT / {{ t.login_kicker }}
+                </div>
+
+                <h1>
+                    {{ t.login }}
+                </h1>
+
+                <p class="lead">
+                    {{ t.login_note }}
+                </p>
+
+            </div>
+
+
+            <!-- =========================================
+                 6.1. AUTENTICAÇÃO EM DESENVOLVIMENTO
+                 ========================================= -->
+
+            <section class="simple-panel">
+
+                <span class="section-label">
+                    VITIEXPERT
+                </span>
+
+                <h2>
+                    {{ t.soon }}
+                </h2>
+
+                <p>
+                    {{ t.login_note }}
+                </p>
+
+            </section>
+
+        </main>
+
+
+    <!-- =====================================================
+         7. PÁGINA PADRÃO / PRIVACIDADE
+         ===================================================== -->
+
+    {% else %}
+
+        <main class="inner">
+
+            <div class="inner-heading">
+
+                <h1>
+                    {{ t.privacy }}
+                </h1>
+
+                <p class="lead">
+                    {{ t.soon }}
+                </p>
+
+            </div>
+
+        </main>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         8. RODAPÉ
+         ===================================================== -->
+
+    <footer>
+
+        <!-- =============================================
+             8.1. IDENTIDADE E NAVEGAÇÃO
+             ============================================= -->
+
+        <div class="footer-top">
+
+            <!-- Nome do projeto. -->
+            <a
+                class="footer-brand"
+                href="/?lang={{ lang }}"
+            >
+                Viti<span>Expert</span> ❧
+            </a>
+
+            <!-- Links de navegação. -->
+            <nav>
+
+                <a href="/expert?lang={{ lang }}">
+                    {{ t.expert }}
+                </a>
+
+                <a href="/climate?lang={{ lang }}">
+                    {{ t.climate }}
+                </a>
+
+                <a href="/diseases?lang={{ lang }}">
+                    {{ t.diseases }}
+                </a>
+
+            </nav>
+
+        </div>
+
+
+        <!-- =============================================
+             8.2. INFORMAÇÕES INSTITUCIONAIS
+             ============================================= -->
+
+        <div class="footer-bottom">
+
+            <!-- Aviso sobre a utilização do sistema. -->
+            <p>
+                {{ t.warning }}
+            </p>
+
+            <!-- Direitos e identificação. -->
+            <small>
+                © 2026 VitiExpert · {{ t.all }}
+            </small>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         9. CONFIGURAÇÕES DE IDIOMA
+         ===================================================== -->
+
+    <!--
+        O Flask disponibiliza as traduções como atributos
+        HTML, sem inserir expressões Jinja diretamente
+        no código JavaScript.
+
+        O arquivo config.js lê essas informações e
+        disponibiliza window.VITI_LANG e window.VITI_LABELS.
+    -->
+
+    <div
+        id="viti-config"
+        hidden
+        data-lang="{{ lang }}"
+        data-result="{{ t.result }}"
+        data-score="{{ t.score }}"
+        data-reasons="{{ t.reasons }}"
+        data-none="{{ t.none }}"
+        data-not-calibrated="{{ t.not_calibrated }}"
+        data-news-unavailable="{{ t.news_unavailable }}"
+    ></div>
+
+
+    <!-- =====================================================
+         10. ARQUIVOS JAVASCRIPT
+         ===================================================== -->
+
+    <!-- Configurações de idioma e traduções. -->
+    <script
+        src="{{ url_for('static', filename='config.js') }}"
+    ></script>
+
+    <!-- Funcionalidades da interface. -->
+    <script
+        src="{{ url_for('static', filename='app.js') }}"
+    ></script>
+
+</body>
+
+</html>
