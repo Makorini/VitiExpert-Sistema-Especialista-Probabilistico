@@ -7,18 +7,11 @@
  * Projeto: Sistema Especialista Probabilístico para
  *          Diagnóstico de Doenças em Videiras
  *
- * Status: Em desenvolvimento e testagem
- *
  * Responsabilidades:
  * 1. Controlar o menu de navegação.
  * 2. Gerenciar o seletor de idiomas.
  * 3. Carregar notícias relacionadas à viticultura.
- * 4. Enviar os sintomas para a API Flask.
- * 5. Exibir os resultados do diagnóstico demonstrativo.
- *
- * IMPORTANTE:
- * Este arquivo não realiza cálculos probabilísticos.
- * O processamento das respostas acontece no servidor Flask.
+ * 4. Alternar o tema claro e escuro.
  *
  * ============================================================
  */
@@ -128,294 +121,198 @@ for (const link of document.querySelectorAll(".lang-menu a")) {
 
     }
 
-    // Obtém o endereço da página atual.
-    const url = new URL(window.location.href);
-
-    // Atualiza o parâmetro do idioma na URL.
-    url.searchParams.set("lang", link.dataset.lang);
-
-    // Define o endereço correspondente ao idioma.
-    link.href = url.pathname + url.search;
+    // LINKS DE IDIOMA DEFINIDOS NO HTML.
+    // O Flask já monta a URL da página atual para PT, EN e ES.
+    // Não alteramos o endereço aqui, evitando reescritas indevidas.
+    // A navegação e as traduções continuam sendo feitas pelo servidor.
 
 }
 
 
 /* ============================================================
-   3. NOTÍCIAS SOBRE UVAS E VITICULTURA
+   3. NOTÍCIAS DA VITICULTURA — FOTOS REAIS OU ILUSTRAÇÕES
    ============================================================ */
-
-// Localiza a área onde as notícias serão apresentadas.
 const newsGrid = document.getElementById("news-grid");
 
-// Executa a consulta somente se a área existir na página.
 if (newsGrid) {
+    const fallbackImages = [1, 2, 3, 4, 5].map(number =>
+        `/static/news-fallback/vitiexpert-noticia-${number}.webp`
+    );
+    const lang = (document.documentElement.lang || "pt").toLowerCase();
+    const illustrationText = lang.startsWith("en")
+        ? "AI-generated illustration"
+        : lang.startsWith("es")
+            ? "Imagen ilustrativa generada por IA"
+            : "Imagem ilustrativa gerada por IA";
 
-    // Consulta a API de notícias disponibilizada pelo Flask.
-    fetch("/api/news", {
-        signal: AbortSignal.timeout(8500)
-    })
-
-    // Verifica se a resposta HTTP foi bem-sucedida.
-    .then((response) => {
-
-        if (!response.ok) {
-            throw new Error("News unavailable");
-        }
-
-        return response.json();
-
-    })
-
-    // Processa os dados recebidos da API.
-    .then((data) => {
-
-        // Remove o conteúdo anterior.
+    const showNewsError = () => {
         newsGrid.replaceChildren();
-
-        // Verifica se existem notícias disponíveis.
-        if (!data.items?.length) {
-            throw new Error("Empty news");
-        }
-
-        // Percorre cada notícia recebida.
-        for (const item of data.items) {
-
-            // Cria o link principal da notícia.
-            const articleLink = document.createElement("a");
-
-            articleLink.className = "news-card";
-            articleLink.href = item.url;
-            articleLink.target = "_blank";
-            articleLink.rel = "noopener noreferrer";
-
-            // Cria a identificação da fonte.
-            const source = document.createElement("span");
-
-            source.className = "news-meta";
-            source.textContent = item.source || "Google Notícias";
-
-            // Cria o título da notícia.
-            const title = document.createElement("h3");
-
-            title.textContent = item.title;
-
-            // Cria o indicador visual de link externo.
-            const arrow = document.createElement("span");
-
-            arrow.className = "news-arrow";
-            arrow.textContent = "↗";
-
-            // Agrupa os elementos da notícia.
-            articleLink.append(
-                source,
-                title,
-                arrow
-            );
-
-            // Adiciona a notícia à página.
-            newsGrid.append(articleLink);
-
-        }
-
-    })
-
-    // Trata erros de conexão ou ausência de notícias.
-    .catch(() => {
-
-        // Limpa a área de notícias.
-        newsGrid.replaceChildren();
-
-        // Cria uma mensagem informativa.
         const message = document.createElement("p");
-
         message.className = "news-status";
         message.textContent = window.VITI_LABELS.news_unavailable;
-
-        // Exibe a mensagem.
         newsGrid.append(message);
+    };
 
-    });
+    // Mantém uma ordem estável na tela: 1, 2, 3, 4, 5, depois recomeça.
+    // Quando uma foto real falha, ela entra na sequência, mesmo que as
+    // imagens externas terminem de carregar em momentos diferentes.
+    const sequenceIllustrations = () => {
+        const cards = Array.from(newsGrid.querySelectorAll(
+            '.news-card[data-illustrative="true"]'
+        ));
+        cards.forEach((card, index) => {
+            const image = card.querySelector(".news-photo-img");
+            if (!image || card.dataset.fallbackBroken === "true") return;
+            const src = fallbackImages[index % fallbackImages.length];
+            if (image.getAttribute("src") !== src) image.src = src;
+        });
+    };
 
+    const useIllustration = (article, photo, media) => {
+        if (article.dataset.illustrative === "true") return;
+        article.dataset.illustrative = "true";
+        photo.alt = illustrationText;
+        const label = document.createElement("span");
+        label.className = "news-illustrative-label";
+        label.textContent = illustrationText;
+        media.append(label);
+        sequenceIllustrations();
+    };
+
+    fetch("/api/news", { signal: AbortSignal.timeout(24000) })
+        .then(response => {
+            if (!response.ok) throw new Error("News unavailable");
+            return response.json();
+        })
+        .then(data => {
+            const items = (data.items || []).filter(item =>
+                item && typeof item.title === "string" && typeof item.url === "string"
+                && item.url.startsWith("https://")
+            );
+            if (!items.length) throw new Error("No recent viticulture news");
+            newsGrid.replaceChildren();
+
+            for (const item of items) {
+                const article = document.createElement("a");
+                article.className = "news-card";
+                article.href = item.url;
+                article.target = "_blank";
+                article.rel = "noopener noreferrer";
+
+                const media = document.createElement("div");
+                media.className = "news-photo";
+                const photo = document.createElement("img");
+                photo.className = "news-photo-img";
+                photo.alt = ""; // Título ao lado identifica a publicação.
+                photo.loading = "lazy";
+                photo.decoding = "async";
+                let attemptedOriginal = false;
+                photo.addEventListener("error", () => {
+                    if (article.dataset.illustrative === "true") {
+                        // Se o próprio arquivo local estiver corrompido, a
+                        // notícia continua na página sem uma imagem quebrada.
+                        article.dataset.fallbackBroken = "true";
+                        photo.remove();
+                        return;
+                    }
+                    // Prioridade: URL da fotografia na própria publicação.
+                    if (!attemptedOriginal && typeof item.image_original === "string"
+                            && item.image_original.startsWith("https://")) {
+                        attemptedOriginal = true;
+                        photo.src = item.image_original;
+                        return;
+                    }
+                    useIllustration(article, photo, media);
+                });
+                media.append(photo);
+
+                const content = document.createElement("div");
+                content.className = "news-content";
+                const meta = document.createElement("div");
+                meta.className = "news-meta";
+                const source = document.createElement("span");
+                source.textContent = item.source || "Fonte externa";
+                meta.append(source);
+                if (item.published && !Number.isNaN(Date.parse(item.published))) {
+                    const date = document.createElement("time");
+                    date.dateTime = new Date(item.published).toISOString();
+                    date.textContent = new Intl.DateTimeFormat(
+                        document.documentElement.lang || "pt-BR",
+                        { day: "2-digit", month: "short", year: "numeric" }
+                    ).format(new Date(item.published));
+                    meta.append(date);
+                }
+
+                const title = document.createElement("h3");
+                title.textContent = item.title;
+                content.append(meta, title);
+
+                if (item.description) {
+                    const excerpt = document.createElement("p");
+                    excerpt.className = "news-excerpt";
+                    excerpt.textContent = item.description;
+                    content.append(excerpt);
+                }
+                article.append(media, content);
+                newsGrid.append(article);
+
+                if (typeof item.image === "string"
+                    && item.image.startsWith("/api/news/photo/")) {
+                    photo.src = item.image;
+                } else {
+                    useIllustration(article, photo, media);
+                }
+            }
+            sequenceIllustrations();
+        })
+        .catch(showNewsError);
 }
 
 
 /* ============================================================
-   4. FORMULÁRIO DO SISTEMA ESPECIALISTA
+   4. TEMA CLARO E ESCURO
    ============================================================ */
 
-// Localiza o formulário de diagnóstico.
-const diagnosisForm = document.getElementById("diagnose-form");
+const themeToggle = document.getElementById("theme-toggle");
 
-// Executa somente nas páginas que possuem o formulário.
-if (diagnosisForm) {
+// Atualiza o texto acessível para indicar a próxima ação.
+function updateThemeButton() {
+    if (!themeToggle) return;
 
-    diagnosisForm.addEventListener("submit", async (event) => {
+    const isLight = document.documentElement.dataset.theme === "light";
 
-        // Impede o recarregamento automático da página.
-        event.preventDefault();
+    themeToggle.setAttribute("aria-pressed", String(isLight));
+    const chosenLang = (document.documentElement.lang || "pt").slice(0, 2);
+    const themeStrings = {
+        pt: ["Ativar modo escuro", "Ativar modo claro"],
+        en: ["Switch to dark mode", "Switch to light mode"],
+        es: ["Activar modo oscuro", "Activar modo claro"]
+    };
+    const labels = themeStrings[chosenLang] || themeStrings.pt;
 
-        // Localiza a área destinada aos resultados.
-        const resultsContainer = document.getElementById("results");
-
-        // Exibe um indicador temporário de processamento.
-        resultsContainer.textContent = "…";
-
-        // Obtém os sintomas selecionados pelo usuário.
-        const symptoms = [
-            ...diagnosisForm.querySelectorAll("input:checked")
-        ].map((input) => input.value);
-
-        try {
-
-            /* ------------------------------------------------
-               4.1. ENVIO DOS SINTOMAS PARA O FLASK
-               ------------------------------------------------ */
-
-            // Envia as respostas para o endpoint de diagnóstico.
-            const response = await fetch(
-                "/api/diagnose?lang=" +
-                encodeURIComponent(window.VITI_LANG),
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        symptoms: symptoms
-                    })
-                }
-            );
-
-            // Interrompe o processamento em caso de erro HTTP.
-            if (!response.ok) {
-                throw new Error("Request failed");
-            }
-
-            // Converte a resposta recebida para JSON.
-            const data = await response.json();
-
-            // Remove resultados anteriores.
-            resultsContainer.replaceChildren();
-
-
-            /* ------------------------------------------------
-               4.2. TÍTULO DOS RESULTADOS
-               ------------------------------------------------ */
-
-            // Cria o título da seção.
-            const heading = document.createElement("h2");
-
-            heading.textContent = window.VITI_LABELS.result;
-
-            // Insere o título na página.
-            resultsContainer.append(heading);
-
-
-            /* ------------------------------------------------
-               4.3. TRATAMENTO DE RESULTADOS VAZIOS
-               ------------------------------------------------ */
-
-            // Verifica se nenhuma hipótese foi encontrada.
-            if (!data.results.length) {
-
-                const message = document.createElement("p");
-
-                message.textContent =
-                    data.message || window.VITI_LABELS.none;
-
-                resultsContainer.append(message);
-
-            }
-
-
-            /* ------------------------------------------------
-               4.4. EXIBIÇÃO DAS HIPÓTESES
-               ------------------------------------------------ */
-
-            // Percorre as hipóteses retornadas pelo servidor.
-            for (const item of data.results) {
-
-                // Cria o contêiner da hipótese.
-                const resultItem = document.createElement("article");
-
-                resultItem.className = "result-item";
-
-                // Cria o cabeçalho do resultado.
-                const resultHeader = document.createElement("div");
-
-                resultHeader.className = "result-head";
-
-                // Cria o nome da doença.
-                const diseaseName = document.createElement("strong");
-
-                diseaseName.textContent = item.name;
-
-                // Cria o campo de pontuação demonstrativa.
-                const score = document.createElement("span");
-
-                score.textContent =
-                    window.VITI_LABELS.score + ": " + item.score;
-
-                // Agrupa o nome e a pontuação.
-                resultHeader.append(
-                    diseaseName,
-                    score
-                );
-
-                // Cria o campo de justificativas.
-                const evidence = document.createElement("p");
-
-                evidence.textContent =
-                    window.VITI_LABELS.reasons +
-                    ": " +
-                    item.evidence.join("; ");
-
-                // Adiciona as informações ao resultado.
-                resultItem.append(
-                    resultHeader,
-                    evidence
-                );
-
-                // Insere o resultado na página.
-                resultsContainer.append(resultItem);
-
-            }
-
-
-            /* ------------------------------------------------
-               4.5. AVISO SOBRE A VERSÃO DEMONSTRATIVA
-               ------------------------------------------------ */
-
-            // Cria o aviso de limitações do protótipo.
-            const disclaimer = document.createElement("p");
-
-            disclaimer.className = "notice";
-
-            disclaimer.textContent =
-                data.disclaimer ||
-                window.VITI_LABELS.not_calibrated;
-
-            // Exibe o aviso abaixo dos resultados.
-            resultsContainer.append(disclaimer);
-
-        } catch (error) {
-
-            /* ------------------------------------------------
-               4.6. TRATAMENTO DE ERROS
-               ------------------------------------------------ */
-
-            // Exibe uma mensagem quando a consulta falha.
-            resultsContainer.textContent =
-                "Não foi possível realizar a análise. / " +
-                "Unable to assess symptoms.";
-
-            // Registra o erro no console para depuração.
-            console.error("Erro ao consultar o diagnóstico:", error);
-
-        }
-
-    });
-
+    themeToggle.setAttribute(
+        "aria-label",
+        isLight ? labels[0] : labels[1]
+    );
+    themeToggle.title = isLight ? labels[0] : labels[1];
 }
+
+// Sincroniza o botão com o tema carregado no início da página.
+updateThemeButton();
+
+// Alterna exclusivamente as cores, sem alterar os dados do sistema.
+themeToggle?.addEventListener("click", () => {
+    const nextTheme = document.documentElement.dataset.theme === "light"
+        ? "dark"
+        : "light";
+
+    document.documentElement.dataset.theme = nextTheme;
+
+    try {
+        localStorage.setItem("vitiexpert-theme", nextTheme);
+    } catch (error) {
+        // Navegadores com armazenamento bloqueado usam o tema da sessão.
+    }
+
+    updateThemeButton();
+});

@@ -1,0 +1,500 @@
+{
+  "metodo": "SINTA SE/ENTÃO com Fatores de Certeza; extensão heurística de regras alternativas",
+  "origem": "Regras originais do SINTA mantidas em knowledge/sinta_teste_export.json; este arquivo contém apenas regras propostas",
+  "fatores": "Os valores cf são parâmetros experimentais, arbitrados no projeto para demonstração, NÃO fornecidos pela Embrapa nem validados em campo. Não são probabilidades estatísticas.",
+  "combinacao": "Para regras alternativas com premissas correlacionadas, usa-se o maior CNF por hipótese; em seguida, o maior entre o CNF original SINTA e o complementar (sem somar evidência duplicada).",
+  "novas_perguntas": {
+    "manchas_oleosas": {
+      "pt": "Há manchas amareladas com aspecto de óleo nas folhas?",
+      "en": "Are there yellowish oil-like patches on leaves?",
+      "es": "¿Hay manchas amarillentas de aspecto aceitoso en las hojas?",
+      "grupo": "leaves"
+    },
+    "mofo_branco_inferior": {
+      "pt": "Há mofo branco na parte de baixo das folhas?",
+      "en": "Is there white mold on the underside of the leaves?",
+      "es": "¿Hay moho blanco en el envés de las hojas?",
+      "grupo": "leaves"
+    },
+    "bagas_rachadas": {
+      "pt": "Há bagas com rachaduras na casca?",
+      "en": "Are there grape berries with cracked skins?",
+      "es": "¿Hay bayas con la piel agrietada?",
+      "grupo": "clusters"
+    },
+    "folhas_jovens_pontos_escuros": {
+      "pt": "Folhas jovens apresentam pequenas manchas escuras?",
+      "en": "Do young leaves show small dark spots?",
+      "es": "¿Las hojas jóvenes presentan pequeñas manchas oscuras?",
+      "grupo": "leaves"
+    },
+    "folhas_deformadas": {
+      "pt": "As folhas jovens estão deformadas ou encarquilhadas?",
+      "en": "Are the young leaves distorted or crumpled?",
+      "es": "¿Las hojas jóvenes están deformadas o arrugadas?",
+      "grupo": "leaves"
+    },
+    "escoriacoes_ramos_base": {
+      "pt": "Há lesões alongadas e escuras na base dos ramos novos?",
+      "en": "Are there long, dark lesions at the base of new shoots?",
+      "es": "¿Hay lesiones alargadas y oscuras en la base de los brotes?",
+      "grupo": "branches"
+    },
+    "pustulas_amarelas_inferiores": {
+      "pt": "Existem pequenas pústulas amarelas na face inferior das folhas?",
+      "en": "Are there yellow pustules on the underside of the leaves?",
+      "es": "¿Hay pequeñas pústulas amarillas en el envés de las hojas?",
+      "grupo": "leaves"
+    },
+    "manchas_angulares_superiores": {
+      "pt": "A parte superior das folhas tem pequenas lesões angulares?",
+      "en": "Are there small angular lesions on the upper leaf surface?",
+      "es": "¿La cara superior de las hojas tiene lesiones angulares pequeñas?",
+      "grupo": "leaves"
+    },
+    "manchas_irregulares_halo_amarelo": {
+      "pt": "Há manchas irregulares escuras com halo amarelo-esverdeado nas folhas?",
+      "en": "Are there irregular dark leaf spots with a yellow-green halo?",
+      "es": "¿Hay manchas oscuras irregulares con halo amarillo verdoso?",
+      "grupo": "leaves"
+    },
+    "folhas_maduras_afetadas": {
+      "pt": "As manchas aparecem principalmente em folhas maduras?",
+      "en": "Do the spots occur mainly on mature leaves?",
+      "es": "¿Las manchas aparecen principalmente en hojas maduras?",
+      "grupo": "leaves"
+    },
+    "pustulas_escuras_bagas": {
+      "pt": "Há pontuações ou pústulas escuras na casca das bagas?",
+      "en": "Are there dark pustules or dots on grape skins?",
+      "es": "¿Hay pústulas o puntos oscuros sobre las bayas?",
+      "grupo": "clusters"
+    },
+    "bagas_mumificadas": {
+      "pt": "Há bagas enrugadas, secas ou mumificadas?",
+      "en": "Are some berries shriveled, dried out or mummified?",
+      "es": "¿Hay bayas arrugadas, secas o momificadas?",
+      "grupo": "clusters"
+    },
+    "exsudato_rosado": {
+      "pt": "Há pontuações nas bagas que liberam massa rosada ou salmão?",
+      "en": "Do berry lesions produce a pink or salmon-colored spore mass?",
+      "es": "¿Las lesiones de las bayas liberan una masa rosada o salmón?",
+      "grupo": "clusters"
+    },
+    "moscas_vinagre": {
+      "pt": "Há pequenas moscas semelhantes às do vinagre próximas aos cachos?",
+      "en": "Are there small vinegar flies near the clusters?",
+      "es": "¿Hay mosquitas del vinagre cerca de los racimos?",
+      "grupo": "clusters"
+    },
+    "bagas_vazando_suco": {
+      "pt": "Existem bagas rachadas liberando suco?",
+      "en": "Are cracked berries leaking juice?",
+      "es": "¿Hay bayas rajadas que pierden jugo?",
+      "grupo": "clusters"
+    }
+  },
+  "fontes": {
+    "mildio": "https://www.cnpuv.embrapa.br/uzum/uva/mildio.html",
+    "oidio": "https://www.cnpuv.embrapa.br/uzum/uva/oidio.html",
+    "antracnose": "https://www.cnpuv.embrapa.br/uzum/uva/antracnose.html",
+    "podridao_cinzenta": "https://www.cnpuv.embrapa.br/uzum/uva/pod_cinzenta.html",
+    "podridao_madura": "https://www.cnpuv.embrapa.br/uzum/uva/pod_uva_madura.html",
+    "podridao_acida": "https://www.cnpuv.embrapa.br/uzum/uva/pod_acida.html",
+    "escoriose": "https://www.cnpuv.embrapa.br/uzum/uva/escoriose.html",
+    "ferrugem": "https://www.cnpuv.embrapa.br/uzum/uva/ferrugem.html",
+    "mancha_folhas": "https://www.cnpuv.embrapa.br/uzum/uva/mancha_folhas.html",
+    "podridao_amarga": "https://www.cnpuv.embrapa.br/uzum/uva/pod_amarga.html"
+  },
+  "regras": [
+    {
+      "id": "COMP-R09",
+      "disease": "mildio",
+      "conditions": [
+        {
+          "id": "manchas_oleosas",
+          "value": "sim"
+        },
+        {
+          "id": "mofo_branco_inferior",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.78,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/mildio.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Mancha de óleo acompanhada de esporulação branca inferior"
+    },
+    {
+      "id": "COMP-R10",
+      "disease": "mildio",
+      "conditions": [
+        {
+          "id": "manchas_oleosas",
+          "value": "sim"
+        },
+        {
+          "id": "chuva_frequente",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.67,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/mildio.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Mancha oleosa em ambiente favorável"
+    },
+    {
+      "id": "COMP-R11",
+      "disease": "mildio",
+      "conditions": [
+        {
+          "id": "mofo_branco_inferior",
+          "value": "sim"
+        },
+        {
+          "id": "chuva_frequente",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.65,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/mildio.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Mofo inferior e umidade"
+    },
+    {
+      "id": "COMP-R12",
+      "disease": "oidio",
+      "conditions": [
+        {
+          "id": "poeira_branca",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.68,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/oidio.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Cobertura pulverulenta branca característica"
+    },
+    {
+      "id": "COMP-R13",
+      "disease": "oidio",
+      "conditions": [
+        {
+          "id": "poeira_branca",
+          "value": "sim"
+        },
+        {
+          "id": "bagas_rachadas",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.79,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/oidio.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Pó branco e rachadura de bagas"
+    },
+    {
+      "id": "COMP-R14",
+      "disease": "antracnose",
+      "conditions": [
+        {
+          "id": "lesoes_deprimidas_escuras",
+          "value": "sim"
+        },
+        {
+          "id": "folhas_jovens_pontos_escuros",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.74,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/antracnose.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Lesões afundadas e pontuações em folhas jovens"
+    },
+    {
+      "id": "COMP-R15",
+      "disease": "antracnose",
+      "conditions": [
+        {
+          "id": "folhas_jovens_pontos_escuros",
+          "value": "sim"
+        },
+        {
+          "id": "folhas_deformadas",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.71,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/antracnose.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Pontos escuros em folhas jovens com deformação"
+    },
+    {
+      "id": "COMP-R16",
+      "disease": "podridao_cinzenta",
+      "conditions": [
+        {
+          "id": "mofo_cinza",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.7,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_cinzenta.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Mofo cinza nos cachos"
+    },
+    {
+      "id": "COMP-R17",
+      "disease": "podridao_cinzenta",
+      "conditions": [
+        {
+          "id": "mofo_cinza",
+          "value": "sim"
+        },
+        {
+          "id": "cacho_compacto",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.78,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_cinzenta.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Mofo cinza em cachos compactos"
+    },
+    {
+      "id": "COMP-R18",
+      "disease": "podridao_madura",
+      "conditions": [
+        {
+          "id": "exsudato_rosado",
+          "value": "sim"
+        },
+        {
+          "id": "lesoes_concentricas",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.83,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_uva_madura.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Massa rosada e pontuações concêntricas"
+    },
+    {
+      "id": "COMP-R19",
+      "disease": "podridao_madura",
+      "conditions": [
+        {
+          "id": "exsudato_rosado",
+          "value": "sim"
+        },
+        {
+          "id": "maturacao",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.76,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_uva_madura.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Massa rosada em frutos em maturação"
+    },
+    {
+      "id": "COMP-R20",
+      "disease": "podridao_acida",
+      "conditions": [
+        {
+          "id": "odor_acetico",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.7,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_acida.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Odor acético característico, isoladamente não confirma doença"
+    },
+    {
+      "id": "COMP-R21",
+      "disease": "podridao_acida",
+      "conditions": [
+        {
+          "id": "odor_acetico",
+          "value": "sim"
+        },
+        {
+          "id": "moscas_vinagre",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.81,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_acida.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Odor acético e moscas do vinagre"
+    },
+    {
+      "id": "COMP-R22",
+      "disease": "podridao_acida",
+      "conditions": [
+        {
+          "id": "odor_acetico",
+          "value": "sim"
+        },
+        {
+          "id": "bagas_vazando_suco",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.76,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_acida.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Odor acético e bagas com ruptura e liberação de suco"
+    },
+    {
+      "id": "COMP-R23",
+      "disease": "escoriose",
+      "conditions": [
+        {
+          "id": "escoriacoes_ramos_base",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.7,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/escoriose.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Lesões superficiais na base de brotos novos"
+    },
+    {
+      "id": "COMP-R24",
+      "disease": "escoriose",
+      "conditions": [
+        {
+          "id": "escoriacoes_ramos_base",
+          "value": "sim"
+        },
+        {
+          "id": "folhas_deformadas",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.78,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/escoriose.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Escoriações basais nos ramos e deformação foliar associada (Embrapa Uzum)."
+    },
+    {
+      "id": "COMP-R25",
+      "disease": "ferrugem",
+      "conditions": [
+        {
+          "id": "pustulas_amarelas_inferiores",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.68,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/ferrugem.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Pústulas amarelas no verso da folha"
+    },
+    {
+      "id": "COMP-R26",
+      "disease": "ferrugem",
+      "conditions": [
+        {
+          "id": "pustulas_amarelas_inferiores",
+          "value": "sim"
+        },
+        {
+          "id": "manchas_angulares_superiores",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.82,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/ferrugem.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Pústulas inferiores e lesões angulares superiores"
+    },
+    {
+      "id": "COMP-R27",
+      "disease": "mancha_folhas",
+      "conditions": [
+        {
+          "id": "manchas_irregulares_halo_amarelo",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.69,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/mancha_folhas.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Manchas de contorno irregular com halo amarelo-esverdeado"
+    },
+    {
+      "id": "COMP-R28",
+      "disease": "mancha_folhas",
+      "conditions": [
+        {
+          "id": "manchas_irregulares_halo_amarelo",
+          "value": "sim"
+        },
+        {
+          "id": "folhas_maduras_afetadas",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.79,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/mancha_folhas.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Manchas irregulares com halo em folhas maduras"
+    },
+    {
+      "id": "COMP-R29",
+      "disease": "podridao_amarga",
+      "conditions": [
+        {
+          "id": "pustulas_escuras_bagas",
+          "value": "sim"
+        },
+        {
+          "id": "lesoes_concentricas",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.82,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_amarga.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Pontuações escuras sobre lesões concêntricas das bagas"
+    },
+    {
+      "id": "COMP-R30",
+      "disease": "podridao_amarga",
+      "conditions": [
+        {
+          "id": "pustulas_escuras_bagas",
+          "value": "sim"
+        },
+        {
+          "id": "bagas_mumificadas",
+          "value": "sim"
+        }
+      ],
+      "cf": 0.75,
+      "reference": "https://www.cnpuv.embrapa.br/uzum/uva/pod_amarga.html",
+      "origin": "regra complementar criada no VitiExpert; não presente no arquivo SINTA",
+      "basis": "Pústulas escuras e mumificação dos frutos"
+    }
+  ],
+  "doencas_previstas": [
+    "mildio",
+    "oidio",
+    "antracnose",
+    "podridao_cinzenta",
+    "podridao_madura",
+    "podridao_acida",
+    "escoriose",
+    "ferrugem",
+    "mancha_folhas",
+    "podridao_amarga"
+  ],
+  "hipoteses_nao_infecciosas_preservadas": [
+    "asfixia_radicular",
+    "declinio_morte"
+  ]
+}

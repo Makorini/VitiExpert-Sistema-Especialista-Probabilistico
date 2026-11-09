@@ -1,0 +1,393 @@
+{
+  "formato": "Expert SINTA BCM / extração específica verificada",
+  "arquivo_origem": "Teste.bcm",
+  "sha256": "8467bee583bb842db0dcadc52994fdad0b9cca80d0c731697a035470b91fe8cf",
+  "quantidades": {
+    "variaveis": 20,
+    "valores": 65,
+    "regras": 8,
+    "premissas": 21,
+    "conclusoes": 16,
+    "hipoteses": 8
+  },
+  "variaveis": [
+    "solo_encharcado",
+    "cacho_compacto",
+    "galhos_quebradicos",
+    "halo_avermelhado",
+    "manchas_marrons",
+    "manchas_foliares_tipicas",
+    "frutos_escurecidos",
+    "brotacao_fraca",
+    "folhas_murchas",
+    "manchas_amarelas",
+    "chuva_frequente",
+    "chuva_continua",
+    "mofo_cinza",
+    "lesoes_deprimidas_escuras",
+    "lesoes_concentricas",
+    "odor_acetico",
+    "poeira_branca",
+    "frutos_moles",
+    "diagnostico",
+    "maturacao"
+  ],
+  "valores": [
+    "podridao_cinzenta",
+    "podridao_madura",
+    "não sei",
+    "declinio_morte",
+    "sim",
+    "sim",
+    "não",
+    "não sei",
+    "não sei",
+    "não",
+    "sim",
+    "sim",
+    "não",
+    "não sei",
+    "não sei",
+    "não",
+    "sim",
+    "sim",
+    "não",
+    "não sei",
+    "não sei",
+    "não",
+    "sim",
+    "sim",
+    "não",
+    "não sei",
+    "não sei",
+    "não",
+    "sim",
+    "sim",
+    "não sei",
+    "não sei",
+    "sim",
+    "oidio",
+    "antracnose",
+    "não",
+    "podridao_acida",
+    "não sei",
+    "asfixia_radicular",
+    "sim",
+    "não",
+    "não",
+    "sim",
+    "não sei",
+    "não sei",
+    "sim",
+    "não",
+    "não",
+    "sim",
+    "não sei",
+    "não sei",
+    "sim",
+    "não",
+    "não",
+    "sim",
+    "não sei",
+    "não sei",
+    "sim",
+    "não",
+    "não",
+    "sim",
+    "mildio",
+    "não sei",
+    "não",
+    "não"
+  ],
+  "hipoteses": [
+    "antracnose",
+    "asfixia_radicular",
+    "declinio_morte",
+    "mildio",
+    "oidio",
+    "podridao_acida",
+    "podridao_cinzenta",
+    "podridao_madura"
+  ],
+  "regras": [
+    {
+      "id": "SINTA-R01",
+      "numero_original": 1,
+      "nome_original": "Regra 1",
+      "se_todas": [
+        {
+          "variavel": "manchas_amarelas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "folhas_murchas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "chuva_continua",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "mildio",
+          "cnf": 0.9
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "mildio",
+          "cnf": 0.8
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R02",
+      "numero_original": 2,
+      "nome_original": "Regra 2",
+      "se_todas": [
+        {
+          "variavel": "poeira_branca",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "chuva_frequente",
+          "operador": "=",
+          "valor": "não",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "oidio",
+          "cnf": 0.8
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "oidio",
+          "cnf": 0.9
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R03",
+      "numero_original": 3,
+      "nome_original": "Regra 3",
+      "se_todas": [
+        {
+          "variavel": "manchas_marrons",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "mofo_cinza",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "cacho_compacto",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_cinzenta",
+          "cnf": 0.8
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_cinzenta",
+          "cnf": 0.9
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R04",
+      "numero_original": 4,
+      "nome_original": "Regra 4",
+      "se_todas": [
+        {
+          "variavel": "lesoes_deprimidas_escuras",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "halo_avermelhado",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "antracnose",
+          "cnf": 0.9
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "antracnose",
+          "cnf": 0.7
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R05",
+      "numero_original": 5,
+      "nome_original": "Regra 5",
+      "se_todas": [
+        {
+          "variavel": "frutos_escurecidos",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "lesoes_concentricas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "maturacao",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_madura",
+          "cnf": 0.8
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_madura",
+          "cnf": 0.6
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R06",
+      "numero_original": 6,
+      "nome_original": "Regra 6",
+      "se_todas": [
+        {
+          "variavel": "frutos_moles",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "odor_acetico",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_acida",
+          "cnf": 0.8
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_acida",
+          "cnf": 0.7
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R07",
+      "numero_original": 7,
+      "nome_original": "Regra 7",
+      "se_todas": [
+        {
+          "variavel": "folhas_murchas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "solo_encharcado",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "manchas_foliares_tipicas",
+          "operador": "=",
+          "valor": "não",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "asfixia_radicular",
+          "cnf": 0.7
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "asfixia_radicular",
+          "cnf": 0.6
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R08",
+      "numero_original": 8,
+      "nome_original": "Regra 8",
+      "se_todas": [
+        {
+          "variavel": "folhas_murchas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "galhos_quebradicos",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "brotacao_fraca",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "declinio_morte",
+          "cnf": 0.8
+        },
+        {
+          "variavel": "diagnostico",
+          "valor": "declinio_morte",
+          "cnf": 0.6
+        }
+      ]
+    }
+  ],
+  "observacao": "Cada regra possui duas conclusões para o mesmo diagnóstico com CNFs distintos, como gravado no Teste.bcm. O motor calcula e combina ambas usando a fórmula de atualização de fator de certeza descrita no manual do SINTA. Isso é confiança possibilista, não probabilidade estatística."
+}

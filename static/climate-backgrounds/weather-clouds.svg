@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="cloud" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#323042" stop-opacity=".94"/><stop offset=".56" stop-color="#77798e" stop-opacity=".80"/><stop offset="1" stop-color="#bbc0c9" stop-opacity=".1"/></linearGradient>
+<filter id="soft"><feGaussianBlur stdDeviation="36"/></filter><filter id="mist"><feGaussianBlur stdDeviation="62"/></filter></defs>
+<g filter="url(#soft)"><ellipse cx="180" cy="105" rx="490" ry="135" fill="url(#cloud)"/><ellipse cx="610" cy="90" rx="530" ry="140" fill="url(#cloud)"/><ellipse cx="1220" cy="90" rx="540" ry="165" fill="url(#cloud)"/><ellipse cx="1480" cy="225" rx="360" ry="150" fill="url(#cloud)"/><ellipse cx="665" cy="270" rx="520" ry="75" fill="#8f919d" opacity=".30"/></g>
+<g filter="url(#mist)"><ellipse cx="380" cy="335" rx="470" ry="40" fill="#d6d4e1" opacity=".28"/><ellipse cx="1320" cy="425" rx="430" ry="55" fill="#cccddd" opacity=".24"/></g></svg>

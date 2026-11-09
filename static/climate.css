@@ -1,0 +1,344 @@
+/* ==============================================================
+   VitiExpert — CLIMA
+   Esta folha é carregada SOMENTE na rota /climate.
+   Fundo de vinhedo em tela inteira, detalhes em roxo e verde,
+   cartões de vidro translúcido — como a referência enviada.
+   ============================================================== */
+
+/* VISUAL CLIMA: imagem atrás da navegação, sem painel sólido.
+   Este arquivo só é carregado na rota /climate. */
+.page-climate {
+    min-height: 100vh;
+    background: #241726 !important;
+    color: #fff;
+}
+.page-climate .header {
+    position: absolute;
+    inset: 0 0 auto;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-bottom: 1px solid rgba(221, 190, 231, .20);
+    box-shadow: none;
+}
+/* Rodapé exclusivo da página de clima: compacto, alinhado à esquerda,
+   sem navegação e sem divisórias. Os rodapés das demais páginas não mudam. */
+.page-climate footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 17px clamp(20px, 6vw, 115px) 18px;
+    background: rgba(24, 13, 36, .88);
+}
+.page-climate .footer-top {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.page-climate .footer-top nav { display: none; }
+.page-climate .footer-brand {
+    display: inline-block;
+    font-size: 22px;
+    line-height: 1.12;
+}
+.page-climate .footer-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 0;
+    margin: 0;
+}
+.page-climate .footer-bottom p,
+.page-climate .footer-bottom small {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #ded1e5;
+}
+
+.climate-page { position: relative; isolation: isolate; min-height: 100vh; }
+.climate-page * { box-sizing: border-box; }
+.climate-app button, .climate-app input { font-family: var(--body-font); }
+.climate-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* Fundos dinâmicos por condição meteorológica.
+   Cada cena usa uma imagem própria coerente com dia/noite e com o tipo de clima. */
+.climate-scene {
+    --scene-filter: brightness(.84) saturate(.98);
+    --scene-tint: linear-gradient(100deg,rgba(27,13,36,.55) 0%,rgba(26,15,37,.25) 44%,rgba(10,8,14,.18) 100%),linear-gradient(0deg,rgba(13,9,21,.46) 0%,transparent 45%);
+    --scene-image: url('climate-backgrounds/partly-day.webp');
+    position: fixed;
+    z-index: -1;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: #2c1d32;
+}
+.climate-scene::before {
+    content: '';
+    position: absolute;
+    inset: -2%;
+    background: var(--scene-image) center center / cover no-repeat;
+    filter: var(--scene-filter);
+    transform: scale(1.03);
+    transition: filter .85s ease, background-image .4s ease;
+}
+.climate-scene::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--scene-tint);
+    transition: background .85s ease;
+}
+.climate-scene-clouds, .climate-scene-rain, .climate-scene-snow, .climate-scene-stars, .climate-scene-sun {
+    position: absolute;
+    inset: -2%;
+    opacity: 0;
+    transition: opacity .85s ease;
+}
+.climate-scene-clouds {
+    background: url('climate-backgrounds/weather-clouds.svg') center top / cover no-repeat;
+    filter: saturate(.65);
+}
+.climate-scene-rain {
+    inset: -50% -12%;
+    background-image: repeating-linear-gradient(103deg, transparent 0 25px, rgba(220,224,245,.14) 26px, transparent 27px, transparent 53px),repeating-linear-gradient(103deg, transparent 0 57px, rgba(204,197,238,.16) 58px,transparent 60px,transparent 89px);
+    background-size: 330px 330px, 440px 440px;
+    animation: viti-rain 7s linear infinite;
+}
+.climate-scene-snow {
+    inset: -26% -8%;
+    background: url('climate-backgrounds/weather-snow.webp') center top / 950px auto repeat;
+    animation: viti-snow 14s linear infinite;
+}
+.climate-scene-stars { background: url('climate-backgrounds/weather-stars.webp') center top / cover no-repeat; }
+.climate-scene-sun { background: radial-gradient(circle at 28% 18%,rgba(255,237,160,.52) 0 3%,rgba(255,160,93,.20) 18%,transparent 54%); }
+
+.climate-scene[data-scene="clear-day"]      { --scene-image: url('climate-backgrounds/clear-day.webp'); --scene-filter: brightness(.93) saturate(1.04); --scene-tint: linear-gradient(90deg,rgba(34,14,43,.56),rgba(40,19,38,.12) 74%),linear-gradient(0deg,rgba(20,10,21,.36),transparent 48%); }
+.climate-scene[data-scene="partly-day"]     { --scene-image: url('climate-backgrounds/partly-day.webp'); --scene-filter: brightness(.90) saturate(1.02); --scene-tint: linear-gradient(90deg,rgba(34,14,43,.60),rgba(40,19,38,.16) 74%),linear-gradient(0deg,rgba(20,10,21,.40),transparent 48%); }
+.climate-scene[data-scene="hot-day"]        { --scene-image: url('climate-backgrounds/hot-day.webp'); --scene-filter: sepia(.08) brightness(1.00) saturate(1.18) contrast(1.05); --scene-tint: linear-gradient(100deg,rgba(75,23,39,.52),rgba(127,48,22,.12) 75%),linear-gradient(0deg,rgba(50,21,37,.36),transparent 50%); }
+.climate-scene[data-scene="cloudy-day"]     { --scene-image: url('climate-backgrounds/cloudy-day.webp'); --scene-filter: brightness(.76) contrast(.95) saturate(.84); --scene-tint: linear-gradient(115deg,rgba(37,24,48,.44),rgba(49,47,66,.16)),linear-gradient(0deg,rgba(21,16,31,.42),transparent 50%); }
+.climate-scene[data-scene="fog-day"]        { --scene-image: url('climate-backgrounds/fog-day.webp'); --scene-filter: brightness(.78) contrast(.90) saturate(.78); --scene-tint: linear-gradient(115deg,rgba(37,24,48,.38),rgba(49,47,66,.12)),linear-gradient(0deg,rgba(21,16,31,.36),transparent 50%); }
+.climate-scene[data-scene="rain-day"]       { --scene-image: url('climate-backgrounds/rain-day.webp'); --scene-filter: brightness(.72) saturate(.86) contrast(.93); --scene-tint: linear-gradient(98deg,rgba(37,20,45,.48),rgba(24,23,40,.18)),linear-gradient(0deg,rgba(21,16,31,.54),transparent 52%); }
+.climate-scene[data-scene="storm-day"]      { --scene-image: url('climate-backgrounds/storm-day.webp'); --scene-filter: brightness(.61) saturate(.80) contrast(1.02); --scene-tint: linear-gradient(98deg,rgba(22,14,31,.58),rgba(17,18,28,.30)),linear-gradient(0deg,rgba(15,12,24,.62),transparent 52%); }
+.climate-scene[data-scene="snow-day"]       { --scene-image: url('climate-backgrounds/snow-day.webp'); --scene-filter: brightness(.82) saturate(.72); --scene-tint: linear-gradient(110deg,rgba(30,23,48,.48),rgba(156,156,189,.10)); }
+
+.climate-scene[data-scene="clear-night"]    { --scene-image: url('climate-backgrounds/clear-night.webp'); --scene-filter: brightness(.92) saturate(.96); --scene-tint: linear-gradient(90deg,rgba(21,9,37,.64),rgba(17,12,35,.22) 78%),linear-gradient(0deg,rgba(10,9,31,.30),transparent 64%); }
+.climate-scene[data-scene="partly-night"]   { --scene-image: url('climate-backgrounds/partly-night.webp'); --scene-filter: brightness(.90) saturate(.95); --scene-tint: linear-gradient(90deg,rgba(21,9,37,.66),rgba(17,12,35,.26) 78%),linear-gradient(0deg,rgba(10,9,31,.33),transparent 64%); }
+.climate-scene[data-scene="cloudy-night"]   { --scene-image: url('climate-backgrounds/cloudy-night.webp'); --scene-filter: brightness(.82) saturate(.90); --scene-tint: linear-gradient(90deg,rgba(21,9,37,.70),rgba(17,12,35,.32) 78%),linear-gradient(0deg,rgba(10,9,31,.39),transparent 64%); }
+.climate-scene[data-scene="fog-night"]      { --scene-image: url('climate-backgrounds/fog-night.webp'); --scene-filter: brightness(.82) saturate(.86); --scene-tint: linear-gradient(90deg,rgba(21,9,37,.68),rgba(17,12,35,.28) 78%),linear-gradient(0deg,rgba(10,9,31,.35),transparent 64%); }
+.climate-scene[data-scene="rain-night"]     { --scene-image: url('climate-backgrounds/rain-night.webp'); --scene-filter: brightness(.78) saturate(.90); --scene-tint: linear-gradient(90deg,rgba(21,9,37,.70),rgba(17,12,35,.30) 78%),linear-gradient(0deg,rgba(10,9,31,.40),transparent 64%); }
+.climate-scene[data-scene="storm-night"]    { --scene-image: url('climate-backgrounds/storm-night.webp'); --scene-filter: brightness(.72) saturate(.86) contrast(1.02); --scene-tint: linear-gradient(90deg,rgba(13,8,26,.74),rgba(12,11,24,.36) 78%),linear-gradient(0deg,rgba(10,9,31,.46),transparent 64%); }
+.climate-scene[data-scene="snow-night"]     { --scene-image: url('climate-backgrounds/snow-night.webp'); --scene-filter: brightness(.86) saturate(.82); --scene-tint: linear-gradient(90deg,rgba(21,9,37,.66),rgba(17,12,35,.28) 78%),linear-gradient(0deg,rgba(10,9,31,.32),transparent 64%); }
+
+.climate-scene[data-scene="hot-day"] .climate-scene-sun { opacity: 0; }
+.climate-scene[data-scene="cloudy-day"] .climate-scene-clouds { opacity: .84; }
+.climate-scene[data-scene="fog-day"] .climate-scene-clouds { opacity: .54; filter: blur(18px); }
+.climate-scene[data-scene="rain-day"] .climate-scene-clouds,
+.climate-scene[data-scene="storm-day"] .climate-scene-clouds,
+.climate-scene[data-scene="cloudy-night"] .climate-scene-clouds,
+.climate-scene[data-scene="fog-night"] .climate-scene-clouds,
+.climate-scene[data-scene="rain-night"] .climate-scene-clouds,
+.climate-scene[data-scene="storm-night"] .climate-scene-clouds,
+.climate-scene[data-scene="snow-day"] .climate-scene-clouds,
+.climate-scene[data-scene="snow-night"] .climate-scene-clouds { opacity: .76; }
+.climate-scene[data-scene="rain-day"] .climate-scene-rain,
+.climate-scene[data-scene="storm-day"] .climate-scene-rain,
+.climate-scene[data-scene="rain-night"] .climate-scene-rain,
+.climate-scene[data-scene="storm-night"] .climate-scene-rain { opacity: .92; }
+.climate-scene[data-scene$="-night"] .climate-scene-stars { opacity: .86; }
+.climate-scene[data-scene="cloudy-night"] .climate-scene-stars,
+.climate-scene[data-scene="fog-night"] .climate-scene-stars,
+.climate-scene[data-scene="rain-night"] .climate-scene-stars,
+.climate-scene[data-scene="storm-night"] .climate-scene-stars { opacity: .08; }
+.climate-scene[data-scene="snow-day"] .climate-scene-snow,
+.climate-scene[data-scene="snow-night"] .climate-scene-snow { opacity: .88; }
+@keyframes viti-snow { from { transform: translate(0,-2%); } to { transform: translate(-2%,12%); } }
+@keyframes viti-rain { from { transform: translate(0,-11%); } to { transform: translate(-2%, 18%); } }
+
+/* Limites e tipografia idênticos à estética da tela inicial. */
+.climate-content { position: relative; z-index: 1; width: min(1430px, calc(100% - 11.5vw)); margin: 0 auto; padding: 116px 0 76px; }
+.climate-heading { width: min(745px,100%); margin-bottom: 25px; text-shadow: 0 2px 19px rgba(15,8,24,.30); }
+.climate-eyebrow { color: #c8e59d; font: 700 12px/1.5 var(--body-font); letter-spacing: .17em; }
+.climate-title { margin: 10px 0 5px; font: 500 clamp(63px,6.2vw,101px)/1 var(--heading-font); letter-spacing: -.055em; color: #f9f2fd; }
+.climate-title span { display: inline-block; margin-left: 11px; color: #b8d68d; font-size: .48em; vertical-align: 15%; transform: rotate(-20deg); }
+.climate-heading p { max-width: 520px; margin: 4px 0 0; font: 400 clamp(17px,1.6vw,23px)/1.23 var(--heading-font); color: #fff; }
+.climate-app { display: grid; gap: 20px; }
+
+/* Barra de localização, integrada ao fundo, sem cartão opaco. */
+.climate-search-area { position: relative; width: min(855px,100%); margin: 0 0 5px; display: flex; min-height: 59px; align-items: center; border: 1px solid rgba(224,188,233,.37); border-radius: 40px; background: rgba(91,54,87,.44); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 1px rgba(255,255,255,.08); }
+.climate-search { position: relative; display: flex; flex: 1; min-width: 0; align-items: center; }
+.climate-search-mark { display: flex; flex: none; margin-left: 27px; width: 23px; height: 23px; color: #f4eaf8; pointer-events: none; }
+.climate-search-mark svg { width: 23px; height: 23px; stroke-width: 2.4; }
+.climate-search input { min-width: 0; width: 100%; height: 56px; padding: 0 8px 0 27px; border: 0; background: transparent; outline: 0; color: #fff; font-size: 16px; }
+.climate-search input::placeholder { color: rgba(255,245,255,.78); }
+.climate-search input::-webkit-search-cancel-button { cursor: pointer; filter: grayscale(1) invert(1); }
+.climate-search-button { padding: 9px 12px; margin-right: 9px; color: #e8f9c4; background: rgba(33,17,42,.25); border: 1px solid rgba(222,191,235,.15); border-radius: 30px; font-size: 12px; cursor: pointer; }
+.climate-search-button:hover,.climate-search-button:focus-visible { border-color: #b9d898; }
+.climate-location-button { display: flex; flex: none; gap: 12px; align-items: center; max-width: 36%; min-width: 178px; height: 36px; padding: 0 22px 0 24px; border: 0; border-left: 1px solid rgba(247,228,245,.24); background: transparent; color: #fff; cursor: pointer; font: 600 16px var(--heading-font); }
+.climate-location-button svg { width: 20px; height: 20px; flex: none; }
+.climate-location-button span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.climate-location-button:hover { color: #d6ecb7; }
+.climate-search-status { position: absolute; z-index: 4; top: calc(100% + 6px); left: 10px; max-width: 100%; margin: 0; padding: 0; color: #f3eff0; font-size: 11px; text-shadow: 0 1px 7px #08030d; }
+.climate-search-status:empty { display: none; }
+.climate-search-results { position: absolute; z-index: 20; top: calc(100% + 7px); left: 12px; right: 12px; max-height: 270px; padding: 7px; overflow-y: auto; border: 1px solid rgba(227,193,239,.44); border-radius: 16px; background: rgba(45,29,57,.95); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 20px 45px rgba(15,8,19,.52); }
+.climate-search-results button { display: flex; flex-direction: column; gap: 3px; width: 100%; padding: 12px 14px; border: 0; border-radius: 9px; background: transparent; text-align: left; color: #fff; cursor: pointer; }
+.climate-search-results button:hover,.climate-search-results button:focus-visible { background: rgba(185,216,152,.17); }
+.climate-search-results button strong { font-size: 14px; }
+.climate-search-results button span { color: #e1d2e8; font-size: 12px; }
+
+/* Cartões transparentes, com imagem visível por trás. */
+.climate-main-grid { display: grid; grid-template-columns: 1.07fr .96fr; gap: 19px; align-items: stretch; min-width: 0; }
+.climate-panel { min-width: 0; border: 1px solid rgba(230,198,239,.37); border-radius: 21px; background: rgba(47,29,46,.57); -webkit-backdrop-filter: blur(15px); backdrop-filter: blur(15px); box-shadow: 0 18px 30px rgba(12,7,17,.17),inset 0 1px rgba(255,255,255,.06); }
+.climate-current-panel,.climate-week-panel { min-height: 263px; padding: 19px 26px 20px; }
+.climate-card-heading { display: flex; align-items: flex-start; gap: 14px; }
+.climate-card-heading > div { min-width: 0; }
+.climate-heading-icon { flex: none; width: 28px; height: 28px; margin-top: 1px; color: #bae69b; stroke-width: 2.1; }
+.climate-card-heading h2 { margin: 0; font: 600 clamp(20px,1.8vw,25px)/1.13 var(--heading-font); color: #fff; }
+.climate-card-heading p { margin: 2px 0 0; font: 400 12px/1.3 var(--body-font); color: #e1d2e0; }
+.climate-current-body { display: grid; grid-template-columns: .83fr 1.08fr 1.25fr; align-items: center; min-height: 183px; margin-top: 0; }
+.climate-icon-column { display: grid; place-items: center; padding: 15px 19px 9px 0; }
+.climate-current-icon { width: min(115px,100%); color: #e7cafd; filter: drop-shadow(0 8px 8px rgba(16,8,24,.24)); }
+.climate-current-icon svg { width: 100%; height: auto; min-height: 96px; stroke-width: 1.3; }
+.climate-temperature-column { min-height: 138px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 6px 20px; border-left: 1px solid rgba(230,209,233,.31); border-right: 1px solid rgba(230,209,233,.31); }
+.climate-conditions { margin: 0 0 5px; font: 600 clamp(20px,2vw,28px)/1.22 var(--heading-font); color: #fff; }
+.climate-temperature { display: flex; align-items: flex-start; white-space: nowrap; font: 500 clamp(57px,5.3vw,91px)/1 var(--heading-font); letter-spacing: -.065em; color: #fff; }
+.climate-degrees { padding-top: 7px; font-size: .67em; letter-spacing: -.07em; }
+.climate-info-column { display: grid; align-content: center; padding: 5px 0 0 24px; gap: 12px; font: 500 clamp(12px,1.08vw,15px)/1.4 var(--body-font); }
+.climate-info-column p { display: flex; align-items: center; gap: 7px; margin: 0; white-space: nowrap; }
+.climate-info-column strong { font-weight: 600; }
+.climate-highlow { display: grid; gap: 4px; padding-bottom: 13px; border-bottom: 1px solid rgba(230,209,233,.3); font-size: clamp(15px,1.4vw,19px); }
+.climate-highlow span:first-child { min-width: 18px; display: inline-block; font-size: 24px; font-weight: 300; }
+.climate-up { color: #ed8473; } .climate-down { color: #8fbbe8; }
+.climate-details { display: grid; gap: 7px; }
+.climate-details p span:first-child { display: inline-block; min-width: 24px; color: #d5b4ef; font-size: 23px; line-height: 1; text-align: center; }
+.climate-feels-small { opacity: .9; }
+
+/* Próximos sete dias, 5 visíveis num monitor médio. */
+.climate-section-heading { align-items: center; }
+.climate-week-panel { padding-left: 21px; padding-right: 21px; }
+.climate-week-grid { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 4*7px)/5); gap: 7px; margin-top: 14px; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: rgba(185,216,152,.56) transparent; padding-bottom: 5px; scroll-snap-type: x proximity; }
+.climate-day { display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-width: 0; min-height: 174px; padding: 8px 4px 9px; border: 1px solid transparent; border-radius: 20px; text-align: center; color: #fff; scroll-snap-align: start; }
+.climate-day + .climate-day { box-shadow: -7px 0 0 -6px rgba(230,209,233,.3); border-radius: 8px; }
+.climate-day:first-child { border-color: #b9dc91; background: rgba(142,158,77,.22); box-shadow: inset 0 0 0 1px rgba(185,216,152,.08); }
+.climate-day-name { font: 600 clamp(15px,1.35vw,18px) var(--heading-font); }
+.climate-day-date { margin-top: -2px; font: 400 12px var(--body-font); color: #e7dce9; }
+.climate-day-icon { display: flex; justify-content: center; align-items: center; width: 50px; height: 52px; margin: 3px 0; color: #e5cafa; }
+.climate-day-icon svg { width: 48px; height: 48px; }
+.climate-day-temps { display: grid; gap: 3px; font: 600 clamp(13px,1.26vw,18px) var(--heading-font); }
+.climate-day-temps span + span { color: #e8d6e8; font-weight: 400; }
+.climate-day-rain { color: #d4eab4; font: 500 10px var(--body-font); }
+
+/* Hora a hora, sem dados fictícios. */
+.climate-hour-panel { min-height: 187px; padding: 15px 30px 14px; }
+.climate-hour-panel .climate-heading-icon { width: 26px; height: 26px; color: #fff; }
+.climate-hour-panel .climate-card-heading h2 { font-size: 24px; }
+.climate-city-time { margin-left: auto; font: 400 12px var(--body-font); color: #e7dce9; }
+.climate-hour-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(82px,1fr); gap: 0; overflow-x: auto; scrollbar-width: thin; scrollbar-color: rgba(185,216,152,.6) transparent; padding: 12px 0 2px; min-height: 124px; }
+.climate-hour { display: flex; flex-direction: column; align-items: center; gap: 4px; justify-content: space-around; min-width: 0; border-right: 1px solid rgba(230,209,233,.28); color: #fff; }
+.climate-hour:last-child { border-right: none; }
+.climate-hour:first-child { border: 1px solid #c0dc91; border-radius: 20px; background: rgba(148,160,77,.25); }
+.climate-hour-time { font: 600 14px var(--heading-font); }
+.climate-hour-icon { height: 38px; color: #e7cefa; }
+.climate-hour-icon svg { display: block; width: 35px; height: 35px; }
+.climate-hour-temp { font: 600 15px var(--heading-font); }
+
+.climate-source { margin: -6px 0 0; font: 400 10px var(--body-font); text-align: right; color: #e0d7dd; text-shadow: 0 1px 8px #1b0b20; }
+.climate-source a { color: #c4e49e; text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 1320px) {
+    .climate-content { width: calc(100% - 8vw); }
+    .climate-current-panel,.climate-week-panel { padding: 20px; }
+    .climate-current-body { grid-template-columns: .75fr 1fr 1.15fr; }
+    .climate-info-column { padding-left: 14px; font-size: 12px; }
+    .climate-temperature-column { padding: 9px 15px; }
+    .climate-hour-grid { grid-auto-columns: minmax(88px,1fr); }
+}
+@media (max-width: 1100px) {
+    .climate-main-grid { grid-template-columns: 1fr; }
+    .climate-current-body { grid-template-columns: .9fr 1fr 1.2fr; }
+    .climate-icon-column { padding: 15px 0; }
+    .climate-week-grid { grid-auto-columns: calc((100% - 4*8px)/5); }
+    .climate-current-panel,.climate-week-panel { min-height: 240px; }
+}
+@media (max-width: 650px) {
+    .climate-content { width: calc(100% - 34px); padding-top: 111px; }
+    .climate-heading p { font-size: 18px; }
+    .climate-title { font-size: 76px; }
+    .climate-search-area { min-height: 53px; }
+    .climate-search-mark { margin-left: 15px; width: 20px; height: 20px; }
+    .climate-search input { padding-left: 10px; font-size: 13px; height: 52px; }
+    .climate-search-button { display: none; }
+    .climate-location-button { min-width: 113px; max-width: 44%; height: 32px; padding: 0 10px; gap: 4px; font: 500 12px var(--body-font); }
+    .climate-location-button svg { width: 17px; height: 17px; }
+    .climate-current-panel,.climate-week-panel { padding: 18px 15px; }
+    .climate-current-body { grid-template-columns: 1fr 1.2fr; margin-top: 12px; }
+    .climate-icon-column { padding: 5px; }
+    .climate-current-icon { width: 90px; }
+    .climate-temperature-column { border-right: 0; }
+    .climate-info-column { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; align-items: start; gap: 14px; border-top: 1px solid rgba(230,209,233,.24); margin-top: 14px; padding: 15px 0 0; }
+    .climate-highlow { border-bottom: 0; padding-bottom: 0; }
+    .climate-details { gap: 5px; }
+    .climate-day { min-height: 160px; }
+    .climate-week-grid { grid-auto-columns: minmax(89px,29%); }
+    .climate-hour-panel { padding: 16px; }
+    .climate-hour-grid { grid-auto-columns: 77px; }
+    .climate-hour-panel .climate-card-heading h2 { font-size: 19px; }
+    .climate-city-time { display: none; }
+}
+@media (max-width: 380px) {
+    .climate-title { font-size: 67px; }
+    .climate-heading-icon { width: 22px; height: 22px; }
+    .climate-card-heading h2 { font-size: 19px; }
+    .climate-temperature { font-size: 56px; }
+    .climate-info-column { grid-template-columns: 1fr; }
+    .climate-highlow { border-bottom: 1px solid rgba(230,209,233,.24); padding-bottom: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .climate-scene *, .climate-scene::before, .climate-scene::after { animation: none !important; transition: none !important; }
+}
+/* A lista de cidades deve ficar acima dos cartões, mesmo com blur. */
+.climate-search-area { z-index: 10; }
+
+
+/* Modo claro na área Clima: céu continua real, cartões claros e legíveis. */
+html[data-theme="light"] .page-climate .climate-panel,
+html[data-theme="light"] .page-climate .climate-search-area {background: rgba(248,239,251,.89); color:#332038; border-color:rgba(113,70,133,.4); backdrop-filter:blur(18px);}
+html[data-theme="light"] .page-climate .climate-panel h2,
+html[data-theme="light"] .page-climate .climate-panel p,
+html[data-theme="light"] .page-climate .climate-panel strong,
+html[data-theme="light"] .page-climate .climate-panel .climate-temperature,
+html[data-theme="light"] .page-climate .climate-day,
+html[data-theme="light"] .page-climate .climate-hour,
+html[data-theme="light"] .page-climate .climate-search-area input,
+html[data-theme="light"] .page-climate .climate-location-button {color:#32213c;}
+html[data-theme="light"] .page-climate .climate-day-date,
+html[data-theme="light"] .page-climate .climate-day-temps span+span,
+html[data-theme="light"] .page-climate .climate-city-time {color:#574261;}
+html[data-theme="light"] .page-climate .climate-search-area input::placeholder {color:#6f587a;}
+html[data-theme="light"] .page-climate .climate-search-mark,
+html[data-theme="light"] .page-climate .climate-day-icon,
+html[data-theme="light"] .page-climate .climate-hour-icon,
+html[data-theme="light"] .page-climate .climate-current-icon {color:#715086;}
+html[data-theme="light"] .page-climate .climate-search-button {color:#4a6834; background:rgba(255,255,255,.58);}
+html[data-theme="light"] .page-climate .climate-day:first-child,
+html[data-theme="light"] .page-climate .climate-hour:first-child {background:rgba(146,186,104,.24);}
+html[data-theme="light"] .page-climate .climate-source {color:#fff;}
+html[data-theme="light"] .page-climate .climate-content .climate-heading {color:#fff;}
+
+html[data-theme="light"] .page-climate .climate-card-heading .climate-heading-icon {color:#467638;}
+html[data-theme="light"] .page-climate .climate-search-results {background:rgba(250,243,252,.97); color:#302038;}
+html[data-theme="light"] .page-climate .climate-search-results button {color:#302038;}
+html[data-theme="light"] .page-climate .climate-search-results button span {color:#615069;}
+html[data-theme="light"] .page-climate .climate-search-status {color:#fff;}
+
+/* O texto do título não herda o tamanho reduzido do ornamento da uva. */
+.page-climate .climate-title #climate-title-text {display:inline;margin-left:0;color:inherit;font-size:1em;vertical-align:baseline;transform:none;}
+html[data-theme="light"] .page-climate footer {background:#efe5f0;color:#32213b;}
+html[data-theme="light"] .page-climate footer .footer-brand {color:#32213b;}
+html[data-theme="light"] .page-climate footer .footer-bottom p,
+html[data-theme="light"] .page-climate footer .footer-bottom small {color:#4f3c5a;}

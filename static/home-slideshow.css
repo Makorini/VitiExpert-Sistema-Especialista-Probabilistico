@@ -1,0 +1,25 @@
+/* VitiExpert: somente a imagem do banner inicial alterna; demais páginas não são afetadas. */
+.page-home .hero {
+  background: #312333 url("home-slides/home-01.jpg") center center / cover no-repeat;
+}
+.page-home .hero .home-slide {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  transition: opacity 1.6s ease-in-out;
+}
+.page-home .hero .home-slide.is-visible { opacity: 1; }
+.page-home .hero .hero-shade { z-index: 1; pointer-events: none; }
+.page-home .hero .hero-content,
+.page-home .hero .scroll-mark { z-index: 2; }
+@media (max-width: 700px) {
+  .page-home .hero .home-slide { background-position: 58% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-home .hero .home-slide { transition: none; }
+}

@@ -1,67 +1,51 @@
-# VitiExpert — VERSÃO BASE EM TESTAGEM (não definitiva)
+# VitiExpert — Sistema Especialista para Doenças em Videiras
 
-**Status:** protótipo visual e funcional, sem validação científica. **Não apresentar como versão final.**
+Sistema web desenvolvido como projeto de Trabalho de Conclusão de Curso (TCC) em Ciência da Computação. Usa **Python e Flask** para analisar sintomas de videiras por meio de regras SE/ENTÃO e Fatores de Certeza.
 
-# VitiExpert — Protótipo Web v0.2.0
+## Requisitos
 
-Aplicação Flask demonstrativa para apoio educativo à identificação de doenças em videiras. Interface inspirada no layout aprovado, com imagem de vinhedo gerada por IA, cabeçalho translúcido, Times New Roman, paleta uva/folha e três idiomas (PT/EN/ES).
+- Python **3.11 ou superior**.
+- Conexão à internet para consultar a previsão do tempo e as notícias.
 
-## Como executar (Windows)
+## Como executar
+
+1. Extraia o arquivo ZIP.
+2. Abra um terminal **dentro da pasta `VitiExpert`** (onde está o arquivo `app.py`).
+3. Instale as dependências e inicie o servidor:
 
 ```powershell
-cd VitiExpert
-py -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 python app.py
 ```
 
-Abra `http://127.0.0.1:5000`.
+4. No navegador, acesse **http://127.0.0.1:5000**.
+5. Para encerrar o servidor, pressione `Ctrl+C` no terminal.
 
-## Testes automatizados
+## Como funciona
+
+- **Início:** apresentação do VitiExpert e notícias ligadas à viticultura.
+- **Sistema Especialista:** responda às 34 perguntas com **Sim**, **Não** ou **Não sei** e clique em **Analisar sintomas**. O sistema apresenta até três hipóteses, percentuais de confiança, sinais considerados e regras acionadas. É possível limpar as respostas e realizar nova análise.
+- **Doenças e Pragas:** catálogo com descrição de sinais e informações de referência, com pesquisa e filtros.
+- **Clima:** condições atuais e previsão para a semana, com fundos que mudam de acordo com horário e tempo; a cidade inicial é Videira (SC) e pode ser alterada.
+- **Interface:** oferece português, inglês e espanhol, além de temas claro e escuro.
+
+Os percentuais são **níveis de confiança calculados pelas regras**; o resultado é orientativo e não substitui uma avaliação agronômica.
+
+## Testes do programa
+
+Execute na pasta do projeto:
 
 ```powershell
 python -m pytest -q
 ```
 
-## Limitações e integridade acadêmica
+Os testes de software estão em `tests/`, os cenários automatizados em `knowledge/cenarios_sinteticos_10_doencas.csv`, e os resultados da verificação da entrega em `docs/RESULTADOS_DOS_TESTES.md`.
 
-- A interface e o motor demonstrativo estão implementados; as regras usam **pesos ilustrativos não validados**, e o resultado é um **escore**, não uma probabilidade calibrada nem um fator de certeza científico.
-- O sistema **não** implementa ainda a biblioteca Experta nem uma comparação executada com Expert SINTA.
-- Login, histórico, e-mail de confirmação, notícias e dados climáticos ao vivo estão **planejados, não implementados**.
-- Não utilizar resultados desta versão para orientar aplicação de defensivos ou substituir avaliação agronômica.
-- Para produção: configurar `SECRET_KEY` via ambiente, autenticação segura, CSRF, rate limiting, persistência e privacidade/LGPD.
+## Principais arquivos
 
-## Testes SINTA já observados pela usuária
-
-- ERRO-001: referência incorreta `manchas-nas-folhas` em vez de `manchas_nas_folhas`; corrigido.
-- TESTE-001: entrada Sim => `mildio`, CNF 100%, em regra puramente didática.
-- TESTE-002: entrada Não => nenhum valor encontrado.
-- TESTE-003: entrada Não sei => nenhum valor encontrado.
-
-O arquivo `.BCM` do protótipo feito no Windows não foi incluído; deverá ser copiado pela autora quando disponível.
-
-Veja `docs/PLANO_TCC.md` para o plano de validação científica.
-
-## Atualização visual 0.2 (20/10/2026)
-- Hero em altura de viewport (`100svh`), sem faixa de fundo antes da próxima seção.
-- Cabeçalho, idiomas e acesso redesenhados com controles discretos; navegação mobile.
-- Seções editoriais: recursos, funcionamento em 3 etapas, notícias e contextualização acadêmica.
-- Notícias: `/api/news` consulta o RSS do Google Notícias (busca sobre uva, videira e viticultura no Brasil), atualiza cache a cada 15 minutos e informa indisponibilidade quando a fonte não responde. Depende de internet; manchetes são de terceiros e podem não ser exclusivamente sobre uva. Não é atualização em tempo real contínua.
-- Telas internas harmonizadas com a página inicial: tipografia, espaçamento, linhas finas e sem grandes caixas.
-- Motor de diagnóstico continua demonstrativo; a base científica será migrada do Expert SINTA após validação.
-- O botão Entrar é apenas a rota de apresentação; autenticação ainda não implementada.
-
-Para atualizar: substitua os arquivos antigos pelos do novo ZIP, pare o servidor com Ctrl+C e execute `python app.py`. Faça Ctrl+F5 no navegador para atualizar o CSS.
-
-## Organização do código
-
-- `app.py`: Flask, traduções, notícias e pontuação ilustrativa.
-- `templates/site.html`: HTML das páginas, com blocos Jinja.
-- `static/style.css`: identidade visual e responsividade.
-- `static/app.js`: menu, idiomas, notícias e formulário.
-- `static/icone-vitiexpert.png`: ícone atualizado sem faixa branca.
-- `tests/`: testes automatizados básicos.
-- `docs/PLANO_TCC.md`: próximos passos científicos.
-
-Os comentários no código indicam a função dos principais blocos. Não há necessidade de comentar cada tag ou instrução trivial; a documentação prioriza os pontos importantes para manutenção e apresentação acadêmica.
+- `app.py` — servidor e rotas Flask.
+- `sinta_inference.py` e `complementary_inference.py` — motor de inferência.
+- `knowledge/` — base original Expert SINTA e regras complementares.
+- `templates/` e `static/` — interface e recursos visuais.
+- `tests/` — testes automatizados.
+- `docs/METODOLOGIA_E_VALIDACAO.md` — referência metodológica e limites de avaliação.
