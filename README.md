@@ -21,6 +21,20 @@ python app.py
 4. No navegador, acesse **http://127.0.0.1:5000**.
 5. Para encerrar o servidor, pressione `Ctrl+C` no terminal.
 
+### Jeito mais fácil (Windows): dois cliques
+
+Na pasta `VitiExpert`, dê **dois cliques em `iniciar_vitiexpert.bat`**. Ele prepara tudo sozinho (na primeira vez cria o ambiente `.venv` e instala as bibliotecas, o que precisa de internet), liga o servidor e abre o site no navegador. Para encerrar, feche a janela preta.
+
+### Apresentar em outro computador
+
+1. Instale o **Python 3.11 ou mais novo** (<https://www.python.org/downloads/>), marcando **"Add python.exe to PATH"**.
+2. Copie a pasta do projeto para o computador (pelo `git clone` ou por pen drive/HD externo).
+3. Para o código de confirmação ir por e-mail, copie também o arquivo **`.env`** (ele não vai pelo GitHub). Sem ele, o código aparece na janela preta, o que basta para demonstrar.
+4. Para levar as contas e o histórico já cadastrados, copie a pasta **`instance`** junto.
+5. Dê dois cliques em **`iniciar_vitiexpert.bat`**. **Faça isso uma vez antes do dia da apresentação**, com internet, para a instalação já ficar pronta.
+
+O Clima, as Notícias, o envio de e-mail e as fotos do catálogo (vindas da Embrapa) precisam de internet; o Sistema Especialista, os textos do catálogo e as contas funcionam sem.
+
 ## Como funciona
 
 - **Início:** apresentação do VitiExpert e notícias ligadas à viticultura.
