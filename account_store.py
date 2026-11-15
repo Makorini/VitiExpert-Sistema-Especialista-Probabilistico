@@ -3,6 +3,11 @@
 Isolamento por usuário: TODA consulta ao histórico recebe o user_id da sessão
 autenticada e filtra por ele. Nenhuma rota aceita o id de outro usuário, então
 uma conta nunca enxerga os dados de outra.
+
+Retenção: no ano vigente cada consulta fica guardada com todos os detalhes.
+Quando o ano termina, as consultas daquele ano viram um RESUMO MENSAL
+(total do mês e quantas vezes cada doença ficou em 1º lugar) e os detalhes
+são apagados, para não acumular dados que não serão mais usados.
 """
 from __future__ import annotations
 
@@ -43,6 +48,14 @@ CREATE TABLE IF NOT EXISTS consultations (
 );
 CREATE INDEX IF NOT EXISTS idx_consultations_user_date
     ON consultations(user_id, year, month);
+CREATE TABLE IF NOT EXISTS monthly_summaries (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    year INTEGER NOT NULL,
+    month INTEGER NOT NULL,
+    total INTEGER NOT NULL,
+    diseases_json TEXT NOT NULL,
+    PRIMARY KEY (user_id, year, month)
+);
 """
 
 
@@ -79,6 +92,7 @@ def ensure_schema(db):
 def init_db(app):
     with sqlite3.connect(app.config['DATABASE']) as db:
         ensure_schema(db)
+        archive_past_years(db)  # resume anos que já terminaram
     app.teardown_appcontext(close_db)
 
 
@@ -122,6 +136,14 @@ def set_verify_code(user_id, code_hash, expires):
     db.commit()
 
 
+def set_password(user_id, password_hash):
+    """Troca a senha (hash) e invalida qualquer código pendente."""
+    db = get_db()
+    db.execute('UPDATE users SET password_hash = ?, verify_code_hash = NULL, verify_expires = NULL,'
+               ' verify_attempts = 0 WHERE id = ?', (password_hash, user_id))
+    db.commit()
+
+
 def add_verify_attempt(user_id):
     db = get_db()
     db.execute('UPDATE users SET verify_attempts = verify_attempts + 1 WHERE id = ?', (user_id,))
@@ -129,9 +151,10 @@ def add_verify_attempt(user_id):
 
 
 def delete_history(user_id):
-    """Apaga todas as consultas do usuário, mantendo a conta."""
+    """Apaga todas as consultas e resumos do usuário, mantendo a conta."""
     db = get_db()
     cur = db.execute('DELETE FROM consultations WHERE user_id = ?', (user_id,))
+    db.execute('DELETE FROM monthly_summaries WHERE user_id = ?', (user_id,))
     db.commit()
     return cur.rowcount
 
@@ -139,8 +162,62 @@ def delete_history(user_id):
 def delete_user(user_id):
     db = get_db()
     db.execute('DELETE FROM consultations WHERE user_id = ?', (user_id,))
+    db.execute('DELETE FROM monthly_summaries WHERE user_id = ?', (user_id,))
     db.execute('DELETE FROM users WHERE id = ?', (user_id,))
     db.commit()
+
+
+# ------------------------ retenção: resumo anual -------------------------
+
+NO_HYPOTHESIS = '_sem_hipotese'
+
+
+def current_year():
+    return now_utc().astimezone(BRT).year
+
+
+def archive_past_years(db=None, user_id=None, year=None):
+    """Transforma as consultas de anos anteriores ao vigente em resumo mensal.
+
+    Para cada usuário e mês guarda o total e a contagem por doença (1º lugar);
+    depois apaga as consultas detalhadas daqueles anos. Pode ser chamada
+    várias vezes: se já houver resumo do mês, os números são somados.
+    Retorna quantas consultas foram resumidas.
+    """
+    db = db or get_db()
+    year = year or current_year()
+    where, params = 'year < ?', [year]
+    if user_id is not None:
+        where += ' AND user_id = ?'
+        params.append(user_id)
+    rows = db.execute(
+        f'SELECT user_id, year, month, top_disease, COUNT(*) AS n FROM consultations'
+        f' WHERE {where} GROUP BY user_id, year, month, top_disease', params,
+    ).fetchall()
+    if not rows:
+        return 0
+    months = {}
+    for uid, y, m, disease, n in rows:
+        months.setdefault((uid, y, m), {})[disease or NO_HYPOTHESIS] = n
+    archived = 0
+    for (uid, y, m), counts in months.items():
+        old = db.execute('SELECT total, diseases_json FROM monthly_summaries'
+                         ' WHERE user_id = ? AND year = ? AND month = ?', (uid, y, m)).fetchone()
+        total = sum(counts.values())
+        if old:
+            merged = json.loads(old[1])
+            for disease, n in counts.items():
+                merged[disease] = merged.get(disease, 0) + n
+            db.execute('UPDATE monthly_summaries SET total = ?, diseases_json = ?'
+                       ' WHERE user_id = ? AND year = ? AND month = ?',
+                       (old[0] + total, json.dumps(merged), uid, y, m))
+        else:
+            db.execute('INSERT INTO monthly_summaries (user_id, year, month, total, diseases_json)'
+                       ' VALUES (?, ?, ?, ?, ?)', (uid, y, m, total, json.dumps(counts)))
+        archived += total
+    db.execute(f'DELETE FROM consultations WHERE {where}', params)
+    db.commit()
+    return archived
 
 
 # ----------------------------- histórico --------------------------------
@@ -166,7 +243,9 @@ def save_consultation(user_id, answers, certainties, report):
 
 def available_years(user_id):
     rows = get_db().execute(
-        'SELECT DISTINCT year FROM consultations WHERE user_id = ? ORDER BY year DESC', (user_id,)
+        'SELECT year FROM consultations WHERE user_id = ?'
+        ' UNION SELECT year FROM monthly_summaries WHERE user_id = ? ORDER BY year DESC',
+        (user_id, user_id),
     ).fetchall()
     return [r['year'] for r in rows]
 
@@ -206,10 +285,44 @@ def history(user_id, year, month=None):
         params,
     ).fetchone()
     counts = {r['month']: r['n'] for r in by_month_rows}
+    disease_totals = {r['disease']: r['n'] for r in by_disease}
+    # Doenças por mês (para a tabela "Histórico por mês").
+    month_detail = {}
+    for row in db.execute(
+        'SELECT month, top_disease, COUNT(*) AS n FROM consultations WHERE user_id = ? AND year = ?'
+        ' AND top_disease IS NOT NULL GROUP BY month, top_disease', (user_id, year),
+    ):
+        month_detail.setdefault(row['month'], {})[row['top_disease']] = row['n']
+
+    # Anos que já terminaram: os números vêm do resumo mensal.
+    summaries = db.execute(
+        'SELECT month, total, diseases_json FROM monthly_summaries WHERE user_id = ? AND year = ?',
+        (user_id, year),
+    ).fetchall()
+    for row in summaries:
+        diseases = json.loads(row['diseases_json'])
+        counts[row['month']] = counts.get(row['month'], 0) + row['total']
+        detail = month_detail.setdefault(row['month'], {})
+        for disease, n in diseases.items():
+            if disease == NO_HYPOTHESIS:
+                continue
+            detail[disease] = detail.get(disease, 0) + n
+            if not month or row['month'] == month:
+                disease_totals[disease] = disease_totals.get(disease, 0) + n
+        if not month or row['month'] == month:
+            total += row['total']
+
+    def ranked(mapping):
+        return sorted(mapping.items(), key=lambda item: (-item[1], item[0]))
+
+    month_ranked = {m: ranked(d) for m, d in month_detail.items()}
     return {
         'total': total,
-        'by_disease': [(r['disease'], r['n']) for r in by_disease],
-        'by_month': [(m, counts.get(m, 0), top_by_month.get(m)) for m in range(1, 13)],
+        'archived': bool(summaries),
+        'by_disease': ranked(disease_totals),
+        'by_month': [(m, counts.get(m, 0), (month_ranked.get(m) or [(top_by_month.get(m), 0)])[0][0])
+                     for m in range(1, 13)],
+        'month_diseases': {m: month_ranked.get(m, [])[:3] for m in range(1, 13)},
         'recent': [{
             'created_at': datetime.fromisoformat(r['created_at']),
             'top_disease': r['top_disease'],

@@ -1,8 +1,9 @@
-"""Motor de Fatores de Certeza transposto de Teste.bcm para Python.
+"""Motor de Fatores de Certeza do VitiExpert, transposto do Expert SINTA para Python.
 
-A fonte original permanece em knowledge/Teste.bcm e seu equivalente JSON
-fiel em knowledge/sinta_teste_export.json. As regras são interpretadas sem
-pesos inventados, e cada conclusão mantém o CNF gravado pelo SINTA.
+A base de conhecimento é o arquivo do SINTA knowledge/VitiExpert10.bcm
+(10 doenças, 31 sintomas, 17 regras), exportado fielmente para
+knowledge/sinta_base_export.json por sinta_bcm_import.py. Todas as regras
+vêm desse arquivo; cada conclusão mantém o CNF gravado no SINTA.
 
 Este cálculo reproduz as funções PADRÃO do manual do Expert SINTA
 (seção 1.4 "Fatores de confiança" e seção 2.8 "Opções"):
@@ -22,9 +23,9 @@ from pathlib import Path
 from hashlib import sha256
 import json
 from sinta_i18n import label, disease_name, question_groups, UI
-from complementary_inference import evaluate_extension, get_extension
 
-SOURCE = Path(__file__).resolve().parent / 'knowledge' / 'sinta_teste_export.json'
+SOURCE = Path(__file__).resolve().parent / 'knowledge' / 'sinta_base_export.json'
+BCM_FILE = 'VitiExpert10.bcm'
 ALLOWED = {'sim','nao','nao_sei'}
 # Valor mínimo de confiança para uma regra ser aceita (padrão do Expert SINTA,
 # configurável no SINTA em Exibir > Opções > Fatores de confiança).
@@ -34,18 +35,18 @@ CONFIANCA_MINIMA = 0.5
 def knowledge():
     with SOURCE.open(encoding='utf-8') as fp:
         kb=json.load(fp)
-    if len(kb['regras']) != 8 or len(kb['hipoteses']) != 8:
-        raise ValueError('A base JSON não corresponde à fonte SINTA de oito regras')
-    original = SOURCE.parent / 'Teste.bcm'
+    if kb['arquivo_origem'] != BCM_FILE or len(kb['hipoteses']) != 10:
+        raise ValueError('A base JSON não corresponde ao VitiExpert10.bcm (10 doenças)')
+    original = SOURCE.parent / BCM_FILE
     if original.exists() and sha256(original.read_bytes()).hexdigest() != kb['sha256']:
-        raise ValueError('Teste.bcm foi modificado: execute python sinta_bcm_import.py para sincronizar a base')
+        raise ValueError(f'{BCM_FILE} foi modificado: execute python sinta_bcm_import.py para sincronizar a base')
     return kb
 
 
 def sanitize_answers(raw):
     if not isinstance(raw, dict):
         raise ValueError("O campo 'answers' deve ser um objeto com respostas")
-    valid=(set(knowledge()['variaveis'])-{'diagnostico'}) | set(get_extension()['novas_perguntas'])
+    valid=set(knowledge()['variaveis'])-{'diagnostico'}
     if len(raw)>len(valid) or any(key not in valid or type(value) is not str or value not in ALLOWED for key,value in raw.items()):
         raise ValueError('Pergunta ou resposta inválida')
     return {key:raw.get(key,'nao_sei') for key in valid}
@@ -149,39 +150,24 @@ def infer(raw, locale='pt', certainties=None):
         elif not no and yes and unknown:
             partial.append({'id':rule['id'], 'missing':unknown,'matched':len(yes)})
 
-    results=sorted(hits.values(),key=lambda r:(-r['confidence'],r['id']))
-    for item in results:
+    # Regras que concluem a mesma hipótese já foram acumuladas (x + y - x*y).
+    for item in hits.values():
         item['name']=disease_name(item['id'],locale)
         item['evidence']=[label(k,locale) for k in item['evidence']]
-    # Regras originais e complementares que concluem a mesma hipótese
-    # acumulam evidência como no SINTA: x + y - x*y.
-    extra, extra_questions=evaluate_extension(answers,locale,trust,rejected)
-    indexed={item['id']:item for item in results}
-    for disease, candidate in extra.items():
-        if disease not in indexed:
-            indexed[disease]=candidate
-            continue
-        entry=indexed[disease]
-        entry['confidence']=combine_certainties(entry['confidence'],candidate['confidence'])
-        entry['fired_rules'].extend(candidate['fired_rules'])
-        entry['evidence'].extend(t for t in candidate['evidence'] if t not in entry['evidence'])
-    for item in indexed.values():
         item['confidence_percent']=round(item['confidence']*100,1)
         item['certainty_factor']=round(item['confidence'],6)
         del item['confidence']
-    results=sorted(indexed.values(),key=lambda item:(-item['confidence_percent'],item['id']))
+    results=sorted(hits.values(),key=lambda item:(-item['confidence_percent'],item['id']))
     todo=[]
     for item in sorted(partial,key=lambda x:(-x['matched'],len(x['missing']))):
         for key in item['missing']:
             if key not in todo:todo.append(key)
-    for code in extra_questions:
-        if code not in todo: todo.append(code)
     suggestions=[{'id':code,'text':label(code,locale)} for code in todo[:4]]
     report={
         'results':results[:3], 'matched_hypotheses':len(results),
-        'analyzed_hypotheses':len(set(kb['hipoteses']) | set(get_extension()['doencas_previstas'])),
-        'diseases_assessed':len(get_extension()['doencas_previstas']),
-        'complementary_rule_count':len(get_extension()['regras']),
+        'analyzed_hypotheses':len(kb['hipoteses']),
+        'diseases_assessed':len(kb['hipoteses']),
+        'rule_count':len(kb['regras']),
         'fired_rule_count':sum(len(item['fired_rules']) for item in results),
         'suggested_questions':suggestions,
         'engine':'sinta_cf_python',

@@ -38,12 +38,16 @@ O Clima, as Notícias, o envio de e-mail e as fotos do catálogo (vindas da Embr
 ## Como funciona
 
 - **Início:** apresentação do VitiExpert e notícias ligadas à viticultura.
-- **Sistema Especialista:** responda às 34 perguntas com **Sim**, **Não** ou **Não sei** (em Sim/Não, ajuste também o seu grau de certeza) e clique em **Analisar sintomas**. O sistema apresenta até três hipóteses, percentuais de confiança, sinais considerados e regras acionadas. É possível limpar as respostas e realizar nova análise.
+- **Sistema Especialista:** responda às 31 perguntas com **Sim**, **Não** ou **Não sei** (em Sim/Não, ajuste também o seu grau de certeza) e clique em **Analisar sintomas**. O sistema apresenta até três hipóteses, percentuais de confiança, sinais considerados e regras acionadas. É possível limpar as respostas e realizar nova análise.
 - **Doenças e Pragas:** catálogo com descrição de sinais e informações de referência, com pesquisa e filtros.
 - **Clima:** condições atuais e previsão para a semana, com fundos que mudam de acordo com horário e tempo; a cidade inicial é Videira (SC) e pode ser alterada.
 - **Interface:** oferece português, inglês e espanhol, além de temas claro e escuro.
 
 Os percentuais são **níveis de confiança calculados pelas regras**; o resultado é orientativo e não substitui uma avaliação agronômica.
+
+## Base de conhecimento
+
+A base foi modelada no **Expert SINTA** (`knowledge/VitiExpert10.bcm`): 10 doenças, 31 sintomas e 17 regras, cada regra com um único CNF. O projeto da base (variáveis, perguntas, regras e consultas de teste) está em `docs/BASE_SINTA_10_DOENCAS.md`. O motor Python lê exatamente esse arquivo; se o `.bcm` mudar, rode `python sinta_bcm_import.py` para atualizar o JSON usado pelo motor.
 
 ## Como o cálculo funciona (baseado no Expert SINTA)
 
@@ -63,7 +67,17 @@ O login é **opcional**: sem conta, o Sistema Especialista funciona normalmente 
 - **Cadastro com verificação de e-mail:** o usuário recebe um código de 6 dígitos (válido por 15 minutos) e só consegue entrar depois de digitá-lo na tela "Confirmar e-mail".
 - **Histórico privado:** cada análise feita com a conta aberta é salva. Em **Minha conta** aparecem as doenças mais frequentes, as consultas por mês e uma tabela por mês e ano, com filtro de período.
 - **Dados isolados:** cada usuário vê só as próprias consultas. Senhas são guardadas apenas como *hash*. A conta e todo o histórico podem ser excluídos pelo próprio usuário.
+- **Esqueci minha senha:** na tela de login, o usuário recebe um código por e-mail e cria uma senha nova.
+- **Configurações** (menu "Minha conta" no cabeçalho): excluir os dados do histórico ou a conta inteira; sair da conta. Essas ações pedem confirmação.
 - O banco SQLite fica em `instance/vitiexpert.db`, criado automaticamente e fora do git.
+
+### Conta de demonstração (para apresentações)
+
+```powershell
+python criar_conta_demo.py
+```
+
+Cria a conta **demo@vitiexpert.local** (senha **Demo2026uva**) com consultas de exemplo do ano passado (já resumidas por mês) e do ano atual, para mostrar os gráficos e o resumo anual. Os dados são fictícios.
 
 ### Configurar o envio do código por e-mail
 
@@ -93,13 +107,16 @@ Execute na pasta do projeto:
 python -m pytest -q
 ```
 
-Os testes de software estão em `tests/`, os cenários automatizados em `knowledge/cenarios_sinteticos_10_doencas.csv`, e os resultados da verificação da entrega em `docs/RESULTADOS_DOS_TESTES.md`.
+Os testes de software estão em `tests/` (120 testes), as consultas de referência da base em `knowledge/cenarios_base_sinta.csv`, e o registro da verificação em `docs/RESULTADOS_DOS_TESTES.md`.
 
 ## Principais arquivos
 
 - `app.py` — servidor e rotas Flask.
-- `sinta_inference.py` e `complementary_inference.py` — motor de inferência.
-- `knowledge/` — base original Expert SINTA e regras complementares.
+- `sinta_inference.py` — motor de inferência (cálculo de Fatores de Confiança do Expert SINTA).
+- `sinta_bcm_import.py` — lê o arquivo do SINTA e gera `knowledge/sinta_base_export.json`.
+- `knowledge/VitiExpert10.bcm` — **base do Expert SINTA** com as 10 doenças (17 regras); `knowledge/gerar_vitiexpert10_bcm.py` e `knowledge/bcm_writer.py` geram esse arquivo a partir de `docs/BASE_SINTA_10_DOENCAS.md`. O `Teste.bcm` é a base anterior, guardada como histórico.
+- `criar_conta_demo.py` — cria a conta de demonstração com histórico de exemplo.
+- `iniciar_vitiexpert.bat` — inicia o sistema com dois cliques (Windows).
 - `accounts.py`, `account_store.py`, `account_mail.py` e `account_i18n.py` — contas, banco de dados, e-mail e textos da área de conta.
 - `templates/` e `static/` — interface e recursos visuais.
 - `tests/` — testes automatizados.

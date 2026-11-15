@@ -1,11 +1,12 @@
-"""Importador verificável da base Expert SINTA Teste.bcm.
+"""Importador verificável de bases do Expert SINTA (.bcm).
 
+Base em uso: knowledge/VitiExpert10.bcm (10 doenças da videira, 17 regras).
 O arquivo .BCM usa registros Pascal (strings com comprimento, registros de
 variáveis/valores de tamanho fixo) e REAL48 para os CNFs. Este parser valida
-o formato efetivamente encontrado na base Teste.bcm fornecida pela autora;
-não se apresenta como conversor universal de todas as versões do Expert SINTA.
+o formato efetivamente encontrado nas bases deste projeto (VitiExpert10.bcm e
+a base anterior Teste.bcm); não é um conversor universal do Expert SINTA.
 
-Uso: python sinta_bcm_import.py
+Uso: python sinta_bcm_import.py   (gera knowledge/sinta_base_export.json)
 """
 from __future__ import annotations
 from collections import defaultdict
@@ -15,8 +16,8 @@ import json
 import struct
 
 ROOT = Path(__file__).resolve().parent
-SOURCE = ROOT / 'knowledge' / 'Teste.bcm'
-TARGET = ROOT / 'knowledge' / 'sinta_teste_export.json'
+SOURCE = ROOT / 'knowledge' / 'VitiExpert10.bcm'
+TARGET = ROOT / 'knowledge' / 'sinta_base_export.json'
 
 
 def u16(data, start):
@@ -49,7 +50,7 @@ def decode(source=SOURCE):
     data = Path(source).read_bytes()
     if data[:10] != bytes.fromhex('2d 0c bd 16 63 28 f3 97 ca 22'):
         raise ValueError('Assinatura da base BCM não reconhecida')
-    # Deslocamento observado e verificado em Teste.bcm, sem inferir nomes
+    # Deslocamento observado e verificado nas bases do projeto, sem inferir nomes
     # a partir de memória residual em strings de tamanho fixo.
     pos = 0x713
     nvars = u16(data, pos); pos += 2
@@ -134,10 +135,10 @@ def decode(source=SOURCE):
         'valores':list(values.values()),
         'hipoteses':diagnostics,
         'regras':sorted(rules,key=lambda x:x['numero_original']),
-        'observacao':('Cada regra possui duas conclusões para o mesmo diagnóstico com CNFs distintos, '
-                      'como gravado no Teste.bcm. O motor calcula e combina ambas usando a fórmula '
-                      'de atualização de fator de certeza descrita no manual do SINTA. '
-                      'Isso é confiança possibilista, não probabilidade estatística.'),
+        'observacao':('Base exportada do arquivo do Expert SINTA. O motor Python aplica as funções '
+                      'padrão do manual (E = produto, conclusão = premissa x CNF, mesma hipótese '
+                      'por x + y - xy, confiança mínima de 50%). Fatores de confiança, não '
+                      'probabilidade estatística.'),
     }
 
 

@@ -1,0 +1,12 @@
+cenario;doenca_esperada;variaveis_sim;variaveis_nao;cnf_esperado;referencia_tecnica
+T01;mildio;manchas_oleosas,mofo_branco_inferior;;90;https://www.cnpuv.embrapa.br/uzum/uva/mildio.html
+T02;oidio;poeira_branca;;80;https://www.cnpuv.embrapa.br/uzum/uva/oidio.html
+T03;antracnose;lesoes_deprimidas_escuras,halo_avermelhado;;85;https://www.cnpuv.embrapa.br/uzum/uva/antracnose.html
+T04;podridao_cinzenta;mofo_cinza,cacho_compacto;;85;https://www.cnpuv.embrapa.br/uzum/uva/pod_cinzenta.html
+T05;podridao_madura;exsudato_rosado,maturacao;;85;https://www.cnpuv.embrapa.br/uzum/uva/pod_uva_madura.html
+T06;podridao_acida;odor_acetico,moscas_vinagre;;90;https://www.cnpuv.embrapa.br/uzum/uva/pod_acida.html
+T07;escoriose;escoriacoes_ramos_base;;80;https://www.cnpuv.embrapa.br/uzum/uva/escoriose.html
+T08;ferrugem;pustulas_amarelas_inferiores;;85;https://www.cnpuv.embrapa.br/uzum/uva/ferrugem.html
+T09;mancha_folhas;manchas_irregulares_halo_amarelo,folhas_maduras_afetadas;;85;https://www.cnpuv.embrapa.br/uzum/uva/mancha_folhas.html
+T10;podridao_amarga;pustulas_escuras_bagas,bagas_mumificadas;;85;https://www.cnpuv.embrapa.br/uzum/uva/pod_amarga.html
+T11;mildio;manchas_oleosas,mofo_branco_inferior,manchas_amarelas,folhas_murchas,chuva_continua;;97;https://www.cnpuv.embrapa.br/uzum/uva/mildio.html

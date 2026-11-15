@@ -38,17 +38,11 @@ def test_every_css_local_image_exists():
             assert path.is_file(), (css_path.name, value)
 
 
-def test_original_sinta_knowledge_is_unmodified():
-    data = (ROOT / 'knowledge/Teste.bcm').read_bytes()
-    export = json.loads((ROOT / 'knowledge/sinta_teste_export.json').read_text(encoding='utf-8'))
+def test_sinta_base_export_matches_bcm_file():
+    data = (ROOT / 'knowledge/VitiExpert10.bcm').read_bytes()
+    export = json.loads((ROOT / 'knowledge/sinta_base_export.json').read_text(encoding='utf-8'))
     assert hashlib.sha256(data).hexdigest() == export['sha256']
-
-
-def test_final_complementary_knowledge_covers_ten_diseases():
-    extension = json.loads((ROOT / 'knowledge/regras_complementares.json').read_text(encoding='utf-8'))
-    assert len(extension['regras']) == 22
-    assert len(extension['doencas_previstas']) == 10
-    assert len(extension['novas_perguntas']) == 15
+    assert len(export['hipoteses']) == 10 and len(export['regras']) == 17
 
 
 def test_tab_icon_is_original_and_favicon_route_works():

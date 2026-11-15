@@ -26,7 +26,7 @@ window.VITI_DISEASES = [
     "monitoring": "Observe folhas novas e gemas, de preferência com auxílio de lupa e orientação técnica.",
     "agent": "Calepitrimerus vitis",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/calepitrimerus.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/calepitrimerus_1.jpg",
+    "photo": "",
     "quarantine": false
   },
   {
@@ -78,7 +78,7 @@ window.VITI_DISEASES = [
     "monitoring": "Compare cachos e verifique histórico de floração, clima e nutrição.",
     "agent": "Millerandage / shot berries",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/bagoinha.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/bagoinha_1.jpg",
+    "photo": "",
     "quarantine": false
   },
   {
@@ -208,7 +208,7 @@ window.VITI_DISEASES = [
     "monitoring": "Observe idade das plantas, padrão de falhas e condição do sistema radicular.",
     "agent": "Phaeomoniella e Phaeoacremonium spp.",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/doenca_petri.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/doenca_petri_1.jpg",
+    "photo": "",
     "quarantine": false
   },
   {
@@ -221,7 +221,7 @@ window.VITI_DISEASES = [
     "monitoring": "Verifique frutos danificados e consulte orientações locais de monitoramento.",
     "agent": "Drosophila suzukii",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/drosofila.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/drosofila_1.jpg",
+    "photo": "",
     "quarantine": false
   },
   {
@@ -377,7 +377,7 @@ window.VITI_DISEASES = [
     "monitoring": "Fotografe galhas e sua localização, evitando espalhar material doente.",
     "agent": "Agrobacterium vitis",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/galha_coroa.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/galha_coroa_1.jpg",
+    "photo": "",
     "quarantine": false
   },
   {
@@ -611,7 +611,7 @@ window.VITI_DISEASES = [
     "monitoring": "Caso suspeite, não transporte material e procure o serviço oficial de defesa agropecuária.",
     "agent": "Lobesia botrana · praga quarentenária ausente no Brasil",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/traca_europeia.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/traca_europeia_1.jpg",
+    "photo": "",
     "quarantine": true
   },
   {
@@ -624,7 +624,7 @@ window.VITI_DISEASES = [
     "monitoring": "Inspecione flores e cachos e fotografe o inseto.",
     "agent": "Cryptoblabes gnidiella",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/traca_marrom.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/traca_marrom_1.jpg",
+    "photo": "",
     "quarantine": false
   },
   {
@@ -637,7 +637,7 @@ window.VITI_DISEASES = [
     "monitoring": "Observe folhas enroladas, inflorescências e cachos.",
     "agent": "Argyrotaenia sphaleropa",
     "source": "https://www.cnpuv.embrapa.br/uzum/uva/traca_verde.html",
-    "photo": "https://www.cnpuv.embrapa.br/uzum/uva/img/traca_verde_1.jpg",
+    "photo": "",
     "quarantine": false
   },
   {

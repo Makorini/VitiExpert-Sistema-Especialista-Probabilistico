@@ -12,7 +12,7 @@ def test_expert_page_and_scripts():
     html=response.get_data(as_text=True)
     assert 'id="tcc-diagnose-form"' in html
     assert 'expert.css' in html and 'expert.js' in html
-    assert html.count('type="radio"') == 34*3
+    assert html.count('type="radio"') == 31*3
     assert 'Teste.bcm' not in html
     assert 'dataset_note' not in html
     assert 'tcc-source-note' not in html
@@ -29,15 +29,15 @@ def test_sinta_mildio_and_negative_rule():
     data=result.get_json()
     assert data['engine']=='sinta_cf_python'
     assert data['results'][0]['id']=='mildio'
-    assert data['results'][0]['confidence_percent']==98
-    assert data['analyzed_hypotheses']==12
+    assert data['results'][0]['confidence_percent']==70   # R02: CNF 70
+    assert data['analyzed_hypotheses']==10
     assert data['diseases_assessed']==10
-    assert data['source_file']=='Teste.bcm'
+    assert data['rule_count']==17
+    assert data['source_file']=='VitiExpert10.bcm'
 
     o=client.post('/api/diagnose',json={'answers':{'poeira_branca':'sim','chuva_frequente':'nao'}}).json
     assert o['results'][0]['id']=='oidio'
-    # SINTA-R02 (98%) acumulada com COMP-R12 (68%): x + y - x*y = 99,4%
-    assert o['results'][0]['confidence_percent']==99.4
+    assert o['results'][0]['confidence_percent']==80   # R03: CNF 80
 
 
 def test_unknown_does_not_count_as_absent():
@@ -65,6 +65,6 @@ def test_api_accepts_user_certainty():
     client=app.test_client()
     r=client.post('/api/diagnose',json={'answers':{'poeira_branca':'sim'},'certainties':{'poeira_branca':50}})
     assert r.status_code==200
-    assert r.json['results'][0]['confidence_percent']==34.0  # 50% x CNF 68%
+    assert r.json['results'][0]['confidence_percent']==40.0  # 50% x CNF 80%
     bad=client.post('/api/diagnose',json={'answers':{'poeira_branca':'sim'},'certainties':{'poeira_branca':101}})
     assert bad.status_code==400

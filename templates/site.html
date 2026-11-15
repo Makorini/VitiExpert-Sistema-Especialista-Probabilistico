@@ -70,7 +70,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='expert.css') }}">
     {% endif %}
     <!-- Estilos da área de conta (login, cadastro e histórico). -->
-    {% if page in ('login', 'register', 'verify', 'account', 'settings', 'privacy') %}
+    {% if page in ('login', 'register', 'verify', 'forgot', 'reset', 'account', 'settings', 'privacy', 'notfound') %}
     <link rel="stylesheet" href="{{ url_for('static', filename='account.css') }}">
     {% endif %}
     <!-- Estilos isolados: carregados somente na página de clima. -->
@@ -84,7 +84,7 @@
 
 </head>
 
-<body class="page-{{ page }}{{ ' page-login' if page == 'verify' }}{{ ' page-account' if page == 'settings' }}">
+<body class="page-{{ page }}{{ ' page-login' if page in ('verify', 'forgot', 'reset') }}{{ ' page-account' if page == 'settings' }}{{ ' page-privacy' if page == 'notfound' }}">
 
     <!-- =====================================================
          1. CABEÇALHO E NAVEGAÇÃO
@@ -278,7 +278,7 @@
                 </div>
             </div>
             {% else %}
-            <a class="account-action {{ 'active' if page in ('login', 'register') }}" href="/login?lang={{ lang }}" title="{{ t.login }}">
+            <a class="account-action {{ 'active' if page in ('login', 'register', 'verify', 'forgot', 'reset') }}" href="/login?lang={{ lang }}" title="{{ t.login }}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg>
                 <span>{{ t.login }}</span>
             </a>
@@ -677,7 +677,17 @@
          ÁREA DA CONTA (templates/account_pages.html)
          ===================================================== -->
 
-    {% elif page in ('login', 'register', 'verify', 'account', 'settings') %}
+    {% elif page == 'notfound' %}
+        <main class="inner">
+            <div class="inner-heading">
+                <div class="section-label">VITIEXPERT · 404</div>
+                <h1 class="grad-title">{{ grad_text(t.notfound) }}</h1>
+                <p class="lead">{{ t.notfound_lead }}</p>
+                <p><a class="cta" href="/?lang={{ lang }}">{{ t.notfound_home }} ↗</a></p>
+            </div>
+        </main>
+
+    {% elif page in ('login', 'register', 'verify', 'forgot', 'reset', 'account', 'settings') %}
         {% include 'account_pages.html' %}
 
     <!-- =====================================================
@@ -706,6 +716,7 @@
                     <h2>{{ t.terms_data_title }}</h2>
                     <p><strong>🔒 {{ t.privacy_box }}</strong></p>
                     <p>{{ t.privacy_intro }}</p>
+                    <p>{{ t.terms_retention }}</p>
                 </section>
                 <section class="terms-section">
                     <h2>{{ t.terms_security_title }}</h2>
@@ -821,7 +832,7 @@
     {% if page == 'expert' %}
     <script defer src="{{ url_for('static', filename='expert.js') }}"></script>
     {% endif %}
-    {% if page in ('login', 'register', 'verify', 'account', 'settings') %}
+    {% if page in ('login', 'register', 'verify', 'forgot', 'reset', 'account', 'settings') %}
     <script defer src="{{ url_for('static', filename='account.js') }}"></script>
     {% endif %}
     <!-- Código isolado da previsão do tempo, somente na página /climate. -->

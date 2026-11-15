@@ -7,9 +7,9 @@ from __future__ import annotations
 QUESTION_LABELS = {
  'manchas_amarelas': ('As folhas apresentam manchas amareladas?', 'Are there yellow spots on the leaves?', '¿Las hojas tienen manchas amarillentas?'),
  'folhas_murchas': ('As folhas estão murchas?', 'Are the leaves wilted?', '¿Las hojas están marchitas?'),
- 'chuva_continua': ('Houve chuva contínua nos últimos dias?', 'Has there been continuous rain over the past days?', '¿Ha llovido continuamente en los últimos días?'),
+ 'chuva_continua': ('Choveu sem parar por vários dias seguidos?', 'Has it rained non-stop for several days in a row?', '¿Ha llovido sin parar durante varios días seguidos?'),
  'poeira_branca': ('Há uma camada de pó branco sobre folhas ou frutos?', 'Is there white powder on leaves or fruit?', '¿Hay una capa de polvo blanco en hojas o frutos?'),
- 'chuva_frequente': ('Tem chovido frequentemente?', 'Has it been raining frequently?', '¿Ha llovido con frecuencia?'),
+ 'chuva_frequente': ('Tem chovido em muitos dias nas últimas semanas, mesmo com intervalos?', 'Has it rained on many days over the last weeks, even with breaks?', '¿Ha llovido en muchos días en las últimas semanas, aunque con pausas?'),
  'manchas_marrons': ('Existem manchas marrons na planta?', 'Are there brown spots on the plant?', '¿Hay manchas marrones en la planta?'),
  'mofo_cinza': ('Existe mofo cinzento nos cachos?', 'Is gray mold visible on grape clusters?', '¿Hay moho gris en los racimos?'),
  'cacho_compacto': ('Os cachos são compactos, com bagas muito próximas?', 'Are the grape clusters tight and compact?', '¿Los racimos son compactos, con las bayas muy juntas?'),

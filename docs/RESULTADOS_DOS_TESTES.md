@@ -1,33 +1,35 @@
 # Registro de verificações — VitiExpert
 
-**Data:** 10/11/2026  
-**Escopo:** projeto entregue neste pacote, com 10 doenças, duas condições diferenciais, 34 perguntas e regras originais do Expert SINTA e regras complementares.
+**Data:** 15/11/2026
+**Escopo:** base do Expert SINTA com 10 doenças (`knowledge/VitiExpert10.bcm`: 31 sintomas, 17 regras), motor Python, interface em PT/EN/ES, contas de usuário e histórico.
 
 ## Verificações executadas
 
 | Verificação | Resultado |
 | --- | --- |
-| Suíte completa do pacote, incluindo rotas e APIs Flask | **51 testes aprovados** |
-| Primeira hipótese nos cenários fixos do CSV | **10 acertos em 10 cenários sintéticos** |
-| Respostas e rótulo de empate em português, inglês e espanhol | 6 verificações de interface por simulação de DOM com respostas reais da API |
-| Compilação sintática dos módulos Python | Aprovada |
-| Sintaxe dos arquivos JavaScript (`node --check`) | **8 arquivos aprovados** |
-| Renderização isolada do HTML/Jinja (5 páginas × 3 idiomas) | **15 renderizações aprovadas** |
-| Verificação de recursos referenciados nos arquivos CSS | **24 referências locais resolvidas** |
-| Integridade do arquivo de conhecimento `Teste.bcm` | Preservado, SHA-256: `8467bee583bb842db0dcadc52994fdad0b9cca80d0c731697a035470b91fe8cf` |
-| Regras complementares | **22 regras** preservadas integralmente da base definida |
+| Suíte completa (`python -m pytest -q`) | **120 testes aprovados** |
+| Base SINTA: integridade, regras do roteiro e cada regra disparando sozinha com o seu CNF (`tests/test_base_sinta.py`) | 45 testes aprovados |
+| Consultas de referência do roteiro (T01–T11, `knowledge/cenarios_base_sinta.csv`) | 11 de 11 com a doença e o CNF esperados |
+| Cálculo do manual do SINTA: E = produto, OU = c1 + c2 − c1·c2, conclusão = premissa × CNF, acúmulo x + y − xy, mínimo de 50% | Aprovado (exemplos do próprio manual: 56% e 94%) |
+| Contas: cadastro com código por e-mail, login, esqueci minha senha, isolamento entre usuários, retenção anual, exclusão de dados e da conta (`tests/test_accounts.py`) | 45 testes aprovados |
+| API, páginas, página 404, traduções, notícias e recursos visuais | 30 testes aprovados |
+| Gravador do formato `.bcm` (`knowledge/bcm_writer.py`) | Regravando o `Teste.bcm` original, o resultado é idêntico (variáveis, valores, CNFs byte a byte, regras e opções) |
+| Integridade da base | `VitiExpert10.bcm`, SHA-256 `a5f535008cdeeba5ce7822dd574fff0d8a1c1f491c1fc0be1a38d70bcda72623`, igual ao registrado em `sinta_base_export.json` |
+| Execução em computador "limpo" (`iniciar_vitiexpert.bat`) | Ambiente criado, bibliotecas instaladas e site no ar |
 
-Os testes automatizados de inferência usam **cenários sintéticos**. Os dez casos de classificação leem entradas e hipóteses esperadas de um CSV fixo com referências da Embrapa. Eles avaliam a execução do software, não a acurácia agronômica em campo.
+## Como reproduzir
 
-## Como reproduzir os testes completos
-
-Com Python 3.11 ou superior, na pasta principal do projeto:
+Com Python 3.11 ou superior, na pasta `VitiExpert`:
 
 ```powershell
 python -m pip install -r requirements.txt
 python -m pytest -q
 ```
 
+## Pendência de verificação no programa SINTA
+
+O arquivo `VitiExpert10.bcm` foi gerado por `knowledge/gerar_vitiexpert10_bcm.py` a partir do roteiro `docs/BASE_SINTA_10_DOENCAS.md`. Ainda deve ser **aberto no ExSINTA** para confirmar que o programa o aceita e repetir nele as consultas T01–T14, conferindo se o SINTA mostra os mesmos percentuais do Python.
+
 ## Limite da avaliação
 
-A validação técnica é distinta de uma avaliação agronômica independente: para comprovar desempenho diagnóstico em plantas reais, são necessários casos externos com diagnóstico de referência e revisão profissional das regras complementares. O procedimento recomendado está em `docs/METODOLOGIA_E_VALIDACAO.md`.
+Os testes verificam o software, não a acurácia agronômica. Os cenários são sintéticos e os CNFs das regras são heurísticos (escolhidos a partir das descrições da Embrapa). Para avaliar o desempenho em plantas reais são necessários casos independentes com diagnóstico de referência e a revisão das regras por especialista (ver `docs/METODOLOGIA_E_VALIDACAO.md`).

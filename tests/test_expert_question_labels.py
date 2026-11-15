@@ -11,7 +11,6 @@ sys.path.insert(0, str(PROJECT))
 
 from sinta_i18n import question_groups
 from sinta_inference import knowledge
-from complementary_inference import get_extension
 
 
 def test_expert_question_ids_are_hidden_in_all_languages():
@@ -27,9 +26,9 @@ def test_expert_question_ids_are_hidden_in_all_languages():
     markup = Template(html[label_start:label_end])
 
     for lang in ('pt', 'en', 'es'):
-        questions = [q for group in question_groups(knowledge()['variaveis']+list(get_extension()['novas_perguntas']), lang)
+        questions = [q for group in question_groups(knowledge()['variaveis'], lang)
                      for q in group['items']]
-        assert len(questions) == 34
+        assert len(questions) == 31
         for question in questions:
             rendered = markup.render(question=question)
             p = re.fullmatch(r'<p id="([^"]+)">(.*?)</p>', rendered, flags=re.DOTALL)

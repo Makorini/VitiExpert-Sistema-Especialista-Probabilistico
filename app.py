@@ -27,6 +27,7 @@ from urllib.parse import quote, urljoin, urlsplit
 from urllib.request import Request, urlopen
 
 from flask import (
+    abort,
     Flask,
     Response,
     jsonify,
@@ -36,7 +37,6 @@ from flask import (
 )
 
 from sinta_inference import infer as infer_sinta, sanitize_answers as sanitize_sinta_answers, sanitize_certainties, knowledge as get_sinta_knowledge
-from complementary_inference import get_extension as get_complementary_rules
 from sinta_i18n import UI as SINTA_UI, question_groups as get_sinta_question_groups
 from accounts import init_accounts, record_consultation
 
@@ -125,6 +125,9 @@ TRANSLATIONS = {'pt': {'home': 'Início',
         'news_source': 'Notícias de veículos externos · Atualização periódica · Fotos: fontes '
                        'originais · Ilustrações: IA',
         'privacy': 'Termos de uso e segurança',
+        'notfound': 'Página não encontrada',
+        'notfound_lead': 'O endereço que você abriu não existe ou foi alterado. Confira o link ou volte para o início.',
+        'notfound_home': 'Voltar para o início',
         'warning': 'Ferramenta educativa. Não substitui avaliação de engenheiro agrônomo ou '
                    'diagnóstico laboratorial.',
         'all': 'Todos os direitos reservados',
@@ -157,6 +160,9 @@ TRANSLATIONS = {'pt': {'home': 'Início',
                        'photos: publishers · Illustrations: AI · Titles machine-translated '
                        'from Portuguese',
         'privacy': 'Terms of use and security',
+        'notfound': 'Page not found',
+        'notfound_lead': 'The address you opened does not exist or has changed. Check the link or go back to the home page.',
+        'notfound_home': 'Back to home',
         'warning': 'Educational tool. Not a substitute for professional agronomic or '
                    'laboratory diagnosis.',
         'all': 'All rights reserved',
@@ -189,6 +195,9 @@ TRANSLATIONS = {'pt': {'home': 'Início',
                        'publicaciones originales · Ilustraciones: IA · Títulos traducidos '
                        'automáticamente del portugués',
         'privacy': 'Términos de uso y seguridad',
+        'notfound': 'Página no encontrada',
+        'notfound_lead': 'La dirección que abrió no existe o cambió. Revise el enlace o vuelva al inicio.',
+        'notfound_home': 'Volver al inicio',
         'warning': 'Herramienta educativa. No sustituye una evaluación agronómica '
                    'profesional.',
         'all': 'Todos los derechos reservados',
@@ -287,6 +296,14 @@ _WINE_PRODUCTION_RE = re.compile(
     r"produtor\w*|ind[uú]stria\w*|setor\w*|mercado)\b",
     re.IGNORECASE,
 )
+# Assuntos fora da viticultura que citam "uva" (saúde de animais, dietas,
+# receitas): ficam de fora mesmo com a palavra no título.
+_OFF_TOPIC_RE = re.compile(
+    r"\b(?:cachorr\w*|c[ãa]es|c[ãa]o|gatos?|pets?|veterin[áa]ri\w*|tutores?|"
+    r"rins?|renal|intoxica\w*|envenena\w*|dieta\w*|emagre\w*|receitas?|"
+    r"uva-passa|passas)\b",
+    re.IGNORECASE,
+)
 
 
 def _is_grape_news(title, description=""):
@@ -295,7 +312,7 @@ def _is_grape_news(title, description=""):
     O título precisa mencionar diretamente a cultura; matérias apenas sobre
     vinho só entram quando tratam da cadeia produtiva vitivinícola.
     """
-    if not title:
+    if not title or _OFF_TOPIC_RE.search(title):
         return False
     # Evita tratar 'Vinhedo' (município de SP) como referência à cultura.
     without_town = re.sub(r"\bVinhedo\s*\(SP\)\b", "", title, flags=re.I)
@@ -732,6 +749,16 @@ def favicon():
     return app.send_static_file("favicon-vitiexpert.png")
 
 
+@app.errorhandler(404)
+def page_not_found(_error):
+    """Página 404 com o visual do VitiExpert (APIs e arquivos seguem em texto)."""
+    if request.path.startswith(("/api/", "/static/")):
+        return ("Not found", 404)
+    code = lang()
+    return render_template("site.html", page="notfound", lang=code, t=TRANSLATIONS[code],
+                           tcc_question_groups=[], tx={}), 404
+
+
 @app.route("/")
 @app.route("/<page>")
 def pages(page="home"):
@@ -757,7 +784,7 @@ def pages(page="home"):
 
     # Retorna erro 404 para páginas inexistentes.
     if page not in allowed_pages:
-        return ("Not found", 404)
+        abort(404)
 
     # Obtém o idioma selecionado.
     code = lang()
@@ -768,7 +795,7 @@ def pages(page="home"):
         page=page,
         lang=code,
         t=TRANSLATIONS[code],
-        tcc_question_groups=get_sinta_question_groups(get_sinta_knowledge()["variaveis"] + list(get_complementary_rules()["novas_perguntas"]),code) if page == "expert" else [],
+        tcc_question_groups=get_sinta_question_groups(get_sinta_knowledge()["variaveis"],code) if page == "expert" else [],
         tx=SINTA_UI[code] if page == "expert" else {},
     )
 

@@ -1,0 +1,566 @@
+{
+  "formato": "Expert SINTA BCM / extração específica verificada",
+  "arquivo_origem": "VitiExpert10.bcm",
+  "sha256": "a5f535008cdeeba5ce7822dd574fff0d8a1c1f491c1fc0be1a38d70bcda72623",
+  "quantidades": {
+    "variaveis": 32,
+    "valores": 72,
+    "regras": 17,
+    "premissas": 32,
+    "conclusoes": 17,
+    "hipoteses": 10
+  },
+  "variaveis": [
+    "manchas_oleosas",
+    "mofo_branco_inferior",
+    "manchas_amarelas",
+    "folhas_murchas",
+    "chuva_continua",
+    "poeira_branca",
+    "bagas_rachadas",
+    "chuva_frequente",
+    "lesoes_deprimidas_escuras",
+    "halo_avermelhado",
+    "folhas_jovens_pontos_escuros",
+    "folhas_deformadas",
+    "mofo_cinza",
+    "cacho_compacto",
+    "exsudato_rosado",
+    "maturacao",
+    "frutos_escurecidos",
+    "lesoes_concentricas",
+    "odor_acetico",
+    "moscas_vinagre",
+    "frutos_moles",
+    "bagas_vazando_suco",
+    "escoriacoes_ramos_base",
+    "galhos_quebradicos",
+    "brotacao_fraca",
+    "pustulas_amarelas_inferiores",
+    "manchas_angulares_superiores",
+    "folhas_maduras_afetadas",
+    "manchas_irregulares_halo_amarelo",
+    "pustulas_escuras_bagas",
+    "bagas_mumificadas",
+    "diagnostico"
+  ],
+  "valores": [
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "sim",
+    "não",
+    "mildio",
+    "oidio",
+    "antracnose",
+    "podridao_cinzenta",
+    "podridao_madura",
+    "podridao_acida",
+    "escoriose",
+    "ferrugem",
+    "mancha_folhas",
+    "podridao_amarga"
+  ],
+  "hipoteses": [
+    "antracnose",
+    "escoriose",
+    "ferrugem",
+    "mancha_folhas",
+    "mildio",
+    "oidio",
+    "podridao_acida",
+    "podridao_amarga",
+    "podridao_cinzenta",
+    "podridao_madura"
+  ],
+  "regras": [
+    {
+      "id": "SINTA-R01",
+      "numero_original": 1,
+      "nome_original": "Regra 1",
+      "se_todas": [
+        {
+          "variavel": "manchas_oleosas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "mofo_branco_inferior",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "mildio",
+          "cnf": 0.9
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R02",
+      "numero_original": 2,
+      "nome_original": "Regra 2",
+      "se_todas": [
+        {
+          "variavel": "manchas_amarelas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "folhas_murchas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "chuva_continua",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "mildio",
+          "cnf": 0.7
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R03",
+      "numero_original": 3,
+      "nome_original": "Regra 3",
+      "se_todas": [
+        {
+          "variavel": "poeira_branca",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "oidio",
+          "cnf": 0.8
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R04",
+      "numero_original": 4,
+      "nome_original": "Regra 4",
+      "se_todas": [
+        {
+          "variavel": "bagas_rachadas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "chuva_frequente",
+          "operador": "=",
+          "valor": "não",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "oidio",
+          "cnf": 0.55
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R05",
+      "numero_original": 5,
+      "nome_original": "Regra 5",
+      "se_todas": [
+        {
+          "variavel": "lesoes_deprimidas_escuras",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "halo_avermelhado",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "antracnose",
+          "cnf": 0.85
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R06",
+      "numero_original": 6,
+      "nome_original": "Regra 6",
+      "se_todas": [
+        {
+          "variavel": "folhas_jovens_pontos_escuros",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "folhas_deformadas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "antracnose",
+          "cnf": 0.7
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R07",
+      "numero_original": 7,
+      "nome_original": "Regra 7",
+      "se_todas": [
+        {
+          "variavel": "mofo_cinza",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "cacho_compacto",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_cinzenta",
+          "cnf": 0.85
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R08",
+      "numero_original": 8,
+      "nome_original": "Regra 8",
+      "se_todas": [
+        {
+          "variavel": "exsudato_rosado",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "maturacao",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_madura",
+          "cnf": 0.85
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R09",
+      "numero_original": 9,
+      "nome_original": "Regra 9",
+      "se_todas": [
+        {
+          "variavel": "frutos_escurecidos",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "lesoes_concentricas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_madura",
+          "cnf": 0.6
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R10",
+      "numero_original": 10,
+      "nome_original": "Regra 10",
+      "se_todas": [
+        {
+          "variavel": "odor_acetico",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "moscas_vinagre",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_acida",
+          "cnf": 0.9
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R11",
+      "numero_original": 11,
+      "nome_original": "Regra 11",
+      "se_todas": [
+        {
+          "variavel": "frutos_moles",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "bagas_vazando_suco",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_acida",
+          "cnf": 0.6
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R12",
+      "numero_original": 12,
+      "nome_original": "Regra 12",
+      "se_todas": [
+        {
+          "variavel": "escoriacoes_ramos_base",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "escoriose",
+          "cnf": 0.8
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R13",
+      "numero_original": 13,
+      "nome_original": "Regra 13",
+      "se_todas": [
+        {
+          "variavel": "galhos_quebradicos",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "brotacao_fraca",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "escoriose",
+          "cnf": 0.55
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R14",
+      "numero_original": 14,
+      "nome_original": "Regra 14",
+      "se_todas": [
+        {
+          "variavel": "pustulas_amarelas_inferiores",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "ferrugem",
+          "cnf": 0.85
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R15",
+      "numero_original": 15,
+      "nome_original": "Regra 15",
+      "se_todas": [
+        {
+          "variavel": "manchas_angulares_superiores",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "folhas_maduras_afetadas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "ferrugem",
+          "cnf": 0.55
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R16",
+      "numero_original": 16,
+      "nome_original": "Regra 16",
+      "se_todas": [
+        {
+          "variavel": "manchas_irregulares_halo_amarelo",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "folhas_maduras_afetadas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "mancha_folhas",
+          "cnf": 0.85
+        }
+      ]
+    },
+    {
+      "id": "SINTA-R17",
+      "numero_original": 17,
+      "nome_original": "Regra 17",
+      "se_todas": [
+        {
+          "variavel": "pustulas_escuras_bagas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": false
+        },
+        {
+          "variavel": "bagas_mumificadas",
+          "operador": "=",
+          "valor": "sim",
+          "fim": true
+        }
+      ],
+      "entao": [
+        {
+          "variavel": "diagnostico",
+          "valor": "podridao_amarga",
+          "cnf": 0.85
+        }
+      ]
+    }
+  ],
+  "observacao": "Base exportada do arquivo do Expert SINTA. O motor Python aplica as funções padrão do manual (E = produto, conclusão = premissa x CNF, mesma hipótese por x + y - xy, confiança mínima de 50%). Fatores de confiança, não probabilidade estatística."
+}

@@ -4,6 +4,8 @@ Roteiro para cadastrar no **Expert SINTA** (`DoctorSinta-main/ExSINTA.exe`) a ba
 
 Salvar como: `VitiExpert/knowledge/VitiExpert10.bcm`
 
+> **Situação atual:** este arquivo já foi gerado automaticamente a partir das tabelas abaixo por `knowledge/gerar_vitiexpert10_bcm.py` e é a base usada pelo motor Python. Falta apenas **abri-lo no ExSINTA** (Arquivo → Abrir) para conferir as regras e repetir as consultas de teste da seção 6. Se for preciso alterar a base, edite as tabelas deste documento e rode o gerador novamente.
+
 ## O que muda em relação ao Teste.bcm
 
 | Problema no Teste.bcm + regras complementares | Na base nova |
@@ -27,10 +29,10 @@ Digite os nomes **exatamente assim** (minúsculas, sem acento, com `_`), porque 
 | 2 | mofo_branco_inferior | Há mofo branco na parte de baixo das folhas? |
 | 3 | manchas_amarelas | As folhas apresentam manchas amareladas? |
 | 4 | folhas_murchas | As folhas estão murchas? |
-| 5 | chuva_continua | Houve chuva contínua nos últimos dias? |
+| 5 | chuva_continua | Choveu sem parar por vários dias seguidos? |
 | 6 | poeira_branca | Há uma camada de pó branco sobre folhas ou frutos? |
 | 7 | bagas_rachadas | Há bagas com rachaduras na casca? |
-| 8 | chuva_frequente | Tem chovido frequentemente? |
+| 8 | chuva_frequente | Tem chovido em muitos dias nas últimas semanas, mesmo com intervalos? |
 | 9 | lesoes_deprimidas_escuras | Existem lesões escuras e afundadas? |
 | 10 | halo_avermelhado | As lesões apresentam um halo avermelhado? |
 | 11 | folhas_jovens_pontos_escuros | Folhas jovens apresentam pequenas manchas escuras? |

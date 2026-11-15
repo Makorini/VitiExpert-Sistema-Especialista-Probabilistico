@@ -259,3 +259,16 @@ html[data-theme="light"] .acc-setting { background: rgba(255,255,255,.35); borde
 /* Configurações agora tem só os dois cartões de exclusão. */
 .acc-settings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 860px) { .acc-settings-grid { grid-template-columns: 1fr; } }
+
+/* Aviso de ano resumido (retenção anual). */
+.acc-archived { border-left: 3px solid var(--accent); }
+.acc-archived h2 { margin-bottom: 8px; }
+.acc-summary-line { margin: 0 0 8px; color: var(--text); font-size: 15px; line-height: 1.6; }
+
+/* Lista que abre nos filtros Ano / Mês: o navegador desenha as opções com
+   fundo próprio; definimos as cores para ficarem legíveis nos dois temas. */
+html[data-theme="dark"] .acc-filters select { color-scheme: dark; }
+html[data-theme="dark"] .acc-filters select option { background: #2a1a33; color: #f3eaf7; }
+html[data-theme="light"] .acc-filters select { color-scheme: light; }
+html[data-theme="light"] .acc-filters select option { background: #fbf6fc; color: #291a35; }
+.acc-filters select option:checked { background: #744796; color: #ffffff; }

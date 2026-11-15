@@ -23,13 +23,14 @@
 </span>
 {% endmacro %}
 
-{% if page in ('login', 'register', 'verify') %}
+{% if page in ('login', 'register', 'verify', 'forgot', 'reset') %}
 <main class="inner acc-page">
     <div class="acc-auth">
         <div class="inner-heading acc-heading">
             <div class="section-label">VITIEXPERT / {{ t.account_kicker }}</div>
             <h1 class="grad-title">{{ grad_text(t[page]) }}</h1>
-            <p class="lead">{{ t.login_lead if page == 'login' else (t.verify_lead if page == 'verify' else t.register_lead) }}</p>
+            <p class="lead">{{ {'login': t.login_lead, 'verify': t.verify_lead, 'register': t.register_lead,
+                                'forgot': t.forgot_lead, 'reset': t.reset_lead}[page] }}</p>
         </div>
 
         <section class="acc-card" aria-labelledby="acc-form-title">
@@ -47,7 +48,44 @@
                 </label>
                 <button class="acc-button" type="submit">{{ t.btn_login }}</button>
             </form>
+            <p class="acc-switch"><a href="/forgot?lang={{ lang }}">{{ t.forgot_link }}</a></p>
             <p class="acc-switch">{{ t.no_account }} <a href="/register?lang={{ lang }}">{{ t.register }}</a></p>
+
+            {% elif page == 'forgot' %}
+            <form method="post" action="/forgot?lang={{ lang }}" class="acc-form" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <label>{{ t.field_email }}
+                    <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254" autofocus>
+                </label>
+                <button class="acc-button" type="submit">{{ t.btn_send_code }}</button>
+            </form>
+            <p class="acc-switch"><a href="/login?lang={{ lang }}">← {{ t.login }}</a></p>
+
+            {% elif page == 'reset' %}
+            <form method="post" action="/reset?lang={{ lang }}" class="acc-form" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <label>{{ t.field_email }}
+                    <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254">
+                </label>
+                <label>{{ t.field_code }}
+                    <input class="acc-code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
+                           pattern="[0-9]{6}" maxlength="6" required placeholder="000000" autofocus>
+                </label>
+                <label>{{ t.field_new_password }}
+                    {{ password_field('reset-password', 'password', 'new-password', 'minlength="8" aria-describedby="acc-reset-hint"') }}
+                </label>
+                <small id="acc-reset-hint" class="acc-hint">{{ t.password_hint }}</small>
+                <label>{{ t.field_password2 }}
+                    {{ password_field('reset-password2', 'password2', 'new-password', 'minlength="8"') }}
+                </label>
+                <button class="acc-button" type="submit">{{ t.btn_reset }}</button>
+            </form>
+            <form method="post" action="/forgot?lang={{ lang }}" class="acc-form acc-resend">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="email" value="{{ form.email }}">
+                <p class="acc-switch">{{ t.no_code }}</p>
+                <button class="acc-button acc-secondary" type="submit">{{ t.btn_resend }}</button>
+            </form>
 
             {% elif page == 'verify' %}
             {# Confirmação do e-mail pelo código de 6 dígitos. #}
@@ -100,13 +138,6 @@
         <div class="section-label">VITIEXPERT / {{ t.account_kicker }}</div>
         <h1 class="grad-title">{{ grad_text(t.hello.format(name=current_user['name'])) }}</h1>
         <p class="lead">{{ t.account_lead }}</p>
-        <div class="acc-userline">
-            <span>{{ current_user['email'] }}</span>
-            <a class="acc-button acc-secondary" href="/settings?lang={{ lang }}">
-                <svg class="acc-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-                {{ t.settings }}
-            </a>
-        </div>
     </div>
 
     {{ flash(message) }}
@@ -141,9 +172,21 @@
         </div>
         <div class="acc-stat">
             <span>{{ t.stat_last }}</span>
-            <strong>{{ hist.last.strftime('%d/%m/%Y %H:%M') if hist.last else t.none }}</strong>
+            <strong>{{ hist.last.strftime('%d/%m/%Y %H:%M') if hist.last else (t.archived_short if hist.archived else t.none) }}</strong>
         </div>
     </section>
+
+    {# Ano que já terminou: só existe o resumo mensal (detalhes apagados). #}
+    {% if hist.archived %}
+    {% set peak = hist.by_month|sort(attribute='1', reverse=True)|first %}
+    <section class="acc-panel acc-archived" role="note">
+        <h2>{{ t.archived_title.format(year=year) }}</h2>
+        {% if hist.total and hist.by_disease %}
+        <p class="acc-summary-line">{{ t.summary_sentence.format(year=year, month=months_full[peak[0]-1]|lower, n=peak[1], disease=dname(hist.by_disease[0][0]), dn=hist.by_disease[0][1]) }}</p>
+        {% endif %}
+        <p class="acc-note">{{ t.archived_note }}</p>
+    </section>
+    {% endif %}
 
     {% if hist.total == 0 %}
     <section class="acc-panel acc-empty">
@@ -192,13 +235,15 @@
                 <thead><tr><th>{{ t.col_month }}</th><th>{{ t.col_count }}</th><th>{{ t.col_top }}</th></tr></thead>
                 <tbody>
                 {% for m, n, top in hist.by_month if n %}
-                <tr><td>{{ months_full[m-1] }}</td><td>{{ n }}</td><td>{{ dname(top) }}</td></tr>
+                <tr><td>{{ months_full[m-1] }}</td><td>{{ n }}</td>
+                    <td>{% for code, dn in hist.month_diseases[m] %}{{ dname(code) }} ({{ dn }}){{ ', ' if not loop.last }}{% else %}{{ t.none }}{% endfor %}</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
     </section>
 
+    {% if hist.recent %}
     <section class="acc-panel">
         <h2>{{ t.table_recent }}</h2>
         <div class="acc-table-wrap">
@@ -219,6 +264,7 @@
         </div>
     </section>
     {% endif %}
+    {% endif %}
 
     <div class="acc-tooltip" id="acc-tooltip" role="tooltip" hidden></div>
 </main>
@@ -230,7 +276,6 @@
         <h1 class="grad-title">{{ grad_text(t.settings) }}</h1>
         <p class="lead">{{ t.settings_note }}</p>
         <div class="acc-userline">
-            <span>{{ current_user['email'] }}</span>
             <a class="acc-button acc-secondary" href="/account?lang={{ lang }}">← {{ t.account }}</a>
         </div>
     </div>

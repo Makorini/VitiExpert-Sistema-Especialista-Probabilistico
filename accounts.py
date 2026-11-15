@@ -81,17 +81,40 @@ def _safe_next(target):
     return None
 
 
-def _send_verification(user_id, name, email):
-    """Gera um novo código de 6 dígitos e envia por e-mail."""
+def _send_verification(user_id, name, email, purpose='verify'):
+    """Gera um novo código de 6 dígitos e envia por e-mail.
+
+    purpose='verify' confirma o cadastro; purpose='reset' redefine a senha.
+    O hash leva a finalidade junto, então um código não serve para a outra.
+    """
     code = f'{secrets.randbelow(1_000_000):06d}'
     expires = store.now_utc() + timedelta(minutes=CODE_MINUTES)
-    store.set_verify_code(user_id, _code_hash(user_id, code), expires)
-    intro = _txt('mail_intro')
+    store.set_verify_code(user_id, _code_hash(user_id, _purpose_code(purpose, code)), expires)
+    intro = _txt('mail_reset_intro' if purpose == 'reset' else 'mail_intro')
+    subject = _txt('mail_reset_subject' if purpose == 'reset' else 'mail_subject')
     expires_txt = _txt('mail_expires', minutes=CODE_MINUTES)
     ignore = _txt('mail_ignore')
     text = f'{intro}\n\n{code}\n\n{expires_txt}\n\n{ignore}\n\n— VitiExpert'
-    return send_mail(email, _txt('mail_subject'), text,
+    return send_mail(email, subject, text,
                      html=_verification_html(intro, code, expires_txt, ignore))
+
+
+def _purpose_code(purpose, code):
+    return code if purpose == 'verify' else f'{purpose}:{code}'
+
+
+def _check_code(user, code, purpose):
+    """Valida o código; devolve a chave da mensagem de erro ou None se estiver certo."""
+    if not user['verify_code_hash'] or not user['verify_expires'] \
+            or datetime.fromisoformat(user['verify_expires']) < store.now_utc():
+        return 'err_code_expired'
+    if user['verify_attempts'] >= CODE_MAX_ATTEMPTS:
+        return 'err_code_attempts'
+    if len(code) != 6 or not hmac.compare_digest(
+            _code_hash(user['id'], _purpose_code(purpose, code)), user['verify_code_hash']):
+        store.add_verify_attempt(user['id'])
+        return 'err_code'
+    return None
 
 
 def _verification_html(intro, code, expires_txt, ignore):
@@ -143,7 +166,7 @@ def _login_session(user):
 def login_required(view):
     def wrapped(*args, **kwargs):
         if g.user is None:
-            return redirect(url_for('accounts.login', lang=_lang(), next=request.path))
+            return redirect(url_for('accounts.login', lang=_lang(), next=request.full_path.rstrip('?')))
         return view(*args, **kwargs)
     wrapped.__name__ = view.__name__
     return wrapped
@@ -304,6 +327,63 @@ def resend():
     return redirect(url_for('accounts.verify', lang=_lang(), email=email))
 
 
+@bp.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    """Esqueci minha senha: envia um código para o e-mail da conta."""
+    if g.user is not None:
+        return redirect(url_for('accounts.settings', lang=_lang()))
+    message = None
+    email = (request.values.get('email') or '').strip().lower()[:254]
+    if request.method == 'POST':
+        if not _csrf_ok():
+            message = ('error', _txt('err_csrf'))
+        elif not EMAIL_RE.match(email):
+            message = ('error', _txt('err_email'))
+        else:
+            user = store.find_user_by_email(email)
+            status = 'sent'
+            if user is not None and user['verified'] and not _locked('reset:' + email):
+                _register_fail('reset:' + email)  # limita pedidos repetidos
+                status = _send_verification(user['id'], user['name'], email, purpose='reset')
+            # Mesma resposta exista ou não a conta (não revela cadastros).
+            session['account_flash'] = _mail_message(status, 'ok_reset_sent')
+            return redirect(url_for('accounts.reset', lang=_lang(), email=email))
+    return _render('forgot', message=message, form={'email': email})
+
+
+@bp.route('/reset', methods=['GET', 'POST'])
+def reset():
+    """Digita o código recebido e escolhe a senha nova."""
+    if g.user is not None:
+        return redirect(url_for('accounts.settings', lang=_lang()))
+    email = (request.values.get('email') or '').strip().lower()[:254]
+    message = None
+    if request.method == 'POST':
+        code = re.sub(r'\D', '', request.form.get('code', ''))[:6]
+        password = request.form.get('password', '')
+        user = store.find_user_by_email(email) if EMAIL_RE.match(email) else None
+        if not _csrf_ok():
+            message = ('error', _txt('err_csrf'))
+        elif not _valid_password(password):
+            message = ('error', _txt('err_password'))
+        elif password != request.form.get('password2', ''):
+            message = ('error', _txt('err_password2'))
+        elif user is None or not user['verified']:
+            message = ('error', _txt('err_code'))
+        else:
+            error = _check_code(user, code, 'reset')
+            if error:
+                message = ('error', _txt(error))
+            else:
+                store.set_password(user['id'], generate_password_hash(password))
+                with _fails_lock:
+                    _fails.pop(email, None)  # libera o login, se estava bloqueado
+                session['account_flash'] = ('ok', _txt('ok_password_changed'))
+                return redirect(url_for('accounts.login', lang=_lang()))
+    flash = session.pop('account_flash', None)
+    return _render('reset', message=message or flash, form={'email': email})
+
+
 @bp.post('/logout')
 def logout():
     if _csrf_ok():
@@ -320,6 +400,8 @@ def logout():
 def account():
     code = _lang()
     uid = g.user['id']
+    # Virou o ano? Resume as consultas antigas deste usuário antes de mostrar.
+    store.archive_past_years(user_id=uid)
     years = store.available_years(uid)
     current_year = store.now_utc().astimezone(store.BRT).year
     if current_year not in years:

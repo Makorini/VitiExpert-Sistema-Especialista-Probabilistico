@@ -114,3 +114,10 @@ def test_fallback_illustrations_exist_and_have_valid_webp_headers():
         assert data[:4] == b'RIFF'
         assert data[8:12] == b'WEBP'
         assert len(data) > 10_000
+
+
+def test_off_topic_grape_news_is_filtered():
+    assert not _is_grape_news('Veterinários alertam: uva e uva-passa podem causar lesão grave nos rins do cachorro')
+    assert not _is_grape_news('Receita de bolo com uvas para o fim de semana')
+    assert _is_grape_news('UVA/CEPEA: Granizo amplia perdas e oferta deve ser reduzida em Indaiatuba')
+    assert _is_grape_news('Festa da Uva de Jundiaí conquista prêmio nacional de sustentabilidade')
