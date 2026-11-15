@@ -49,3 +49,12 @@ def test_final_complementary_knowledge_covers_ten_diseases():
     assert len(extension['regras']) == 22
     assert len(extension['doencas_previstas']) == 10
     assert len(extension['novas_perguntas']) == 15
+
+
+def test_tab_icon_is_original_and_favicon_route_works():
+    from app import app
+    client = app.test_client()
+    html = client.get('/').get_data(as_text=True)
+    assert 'favicon-vitiexpert.png' in html and 'apple-touch-icon.png' in html
+    r = client.get('/favicon.ico')
+    assert r.status_code == 200 and r.mimetype == 'image/png'

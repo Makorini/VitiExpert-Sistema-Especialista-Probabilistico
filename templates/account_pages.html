@@ -1,0 +1,270 @@
+{# Páginas da conta: login, cadastro e histórico (incluídas pelo site.html). #}
+{% from '_title.html' import grad_text %}
+
+{% macro flash(message) %}
+    {% if message %}
+    <p class="acc-message acc-{{ message[0] }}" role="{{ 'alert' if message[0] == 'error' else 'status' }}">{{ message[1] }}</p>
+    {% endif %}
+{% endmacro %}
+
+{# Número com uma casa decimal no formato do idioma (68,0 em PT/ES; 68.0 em EN). #}
+{% macro pct(value) %}{{ ('%.1f'|format(value)) if lang == 'en' else ('%.1f'|format(value)).replace('.', ',') }}{% endmacro %}
+
+{# Campo de senha com botão de olho para mostrar/ocultar (account.js). #}
+{% macro password_field(id, name, autocomplete, extra='') %}
+<span class="acc-pass">
+    <input id="{{ id }}" type="password" name="{{ name }}" autocomplete="{{ autocomplete }}" required maxlength="128" {{ extra|safe }}>
+    <button class="acc-eye" type="button" aria-controls="{{ id }}" aria-pressed="false"
+            aria-label="{{ t.show_password }}" title="{{ t.show_password }}"
+            data-show="{{ t.show_password }}" data-hide="{{ t.hide_password }}">
+        <svg class="acc-eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="acc-eye-closed" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+    </button>
+</span>
+{% endmacro %}
+
+{% if page in ('login', 'register', 'verify') %}
+<main class="inner acc-page">
+    <div class="acc-auth">
+        <div class="inner-heading acc-heading">
+            <div class="section-label">VITIEXPERT / {{ t.account_kicker }}</div>
+            <h1 class="grad-title">{{ grad_text(t[page]) }}</h1>
+            <p class="lead">{{ t.login_lead if page == 'login' else (t.verify_lead if page == 'verify' else t.register_lead) }}</p>
+        </div>
+
+        <section class="acc-card" aria-labelledby="acc-form-title">
+            <h2 id="acc-form-title" class="acc-visually-hidden">{{ t[page] }}</h2>
+            {{ flash(message) }}
+
+            {% if page == 'login' %}
+            <form method="post" action="/login?lang={{ lang }}{% if request.args.get('next') %}&next={{ request.args.get('next')|urlencode }}{% endif %}" class="acc-form" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <label>{{ t.field_email }}
+                    <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254">
+                </label>
+                <label>{{ t.field_password }}
+                    {{ password_field('login-password', 'password', 'current-password') }}
+                </label>
+                <button class="acc-button" type="submit">{{ t.btn_login }}</button>
+            </form>
+            <p class="acc-switch">{{ t.no_account }} <a href="/register?lang={{ lang }}">{{ t.register }}</a></p>
+
+            {% elif page == 'verify' %}
+            {# Confirmação do e-mail pelo código de 6 dígitos. #}
+            <form method="post" action="/verify?lang={{ lang }}" class="acc-form" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <label>{{ t.field_email }}
+                    <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254">
+                </label>
+                <label>{{ t.field_code }}
+                    <input class="acc-code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
+                           pattern="[0-9]{6}" maxlength="6" required placeholder="000000" autofocus>
+                </label>
+                <button class="acc-button" type="submit">{{ t.btn_verify }}</button>
+            </form>
+            <form method="post" action="/resend?lang={{ lang }}" class="acc-form acc-resend">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="email" value="{{ form.email }}">
+                <p class="acc-switch">{{ t.no_code }}</p>
+                <button class="acc-button acc-secondary" type="submit">{{ t.btn_resend }}</button>
+            </form>
+
+            {% else %}
+            <form method="post" action="/register?lang={{ lang }}" class="acc-form" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <label>{{ t.field_name }}
+                    <input type="text" name="name" value="{{ form.name }}" autocomplete="name" required maxlength="80">
+                </label>
+                <label>{{ t.field_email }}
+                    <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254">
+                </label>
+                <label>{{ t.field_password }}
+                    {{ password_field('register-password', 'password', 'new-password', 'minlength="8" aria-describedby="acc-pass-hint"') }}
+                </label>
+                <small id="acc-pass-hint" class="acc-hint">{{ t.password_hint }}</small>
+                <label>{{ t.field_password2 }}
+                    {{ password_field('register-password2', 'password2', 'new-password', 'minlength="8"') }}
+                </label>
+                <button class="acc-button" type="submit">{{ t.btn_register }}</button>
+            </form>
+            <p class="acc-switch">{{ t.have_account }} <a href="/login?lang={{ lang }}">{{ t.login }}</a></p>
+            <p class="acc-terms">{{ t.terms_link }} <a href="/privacy?lang={{ lang }}">{{ t.privacy }}</a>.</p>
+            {% endif %}
+        </section>
+    </div>
+</main>
+
+{% elif page == 'account' %}
+<main class="inner acc-page">
+    <div class="inner-heading acc-heading">
+        <div class="section-label">VITIEXPERT / {{ t.account_kicker }}</div>
+        <h1 class="grad-title">{{ grad_text(t.hello.format(name=current_user['name'])) }}</h1>
+        <p class="lead">{{ t.account_lead }}</p>
+        <div class="acc-userline">
+            <span>{{ current_user['email'] }}</span>
+            <a class="acc-button acc-secondary" href="/settings?lang={{ lang }}">
+                <svg class="acc-gear" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+                {{ t.settings }}
+            </a>
+        </div>
+    </div>
+
+    {{ flash(message) }}
+
+    {# Filtros de período em uma linha, acima dos gráficos. #}
+    <form class="acc-filters" method="get" action="/account">
+        <input type="hidden" name="lang" value="{{ lang }}">
+        <label>{{ t.filter_year }}
+            <select name="year">
+                {% for y in years %}<option value="{{ y }}" {{ 'selected' if y == year }}>{{ y }}</option>{% endfor %}
+            </select>
+        </label>
+        <label>{{ t.filter_month }}
+            <select name="month">
+                <option value="0">{{ t.all_months }}</option>
+                {% for m in range(1, 13) %}<option value="{{ m }}" {{ 'selected' if m == month }}>{{ months_full[m-1] }}</option>{% endfor %}
+            </select>
+        </label>
+        <button class="acc-button" type="submit">{{ t.apply }}</button>
+        <span class="acc-tz">{{ t.timezone_note }}</span>
+    </form>
+
+    {# Números de destaque do período. #}
+    <section class="acc-stats" aria-label="{{ t.stat_total }}">
+        <div class="acc-stat">
+            <span>{{ t.stat_total }}</span>
+            <strong>{{ hist.total }}</strong>
+        </div>
+        <div class="acc-stat">
+            <span>{{ t.stat_top }}</span>
+            <strong>{{ dname(hist.by_disease[0][0]) if hist.by_disease else t.none }}</strong>
+        </div>
+        <div class="acc-stat">
+            <span>{{ t.stat_last }}</span>
+            <strong>{{ hist.last.strftime('%d/%m/%Y %H:%M') if hist.last else t.none }}</strong>
+        </div>
+    </section>
+
+    {% if hist.total == 0 %}
+    <section class="acc-panel acc-empty">
+        <p>{{ t.empty }}</p>
+        <a class="acc-button" href="/expert?lang={{ lang }}">{{ t.go_expert }} ↗</a>
+    </section>
+    {% else %}
+
+    <div class="acc-grid">
+        {# Gráfico 1: magnitude por categoria -> barras horizontais, uma série. #}
+        <section class="acc-panel">
+            <h2>{{ t.chart_diseases }}</h2>
+            <p class="acc-note">{{ t.chart_diseases_note }}{% if month %} · {{ months_full[month-1] }}{% endif %} {{ year }}</p>
+            <ul class="acc-hbars" role="list">
+                {% for code, n in hist.by_disease %}
+                <li class="acc-hbar" tabindex="0" data-tip="{{ dname(code) }}: {{ n }} {{ t.consult_unit if n == 1 else t.consults_unit }}">
+                    <span class="acc-hbar-label">{{ dname(code) }}</span>
+                    <span class="acc-hbar-track"><span class="acc-hbar-fill" data-width="{{ (n / max_disease * 100)|round(1) }}"></span></span>
+                    <span class="acc-hbar-value">{{ n }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        {# Gráfico 2: contagem ao longo dos meses -> colunas, uma série. #}
+        <section class="acc-panel">
+            <h2>{{ t.chart_months.format(year=year) }}</h2>
+            <div class="acc-columns" role="img" aria-label="{{ t.chart_months.format(year=year) }}: {% for m, n, top in hist.by_month %}{{ months[m-1] }} {{ n }}{{ ', ' if not loop.last }}{% endfor %}">
+                {% for m, n, top in hist.by_month %}
+                <div class="acc-col {{ 'is-selected' if m == month }}" tabindex="0"
+                     data-tip="{{ months_full[m-1] }}: {{ n }} {{ t.consult_unit if n == 1 else t.consults_unit }}{% if top %} · {{ dname(top) }}{% endif %}">
+                    <span class="acc-col-value">{{ n if n else '' }}</span>
+                    <span class="acc-col-bar" data-height="{{ ((n / max_month * 100) if max_month else 0)|round(1) }}"></span>
+                    <span class="acc-col-label">{{ months[m-1] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    {# Tabela com os mesmos dados do gráfico mensal (acessível e exata). #}
+    <section class="acc-panel">
+        <h2>{{ t.table_months }} · {{ year }}</h2>
+        <div class="acc-table-wrap">
+            <table class="acc-table">
+                <thead><tr><th>{{ t.col_month }}</th><th>{{ t.col_count }}</th><th>{{ t.col_top }}</th></tr></thead>
+                <tbody>
+                {% for m, n, top in hist.by_month if n %}
+                <tr><td>{{ months_full[m-1] }}</td><td>{{ n }}</td><td>{{ dname(top) }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="acc-panel">
+        <h2>{{ t.table_recent }}</h2>
+        <div class="acc-table-wrap">
+            <table class="acc-table">
+                <thead><tr><th>{{ t.col_date }}</th><th>{{ t.col_hypothesis }}</th><th>{{ t.col_confidence }}</th><th>{{ t.col_answers }}</th><th>{{ t.col_others }}</th></tr></thead>
+                <tbody>
+                {% for c in hist.recent %}
+                <tr>
+                    <td>{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ dname(c.top_disease) }}</td>
+                    <td>{{ (pct(c.top_confidence) ~ '%') if c.top_confidence is not none else t.none }}</td>
+                    <td>{{ c.answered }}</td>
+                    <td>{% for r in c.results[1:] %}{{ dname(r.id) }} ({{ pct(r.confidence_percent) }}%){{ ', ' if not loop.last }}{% else %}{{ t.none }}{% endfor %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="acc-tooltip" id="acc-tooltip" role="tooltip" hidden></div>
+</main>
+{% elif page == 'settings' %}
+{# Configurações em página própria, separadas dos dados do histórico. #}
+<main class="inner acc-page">
+    <div class="inner-heading acc-heading">
+        <div class="section-label">VITIEXPERT / {{ t.account_kicker }}</div>
+        <h1 class="grad-title">{{ grad_text(t.settings) }}</h1>
+        <p class="lead">{{ t.settings_note }}</p>
+        <div class="acc-userline">
+            <span>{{ current_user['email'] }}</span>
+            <a class="acc-button acc-secondary" href="/account?lang={{ lang }}">← {{ t.account }}</a>
+        </div>
+    </div>
+
+    {{ flash(message) }}
+
+    {# ---------- Configurações: sair, excluir dados, excluir conta ---------- #}
+    <section class="acc-panel acc-settings" aria-label="{{ t.settings }}">
+
+        <div class="acc-settings-grid">
+            <div class="acc-setting acc-danger">
+                <h3>{{ t.data_title }}</h3>
+                <p class="acc-note">{{ t.data_note }}</p>
+                <form method="post" action="/account/delete-data?lang={{ lang }}" class="acc-delete" data-confirm="{{ t.confirm_data }}" data-confirm-yes="{{ t.btn_delete_data }}" data-confirm-danger>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <label>{{ t.field_password }}
+                        <input type="password" name="password" autocomplete="current-password" required maxlength="128">
+                    </label>
+                    <button class="acc-button acc-danger-button" type="submit">{{ t.btn_delete_data }}</button>
+                </form>
+            </div>
+
+            <div class="acc-setting acc-danger">
+                <h3>{{ t.delete_title }}</h3>
+                <p class="acc-note">{{ t.delete_note }}</p>
+                <form method="post" action="/account/delete?lang={{ lang }}" class="acc-delete" data-confirm="{{ t.confirm_account }}" data-confirm-yes="{{ t.btn_delete }}" data-confirm-danger>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <label>{{ t.field_password }}
+                        <input type="password" name="password" autocomplete="current-password" required maxlength="128">
+                    </label>
+                    <button class="acc-button acc-danger-button" type="submit">{{ t.btn_delete }}</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+{% endif %}

@@ -1,6 +1,7 @@
-"""Regressões da extensão das dez doenças. Casos derivados das próprias regras.
+"""Regressões da extensão das dez doenças. Cenários fixos com referência técnica.
 Isto verifica código e não equivale a validação agronômica independente.
 """
+import csv
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -9,16 +10,33 @@ from complementary_inference import get_extension
 from sinta_inference import infer, sanitize_answers, knowledge
 from sinta_i18n import question_groups
 
-@pytest.mark.parametrize('disease',get_extension()['doencas_previstas'])
-def test_ten_diseases_are_recognized_from_rule_scenarios(disease):
-    r=max((r for r in get_extension()['regras'] if r['disease']==disease),
-          key=lambda r:(len(r['conditions']),r['cf']))
-    answers={c['id']:c['value'] for c in r['conditions']}
-    result=infer(answers)
-    ids={x['id'] for x in result['results']}
-    assert disease in ids, (disease,ids)
-    picked=next(x for x in result['results'] if x['id']==disease)
-    assert picked['confidence_percent']>=round(r['cf']*100,1)
+SCENARIO_FILE = Path(__file__).resolve().parents[1] / 'knowledge' / 'cenarios_sinteticos_10_doencas.csv'
+with SCENARIO_FILE.open(encoding='utf-8-sig', newline='') as source:
+    SCENARIOS = list(csv.DictReader(source, delimiter=';'))
+
+
+def test_scenarios_cover_all_ten_diseases():
+    expected = [case['doenca_esperada'] for case in SCENARIOS]
+    assert sorted(expected) == sorted(get_extension()['doencas_previstas'])
+
+
+@pytest.mark.parametrize('case', SCENARIOS, ids=[case['cenario'] for case in SCENARIOS])
+def test_expected_disease_ranks_first(case):
+    answers = {}
+    for column, value in [('variaveis_sim', 'sim'), ('variaveis_nao', 'nao')]:
+        for symptom in filter(None, case[column].split(',')):
+            answers[symptom] = value
+    first = infer(answers)['results'][0]
+    assert first['id'] == case['doenca_esperada']
+    assert first['fired_rules']
+    assert first['confidence_percent'] > 0
+
+
+def test_complementary_rules_count_toward_total():
+    result = infer({'poeira_branca': 'sim', 'bagas_rachadas': 'sim'})
+    assert result['fired_rule_count'] == 2
+    assert {rule['id'] for rule in result['results'][0]['fired_rules']} == {'COMP-R12', 'COMP-R13'}
+
 
 @pytest.mark.parametrize('locale',('pt','en','es'))
 def test_localized_questionnaire_has_34_questions(locale):
@@ -42,14 +60,15 @@ def test_original_unchanged_and_noninfectious_distinct():
 def test_nonanswers_do_not_act_as_negatives():
     assert infer({})['results']==[]
     assert infer({'poeira_branca':'sim'})['results'][0]['confidence_percent']==68.0
-    assert infer({'poeira_branca':'sim','chuva_frequente':'nao'})['results'][0]['confidence_percent']==98.0
+    assert infer({'poeira_branca':'sim','chuva_frequente':'nao'})['results'][0]['confidence_percent']==99.4
     assert infer({'poeira_branca':'sim','chuva_frequente':'sim'})['results'][0]['confidence_percent']==68.0
 
 
-def test_overlapping_rules_use_max_not_sum():
+def test_same_hypothesis_accumulates_like_sinta():
+    # COMP-R09 78%, COMP-R10 67%, COMP-R11 65% -> x + y - x*y = 97,5%
     out=infer({'manchas_oleosas':'sim','mofo_branco_inferior':'sim','chuva_frequente':'sim'})
     chosen=next(x for x in out['results'] if x['id']=='mildio')
-    assert chosen['confidence_percent']==78.0
+    assert chosen['confidence_percent']==97.5
     assert any(r['id']=='COMP-R09' for r in chosen['fired_rules'])
     assert len(chosen['fired_rules'])>=2
 

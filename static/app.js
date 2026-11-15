@@ -171,6 +171,8 @@ if (newsGrid) {
     const useIllustration = (article, photo, media) => {
         if (article.dataset.illustrative === "true") return;
         article.dataset.illustrative = "true";
+        // Ilustrações são locais e leves: carregam já, sem esperar a rolagem.
+        photo.loading = "eager";
         photo.alt = illustrationText;
         const label = document.createElement("span");
         label.className = "news-illustrative-label";
@@ -179,7 +181,8 @@ if (newsGrid) {
         sequenceIllustrations();
     };
 
-    fetch("/api/news", { signal: AbortSignal.timeout(24000) })
+    const newsLang = ["pt", "en", "es"].includes(lang.slice(0, 2)) ? lang.slice(0, 2) : "pt";
+    fetch("/api/news?lang=" + newsLang, { signal: AbortSignal.timeout(30000) })
         .then(response => {
             if (!response.ok) throw new Error("News unavailable");
             return response.json();
@@ -207,10 +210,25 @@ if (newsGrid) {
                 photo.loading = "lazy";
                 photo.decoding = "async";
                 let attemptedOriginal = false;
+                let fallbackFailures = 0;
                 photo.addEventListener("error", () => {
                     if (article.dataset.illustrative === "true") {
-                        // Se o próprio arquivo local estiver corrompido, a
-                        // notícia continua na página sem uma imagem quebrada.
+                        // Um erro atrasado da foto original (já substituída)
+                        // não pode apagar a ilustração: só conta o erro da
+                        // própria ilustração local.
+                        const failed = photo.getAttribute("src") || "";
+                        if (!failed.includes("/news-fallback/")) return;
+                        fallbackFailures += 1;
+                        if (fallbackFailures < fallbackImages.length) {
+                            // Tenta a próxima ilustração da sequência.
+                            const next = fallbackImages[
+                                (fallbackImages.indexOf(failed) + 1) % fallbackImages.length
+                            ];
+                            photo.src = next;
+                            return;
+                        }
+                        // Nenhuma ilustração carregou: a notícia continua
+                        // na página sem uma imagem quebrada.
                         article.dataset.fallbackBroken = "true";
                         photo.remove();
                         return;
@@ -245,6 +263,11 @@ if (newsGrid) {
 
                 const title = document.createElement("h3");
                 title.textContent = item.title;
+                if (item.translated && typeof item.title_original === "string") {
+                    // Mostra o título original em português ao passar o mouse.
+                    title.title = item.title_original;
+                    title.lang = newsLang;
+                }
                 content.append(meta, title);
 
                 if (item.description) {
@@ -315,4 +338,65 @@ themeToggle?.addEventListener("click", () => {
     }
 
     updateThemeButton();
+});
+
+
+/* ============================================================
+   5. MENU "MINHA CONTA" NO CABEÇALHO
+   ============================================================ */
+const accountToggle = document.getElementById("account-toggle");
+const accountMenu = document.getElementById("account-menu");
+
+const closeAccountMenu = () => {
+    if (!accountMenu || accountMenu.hidden) return;
+    accountMenu.hidden = true;
+    accountToggle?.setAttribute("aria-expanded", "false");
+};
+
+accountToggle?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    accountMenu.hidden = !accountMenu.hidden;
+    accountToggle.setAttribute("aria-expanded", String(!accountMenu.hidden));
+});
+document.addEventListener("click", (event) => {
+    if (!event.target.closest(".account-control")) closeAccountMenu();
+});
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeAccountMenu();
+});
+
+
+/* ============================================================
+   6. CONFIRMAÇÃO ANTES DE SAIR OU EXCLUIR
+   Todo formulário com data-confirm pergunta antes de enviar.
+   ============================================================ */
+const confirmDialog = document.getElementById("viti-confirm");
+
+document.querySelectorAll("form[data-confirm]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+        if (form.dataset.confirmed === "true") return;
+        event.preventDefault();
+        const message = form.dataset.confirm;
+        // Sem suporte a <dialog>: usa a confirmação do navegador.
+        if (!confirmDialog || typeof confirmDialog.showModal !== "function") {
+            if (window.confirm(message)) { form.dataset.confirmed = "true"; form.requestSubmit(); }
+            return;
+        }
+        confirmDialog.querySelector("#viti-confirm-text").textContent = message;
+        const yes = confirmDialog.querySelector(".viti-confirm-yes");
+        const no = confirmDialog.querySelector(".viti-confirm-no");
+        yes.textContent = form.dataset.confirmYes || yes.textContent;
+        yes.classList.toggle("is-danger", form.hasAttribute("data-confirm-danger"));
+        const finish = (accepted) => {
+            confirmDialog.close();
+            yes.onclick = no.onclick = null;
+            if (accepted) { form.dataset.confirmed = "true"; form.requestSubmit(); }
+        };
+        yes.onclick = () => finish(true);
+        no.onclick = () => finish(false);
+        confirmDialog.oncancel = () => { yes.onclick = no.onclick = null; };
+        closeAccountMenu();
+        confirmDialog.showModal();
+        no.focus(); // o foco começa em "Cancelar", para evitar confirmar sem querer
+    });
 });

@@ -8,3 +8,9 @@ __pycache__/
 *.db
 *.sqlite3
 .vscode/
+
+# Banco de dados e chave secreta locais (contas de usuário)
+instance/
+
+# O modelo de configuração deve ir para o git (o .env real não).
+!.env.example

@@ -2,7 +2,7 @@
 
 ## Objetivo e escopo
 
-Aplicação de sistema especialista por regras SE/ENTÃO com Fatores de Certeza para classificação orientativa de hipóteses de doenças e condições de videiras. O questionário possui 34 variáveis observáveis, respostas Sim/Não/Não sei; resultado: até três hipóteses e rastreabilidade das regras acionadas.
+Aplicação de sistema especialista por regras SE/ENTÃO com Fatores de Certeza para classificação orientativa de hipóteses de doenças e condições de videiras. O questionário possui 34 variáveis observáveis, respostas Sim/Não/Não sei com grau de certeza do usuário (0–100%); resultado: até três hipóteses e rastreabilidade das regras acionadas.
 
 ### Dez doenças cobertas
 
@@ -10,11 +10,11 @@ Míldio, oídio, antracnose, podridão-cinzenta, podridão-da-uva-madura, podrid
 
 ## Fontes e proveniência
 
-O arquivo `knowledge/Teste.bcm` foi fornecido pela autora; importado em JSON por `sinta_bcm_import.py` com digest SHA-256 para detectar alterações. São oito regras originais e oito hipóteses. Os valores CNF originalmente registrados são preservados. O motor usa a combinação original `C=a+b-a*b` quando há múltiplas conclusões da mesma hipótese.
+O arquivo `knowledge/Teste.bcm` foi fornecido pela autora; importado em JSON por `sinta_bcm_import.py` com digest SHA-256 para detectar alterações. São oito regras originais e oito hipóteses. Os valores CNF originalmente registrados são preservados. O motor segue o cálculo do Expert SINTA: a confiança do usuário em cada resposta (c1, 0–100%) forma a premissa pelo conectivo E (produto, função padrão do manual, seção 1.4); a regra só é aceita com premissa de pelo menos 50% (valor mínimo padrão, seção 2.8); a conclusão vale premissa × CNF da regra (c2); múltiplas conclusões da mesma hipótese combinam-se por `C=a+b-a*b`.
 
 As **22 regras adicionais** de `knowledge/regras_complementares.json` descrevem sinais baseados em publicações da Embrapa, acessíveis na URL `reference` de cada regra. A associação entre sintomas e doença deriva dessas descrições; já os pesos `cf` foram escolhidos de forma **heurística para o software**, não são taxas de incidência, probabilidades clínicas ou coeficientes publicados pela Embrapa. Sempre identificar essa diferença na defesa.
 
-Um caminho alternativo só é acionado quando **todas** as suas condições estão satisfeitas. Se uma variável estiver marcada Não sei, ela não vale como Não. Entre regras que compartilham evidências não se soma o mesmo sintoma diversas vezes: usa-se o maior fator da hipótese. Essa escolha evita inflação, mas continua precisando de avaliação e ajuste externo.
+Um caminho alternativo só é acionado quando **todas** as suas condições estão satisfeitas. Se uma variável estiver marcada Não sei, ela não vale como Não. Regras originais e complementares que concluem a mesma hipótese acumulam evidência pela mesma fórmula do SINTA (`a+b-a*b`). Como regras alternativas podem compartilhar sintomas, isso tende a elevar a confiança; os pesos continuam precisando de avaliação e ajuste externo.
 
 Referências básicas de sinais:
 
@@ -33,11 +33,11 @@ Referências básicas de sinais:
 
 1. Integridade do arquivo-base e reprodução das condições do SINTA em Python.
 2. Fatores de certeza originais reproduzidos matematicamente.
-3. Acionamento das dez doenças em cenários artificiais construídos a partir das próprias regras.
+3. Classificação da doença esperada em primeiro lugar para cada um dos dez cenários fixos de knowledge/cenarios_sinteticos_10_doencas.csv, com sinais, respostas e referência técnica por doença.
 4. Tratamento de respostas ausentes, contraditórias e inválidas, sem conversão automática de Não sei em Não.
 5. Tradução e integridade das perguntas nos três idiomas.
 
-Esses testes **não** medem acurácia agronômica: os cenários sintéticos são gerados a partir das próprias condições e, portanto, não são independentes. Nenhum percentual apresentado como hipótese de doença deve ser interpretado como chance calibrada em uma população de plantas.
+Esses testes **não** medem acurácia agronômica: os cenários são sintéticos e compartilham referências com as regras. Nenhum percentual apresentado como hipótese de doença deve ser interpretado como chance calibrada em uma população de plantas.
 
 ## Pendências externas necessárias para uma validação agronômica conclusiva
 

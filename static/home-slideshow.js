@@ -7,7 +7,7 @@
 
   const photos = ['home-01.jpg', 'home-02.jpg', 'home-03.jpg', 'home-04.jpg', 'home-05.jpg']
     .map(name => new URL(`home-slides/${name}`, script.src).href);
-  const CHANGE_INTERVAL_MS = 3 * 60 * 1000;
+  const CHANGE_INTERVAL_MS = 2 * 60 * 1000; // troca a foto a cada 2 minutos
   const FADE_DURATION_MS = 1700;
   let currentIndex = 0;
   let activeLayer = null;

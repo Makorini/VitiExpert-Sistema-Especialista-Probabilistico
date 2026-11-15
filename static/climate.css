@@ -342,3 +342,9 @@ html[data-theme="light"] .page-climate footer {background:#efe5f0;color:#32213b;
 html[data-theme="light"] .page-climate footer .footer-brand {color:#32213b;}
 html[data-theme="light"] .page-climate footer .footer-bottom p,
 html[data-theme="light"] .page-climate footer .footer-bottom small {color:#4f3c5a;}
+
+/* Modo claro: textos coloridos dos cartões com contraste sobre o fundo claro. */
+html[data-theme="light"] .page-climate .climate-day-rain {color:#3d6b2a;}
+html[data-theme="light"] .page-climate .climate-up {color:#b8412d;}
+html[data-theme="light"] .page-climate .climate-down {color:#2d659e;}
+html[data-theme="light"] .page-climate .climate-panel p > span[aria-hidden="true"] {color:#715086;}

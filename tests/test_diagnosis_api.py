@@ -36,7 +36,8 @@ def test_sinta_mildio_and_negative_rule():
 
     o=client.post('/api/diagnose',json={'answers':{'poeira_branca':'sim','chuva_frequente':'nao'}}).json
     assert o['results'][0]['id']=='oidio'
-    assert o['results'][0]['confidence_percent']==98
+    # SINTA-R02 (98%) acumulada com COMP-R12 (68%): x + y - x*y = 99,4%
+    assert o['results'][0]['confidence_percent']==99.4
 
 
 def test_unknown_does_not_count_as_absent():
@@ -58,3 +59,12 @@ def test_validation_errors():
     client=app.test_client()
     for body in ({'answers':{'S99':'sim'}},{'answers':[]},{'answers':{'poeira_branca':'talvez'}},{'symptoms':['foo']}):
         assert client.post('/api/diagnose',json=body).status_code==400
+
+
+def test_api_accepts_user_certainty():
+    client=app.test_client()
+    r=client.post('/api/diagnose',json={'answers':{'poeira_branca':'sim'},'certainties':{'poeira_branca':50}})
+    assert r.status_code==200
+    assert r.json['results'][0]['confidence_percent']==34.0  # 50% x CNF 68%
+    bad=client.post('/api/diagnose',json={'answers':{'poeira_branca':'sim'},'certainties':{'poeira_branca':101}})
+    assert bad.status_code==400

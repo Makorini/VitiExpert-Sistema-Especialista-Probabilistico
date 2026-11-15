@@ -19,6 +19,7 @@ import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from html import unescape
 import re
+import json
 from email.utils import parsedate_to_datetime
 
 from datetime import datetime, timedelta, timezone
@@ -34,22 +35,64 @@ from flask import (
     session,
 )
 
-from sinta_inference import infer as infer_sinta, sanitize_answers as sanitize_sinta_answers, knowledge as get_sinta_knowledge
+from sinta_inference import infer as infer_sinta, sanitize_answers as sanitize_sinta_answers, sanitize_certainties, knowledge as get_sinta_knowledge
 from complementary_inference import get_extension as get_complementary_rules
 from sinta_i18n import UI as SINTA_UI, question_groups as get_sinta_question_groups
+from accounts import init_accounts, record_consultation
 
 
 # ============================================================
 # 2. CONFIGURAÇÃO DA APLICAÇÃO FLASK
 # ============================================================
 
-app = Flask(__name__)
+def _load_dotenv(path):
+    """Lê VARIAVEL=valor do arquivo .env (sem sobrescrever o ambiente)."""
+    try:
+        lines = open(path, encoding="utf-8").read().splitlines()
+    except OSError:
+        return
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
-# Assinatura da sessão para a preferência de idioma.
-# Em hospedagem, SECRET_KEY permite persistência entre reinicializações.
-app.secret_key = os.environ.get(
-    "SECRET_KEY",
-    os.urandom(32)
+
+_load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
+
+app = Flask(__name__)
+os.makedirs(app.instance_path, exist_ok=True)
+
+
+def _persistent_secret_key():
+    """SECRET_KEY do ambiente ou gerada uma vez em instance/secret_key.
+
+    A chave precisa sobreviver a reinicializações: ela assina a sessão de
+    login e os links de verificação de e-mail.
+    """
+    if os.environ.get("SECRET_KEY"):
+        return os.environ["SECRET_KEY"]
+    path = os.path.join(app.instance_path, "secret_key")
+    try:
+        with open(path, encoding="utf-8") as fp:
+            key = fp.read().strip()
+        if len(key) >= 32:
+            return key
+    except OSError:
+        pass
+    key = os.urandom(32).hex()
+    with open(path, "w", encoding="utf-8") as fp:
+        fp.write(key)
+    return key
+
+
+app.secret_key = _persistent_secret_key()
+app.config.update(
+    DATABASE=os.environ.get("VITIEXPERT_DB", os.path.join(app.instance_path, "vitiexpert.db")),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    PERMANENT_SESSION_LIFETIME=timedelta(days=30),
 )
 
 
@@ -81,12 +124,14 @@ TRANSLATIONS = {'pt': {'home': 'Início',
                             'novamente mais tarde.',
         'news_source': 'Notícias de veículos externos · Atualização periódica · Fotos: fontes '
                        'originais · Ilustrações: IA',
-        'privacy': 'Privacidade',
+        'privacy': 'Termos de uso e segurança',
         'warning': 'Ferramenta educativa. Não substitui avaliação de engenheiro agrônomo ou '
                    'diagnóstico laboratorial.',
         'all': 'Todos os direitos reservados',
-        'privacy_intro': 'O VitiExpert não exige cadastro e não guarda as respostas do '
-                         'questionário em banco de dados.',
+        'privacy_intro': 'O VitiExpert pode ser usado sem cadastro; nesse caso as respostas do '
+                         'questionário não são guardadas. Com uma conta, cada consulta fica salva '
+                         'no seu histórico privado, que só você vê e pode excluir a qualquer momento '
+                         'em Minha conta. A senha é guardada apenas de forma criptografada (hash).',
         'privacy_preferences': 'A preferência de idioma é mantida durante a sessão. O tema '
                                'visual e a cidade escolhida no clima podem ficar salvos no '
                                'navegador.',
@@ -109,13 +154,16 @@ TRANSLATIONS = {'pt': {'home': 'Início',
         'news_loading': 'Loading recent news…',
         'news_unavailable': 'News is temporarily unavailable. Please try again later.',
         'news_source': 'News from external publishers · Periodically updated · Original '
-                       'photos: publishers · Illustrations: AI',
-        'privacy': 'Privacy',
+                       'photos: publishers · Illustrations: AI · Titles machine-translated '
+                       'from Portuguese',
+        'privacy': 'Terms of use and security',
         'warning': 'Educational tool. Not a substitute for professional agronomic or '
                    'laboratory diagnosis.',
         'all': 'All rights reserved',
-        'privacy_intro': 'VitiExpert does not require registration and does not store '
-                         'questionnaire answers in a database.',
+        'privacy_intro': 'VitiExpert can be used without an account; in that case questionnaire '
+                         'answers are not stored. With an account, each consultation is saved in '
+                         'your private history, which only you can see and delete at any time in '
+                         'My account. Passwords are stored only as a cryptographic hash.',
         'privacy_preferences': 'Language preference is kept for the session. Your chosen '
                                'theme and weather city may be saved in the browser.',
         'privacy_external': 'Weather forecasts and news use external services with their own '
@@ -138,13 +186,16 @@ TRANSLATIONS = {'pt': {'home': 'Início',
         'news_unavailable': 'No hay noticias de viticultura disponibles en este momento. '
                             'Inténtelo más tarde.',
         'news_source': 'Noticias de medios externos · Actualización periódica · Fotos: '
-                       'publicaciones originales · Ilustraciones: IA',
-        'privacy': 'Privacidad',
+                       'publicaciones originales · Ilustraciones: IA · Títulos traducidos '
+                       'automáticamente del portugués',
+        'privacy': 'Términos de uso y seguridad',
         'warning': 'Herramienta educativa. No sustituye una evaluación agronómica '
                    'profesional.',
         'all': 'Todos los derechos reservados',
-        'privacy_intro': 'VitiExpert no requiere registro ni guarda las respuestas del '
-                         'cuestionario en una base de datos.',
+        'privacy_intro': 'VitiExpert puede usarse sin registro; en ese caso las respuestas del '
+                         'cuestionario no se guardan. Con una cuenta, cada consulta queda en su '
+                         'historial privado, que solo usted ve y puede eliminar en cualquier momento '
+                         'en Mi cuenta. La contraseña se guarda solo como hash criptográfico.',
         'privacy_preferences': 'El idioma se mantiene durante la sesión. El tema visual y la '
                                'ciudad del clima pueden guardarse en el navegador.',
         'privacy_external': 'El pronóstico del tiempo y las noticias utilizan servicios '
@@ -579,37 +630,107 @@ def grape_news_photo(token):
     return response
 
 
+# ------------------------------------------------------------
+# TRADUÇÃO AUTOMÁTICA DAS NOTÍCIAS (EN / ES)
+# ------------------------------------------------------------
+# As fontes são brasileiras e publicam em português. Para os idiomas
+# inglês e espanhol, título e resumo passam por tradução automática
+# (MyMemory, serviço gratuito sem chave). Cada texto é traduzido uma
+# única vez e guardado em cache; se o serviço falhar, mantém o original.
+_TRANSLATE_URL = "https://api.mymemory.translated.net/get"
+_TRANSLATE_TARGETS = {"en": "en", "es": "es"}
+_translation_cache = {}
+_translation_lock = threading.Lock()
+
+
+def _translate_text(text, target):
+    """Traduz um texto curto do português; retorna None em caso de falha."""
+    if not text or target not in _TRANSLATE_TARGETS:
+        return None
+    key = (target, text)
+    with _translation_lock:
+        if key in _translation_cache:
+            return _translation_cache[key]
+    url = (_TRANSLATE_URL + "?q=" + quote(text[:450])
+           + "&langpair=" + quote("pt-BR|" + _TRANSLATE_TARGETS[target]))
+    try:
+        req = Request(url, headers={"User-Agent": "VitiExpert/0.3 (educational news reader)"})
+        with urlopen(req, timeout=4) as response:
+            data = json.loads(response.read(200_000).decode("utf-8"))
+        translated = unescape(str(data["responseData"]["translatedText"] or "")).strip()
+        if (data.get("responseStatus") not in (200, "200") or not translated
+                or "MYMEMORY WARNING" in translated.upper()
+                or "QUERY LENGTH LIMIT" in translated.upper()):
+            return None
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    with _translation_lock:
+        if len(_translation_cache) > 600:
+            _translation_cache.clear()
+        _translation_cache[key] = translated
+    return translated
+
+
+def _translate_news(items, code):
+    """Devolve cópias das notícias traduzidas para en/es (pt fica igual)."""
+    if code not in _TRANSLATE_TARGETS or not items:
+        return items
+
+    def translate_item(item):
+        title = _translate_text(item.get("title", ""), code)
+        description = _translate_text(item.get("description", ""), code) if item.get("description") else ""
+        if not title:
+            return {**item, "translated": False}
+        return {
+            **item,
+            "title": title,
+            "description": description or item.get("description", ""),
+            "title_original": item.get("title", ""),
+            "translated": True,
+        }
+
+    with ThreadPoolExecutor(max_workers=min(8, len(items))) as executor:
+        return list(executor.map(translate_item, items))
+
+
 @app.get("/api/news")
 def grape_news():
     """Notícias nacionais de viticultura com fotos originais ou ilustrações locais."""
+    code = request.args.get("lang", "pt")
+    if code not in TRANSLATIONS:
+        code = "pt"
     now = datetime.now(timezone.utc)
     with _news_lock:
-        if now < _news_cache["until"]:
-            return jsonify({
-                "items": _news_cache["items"],
-                "updated_at": _news_cache.get("updated_at"),
-                "available": bool(_news_cache["items"]),
-            })
-
-        with ThreadPoolExecutor(max_workers=len(_NEWS_FEEDS)) as executor:
-            feeds = list(executor.map(_read_feed, _NEWS_FEEDS))
-        articles = _combine_grape_news(feeds)
-        items = _prepare_photo_news(articles)
-        _news_cache.update(
-            items=items,
-            until=now + timedelta(minutes=20 if items else 5),
-            updated_at=now.isoformat() if items else _news_cache.get("updated_at"),
-        )
-        return jsonify({
-            "items": items,
-            "updated_at": _news_cache.get("updated_at"),
-            "available": bool(items),
-        })
+        if now >= _news_cache["until"]:
+            with ThreadPoolExecutor(max_workers=len(_NEWS_FEEDS)) as executor:
+                feeds = list(executor.map(_read_feed, _NEWS_FEEDS))
+            articles = _combine_grape_news(feeds)
+            items = _prepare_photo_news(articles)
+            _news_cache.update(
+                items=items,
+                until=now + timedelta(minutes=20 if items else 5),
+                updated_at=now.isoformat() if items else _news_cache.get("updated_at"),
+            )
+        items = _news_cache["items"]
+        updated_at = _news_cache.get("updated_at")
+    items = _translate_news(items, code)
+    return jsonify({
+        "items": items,
+        "updated_at": updated_at,
+        "available": bool(items),
+        "lang": code,
+    })
 
 
 # ============================================================
 # 9. ROTAS DAS PÁGINAS
 # ============================================================
+
+@app.get("/favicon.ico")
+def favicon():
+    """Navegadores pedem /favicon.ico sozinhos: entrega o ícone da aba."""
+    return app.send_static_file("favicon-vitiexpert.png")
+
 
 @app.route("/")
 @app.route("/<page>")
@@ -662,7 +783,9 @@ def diagnose():
     """Inferência em Python utilizando regras originais e complementares.
 
     O campo answers aceita as 19 perguntas originais e 15 complementares.
-    Fatos não informados recebem 'nao_sei', nunca 'nao'. Os CNFs provêm
+    Fatos não informados recebem 'nao_sei', nunca 'nao'. O campo opcional
+    certainties traz a confiança do usuário (0 a 100) em cada resposta;
+    sem ele, Sim/Não valem 100%. Os CNFs provêm
     do arquivo original e seguem as fórmulas possibilistas do manual SINTA.
     """
     payload = request.get_json(silent=True)
@@ -670,10 +793,20 @@ def diagnose():
         return jsonify({'error':'Envie um objeto JSON com o campo answers.'}), 400
     try:
         answers = sanitize_sinta_answers(payload['answers'])
-        result = infer_sinta(answers, lang())
+        result = infer_sinta(answers, lang(), payload.get('certainties'))
+        certainties = sanitize_certainties(payload.get('certainties'), answers)
     except (ValueError, TypeError) as exc:
         return jsonify({'error':str(exc)}), 400
+    # Com login, a consulta entra no histórico privado do usuário.
+    result['saved'] = record_consultation(
+        answers, {k: round(v * 100) for k, v in certainties.items()}, result)
     return jsonify(result)
+
+
+# ============================================================
+# CONTAS DE USUÁRIO (cadastro, e-mail, login e histórico)
+# ============================================================
+init_accounts(app, TRANSLATIONS, lang)
 
 
 # ============================================================

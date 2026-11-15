@@ -2,7 +2,7 @@
   "metodo": "SINTA SE/ENTÃO com Fatores de Certeza; extensão heurística de regras alternativas",
   "origem": "Regras originais do SINTA mantidas em knowledge/sinta_teste_export.json; este arquivo contém apenas regras propostas",
   "fatores": "Os valores cf são parâmetros experimentais, arbitrados no projeto para demonstração, NÃO fornecidos pela Embrapa nem validados em campo. Não são probabilidades estatísticas.",
-  "combinacao": "Para regras alternativas com premissas correlacionadas, usa-se o maior CNF por hipótese; em seguida, o maior entre o CNF original SINTA e o complementar (sem somar evidência duplicada).",
+  "combinacao": "Como no Expert SINTA: premissa E = produto das certezas do usuário (mínimo 50% para aceitar a regra); conclusão = premissa * cf; regras (originais e complementares) da mesma hipótese combinadas por a + b - a*b.",
   "novas_perguntas": {
     "manchas_oleosas": {
       "pt": "Há manchas amareladas com aspecto de óleo nas folhas?",

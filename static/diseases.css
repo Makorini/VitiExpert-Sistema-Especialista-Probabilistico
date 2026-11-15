@@ -144,3 +144,8 @@ html[data-theme="light"] .page-diseases .dv-card-btn, html[data-theme="light"] .
 html[data-theme="light"] .page-diseases .dv-content .dv-overline {color:#42762f;}
 
 html[data-theme="light"] .page-diseases footer {background:#efe5f0;color:#32213b;}
+
+/* Modo claro: etiquetas dos cards legíveis sobre o fundo claro. */
+html[data-theme="light"] .page-diseases .dv-tag{color:#3b6a24;background:rgba(130,163,89,.22)}
+html[data-theme="light"] .page-diseases .dv-tag.pest{color:#6a3d8b;background:rgba(145,92,180,.16)}
+html[data-theme="light"] .page-diseases .dv-tag.quarantine{color:#8f4c17;background:rgba(195,116,45,.16)}

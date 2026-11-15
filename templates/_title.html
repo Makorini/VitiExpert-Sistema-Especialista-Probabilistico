@@ -1,0 +1,7 @@
+{# Título com degradê roxo → verde e o ícone da uva com lupa.
+   O ícone fica "colado" na última palavra (grad-nowrap), então nunca
+   cai sozinho para a linha de baixo quando o título quebra. #}
+{% macro grad_text(text) -%}
+{%- set words = (text|string).split(' ') -%}
+<span class="grad-text">{{ words[:-1]|join(' ') }}{{ ' ' if words|length > 1 }}<span class="grad-nowrap">{{ words[-1] }}<img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span>
+{%- endmacro %}

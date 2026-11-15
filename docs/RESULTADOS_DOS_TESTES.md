@@ -1,13 +1,15 @@
 # Registro de verificações — VitiExpert
 
-**Data:** 08/11/2026  
+**Data:** 10/11/2026  
 **Escopo:** projeto entregue neste pacote, com 10 doenças, duas condições diferenciais, 34 perguntas e regras originais do Expert SINTA e regras complementares.
 
 ## Verificações executadas
 
 | Verificação | Resultado |
 | --- | --- |
-| Testes Python independentes do Flask (`test_extended_inference.py`, `test_sinta_integration.py`, `test_expert_question_labels.py`, `test_project_assets.py`) | **30 aprovados de 30** |
+| Suíte completa do pacote, incluindo rotas e APIs Flask | **51 testes aprovados** |
+| Primeira hipótese nos cenários fixos do CSV | **10 acertos em 10 cenários sintéticos** |
+| Respostas e rótulo de empate em português, inglês e espanhol | 6 verificações de interface por simulação de DOM com respostas reais da API |
 | Compilação sintática dos módulos Python | Aprovada |
 | Sintaxe dos arquivos JavaScript (`node --check`) | **8 arquivos aprovados** |
 | Renderização isolada do HTML/Jinja (5 páginas × 3 idiomas) | **15 renderizações aprovadas** |
@@ -15,7 +17,7 @@
 | Integridade do arquivo de conhecimento `Teste.bcm` | Preservado, SHA-256: `8467bee583bb842db0dcadc52994fdad0b9cca80d0c731697a035470b91fe8cf` |
 | Regras complementares | **22 regras** preservadas integralmente da base definida |
 
-Os testes automatizados de inferência usam **cenários construídos a partir das regras**. Eles avaliam a execução do software, não a acurácia agronômica em campo.
+Os testes automatizados de inferência usam **cenários sintéticos**. Os dez casos de classificação leem entradas e hipóteses esperadas de um CSV fixo com referências da Embrapa. Eles avaliam a execução do software, não a acurácia agronômica em campo.
 
 ## Como reproduzir os testes completos
 
@@ -25,8 +27,6 @@ Com Python 3.11 ou superior, na pasta principal do projeto:
 python -m pip install -r requirements.txt
 python -m pytest -q
 ```
-
-Os testes de rotas e APIs que dependem do Flask foram **mantidos em `tests/`**, mas não puderam ser executados neste ambiente de preparação porque o pacote Flask não estava instalado e não foi possível acessá-lo pelo gerenciador de pacotes. Por isso não há alegação de que a execução HTTP completa tenha sido validada aqui. Execute os comandos acima em um ambiente que tenha acesso às dependências antes da demonstração.
 
 ## Limite da avaliação
 

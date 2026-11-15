@@ -2,8 +2,9 @@
 
 Os sintomas têm suporte documental Embrapa. Os pesos heurísticos
 NÃO são parâmetros validados cientificamente, nem probabilidades.
-Regras alternativas correlacionadas são agregadas com MAX, para
-não elevar artificialmente a confiança reutilizando a mesma evidência.
+O cálculo segue o padrão do Expert SINTA: premissa E = produto das
+confianças do usuário, regra aceita só com premissa >= 50%,
+conclusão = premissa * cf, mesma hipótese acumulada por x + y - x*y.
 """
 from __future__ import annotations
 from functools import lru_cache
@@ -22,13 +23,15 @@ def get_extension():
     return data
 
 
-def evaluate_extension(answers, locale='pt'):
+def evaluate_extension(answers, locale='pt', certainties=None, rejected=None):
     """Retorna hipóteses, regras disparadas e próximas perguntas úteis.
 
     Uma regra só dispara quando TODAS suas condições são satisfeitas.
     Regras alternativas evitam exigir condições que não foram registradas.
     """
     from sinta_i18n import label, disease_name
+    from sinta_inference import combine_certainties, premise_and, rule_accepted
+    trust=certainties or {}
     ext=get_extension()
     hits={}
     pending=[]
@@ -46,16 +49,18 @@ def evaluate_extension(answers, locale='pt'):
         if missing:
             if matched: pending.append((len(matched),len(missing),tuple(missing)))
             continue
+        premise=premise_and([trust.get(variable,1.0) for variable in matched])
+        if not rule_accepted(premise):
+            if rejected is not None:
+                rejected.append({'id':rule['id'],'premise_percent':round(premise*100,1)})
+            continue
         disease=rule['disease']
         it=hits.setdefault(disease,{
             'id':disease,'name':disease_name(disease,locale),
-            'confidence_percent':0,'certainty_factor':0,'evidence':[], 'fired_rules':[],
+            'confidence':0.0,'evidence':[], 'fired_rules':[],
         })
-        score=round(100*rule['cf'],1)
-        # Usar MAX: caminhos alternativos derivam de evidências sobrepostas.
-        if score>it['confidence_percent']:
-            it['confidence_percent']=score
-            it['certainty_factor']=rule['cf']
+        value=premise*rule['cf']
+        it['confidence']=combine_certainties(it['confidence'],value)
         for variable in matched:
             evidence=label(variable,locale)
             if evidence not in it['evidence']:
@@ -65,8 +70,9 @@ def evaluate_extension(answers, locale='pt'):
                 {'id':p['id'],'description':label(p['id'],locale),'value':p['value']}
                 for p in rule['conditions']
             ],
-            'conclusion_factors_percent':[score],
-            'confidence_percent':score,
+            'conclusion_factors_percent':[round(100*rule['cf'],1)],
+            'premise_percent':round(premise*100,1),
+            'confidence_percent':round(value*100,1),
             'source_type':'complementar',
             'source_url':rule['reference'],
             'basis':rule['basis'],

@@ -1,5 +1,5 @@
 
-<!DOCTYPE html>
+{% from '_title.html' import grad_text %}<!DOCTYPE html>
 <html lang="{{ lang }}" data-theme="dark" translate="no">
 
 <head>
@@ -49,9 +49,11 @@
     <!-- Ícone do VitiExpert. -->
     <link
         rel="icon"
-        href="{{ url_for('static', filename='icone-vitiexpert.png') }}"
+        href="{{ url_for('static', filename='favicon-vitiexpert.png') }}"
         type="image/png"
     >
+    <!-- Mesmo desenho do emoji dos títulos (uva com lupa), recortado e quadrado. -->
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
 
     <!-- Folha de estilos principal. -->
     <link
@@ -67,6 +69,10 @@
     {% if page == 'expert' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='expert.css') }}">
     {% endif %}
+    <!-- Estilos da área de conta (login, cadastro e histórico). -->
+    {% if page in ('login', 'register', 'verify', 'account', 'settings', 'privacy') %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='account.css') }}">
+    {% endif %}
     <!-- Estilos isolados: carregados somente na página de clima. -->
     {% if page == 'climate' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='climate.css') }}">
@@ -78,7 +84,7 @@
 
 </head>
 
-<body class="page-{{ page }}">
+<body class="page-{{ page }}{{ ' page-login' if page == 'verify' }}{{ ' page-account' if page == 'settings' }}">
 
     <!-- =====================================================
          1. CABEÇALHO E NAVEGAÇÃO
@@ -91,13 +97,12 @@
 
         <!-- Identidade visual do projeto. -->
         <a
-            class="brand notranslate"
+            class="brand grad-title notranslate"
             translate="no"
             href="/?lang={{ lang }}"
             aria-label="VitiExpert — {{ t.home }}"
         >
-            Viti<span>Expert</span>
-            <span class="brand-leaf">❧</span>
+            <span class="grad-text">VitiExpert</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
         </a>
 
         <!-- Menu principal. -->
@@ -251,6 +256,35 @@
             </button>
 
             <!-- =============================================
+                 CONTA DO USUÁRIO: "Entrar" ou "Minha conta"
+                 ============================================= -->
+
+            {% if current_user %}
+            <div class="account-control">
+                <button class="account-action {{ 'active' if page in ('account', 'settings') }}" id="account-toggle" type="button"
+                        aria-haspopup="true" aria-expanded="false" aria-controls="account-menu" title="{{ t.account }}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg>
+                    <span>{{ t.account }}</span>
+                    <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                </button>
+                <div class="account-menu" id="account-menu" hidden>
+                    <p class="account-menu-user">{{ current_user['name'] }}<small>{{ current_user['email'] }}</small></p>
+                    <a href="/account?lang={{ lang }}" {{ 'aria-current=page' if page == 'account' }}>{{ t.account }}</a>
+                    <a href="/settings?lang={{ lang }}" {{ 'aria-current=page' if page == 'settings' }}>⚙ {{ t.settings }}</a>
+                    <form method="post" action="/logout?lang={{ lang }}" data-confirm="{{ t.confirm_logout }}" data-confirm-yes="{{ t.logout }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="account-menu-logout">{{ t.logout }}</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <a class="account-action {{ 'active' if page in ('login', 'register') }}" href="/login?lang={{ lang }}" title="{{ t.login }}">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg>
+                <span>{{ t.login }}</span>
+            </a>
+            {% endif %}
+
+            <!-- =============================================
                  1.2. MENU PARA DISPOSITIVOS MÓVEIS
                  ============================================= -->
 
@@ -297,8 +331,8 @@
                 </div>
 
                 <!-- Nome do sistema. -->
-                <h1 class="hero-logo notranslate" translate="no">
-                    Viti<span>Expert</span><i>❧</i>
+                <h1 class="hero-logo grad-title notranslate" translate="no">
+                    <span class="grad-text">VitiExpert</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
                 </h1>
 
                 <!-- Apresentação principal. -->
@@ -352,9 +386,7 @@
                             {{ t.news_eyebrow }}
                         </div>
 
-                        <h2>
-                            {{ t.news_title }}
-                        </h2>
+                        <h2 class="grad-title grad-on-page">{{ grad_text(t.news_title) }}</h2>
 
                     </div>
 
@@ -399,24 +431,28 @@
     <section class="tcc-expert-hero" aria-labelledby="tcc-expert-title">
         <div class="tcc-expert-hero-inner">
             <p class="tcc-eyebrow">{{ tx.hero_kicker }}</p>
-            <h1 id="tcc-expert-title">{{ tx.hero_before }} <em>{{ tx.hero_accent }}</em> ❧</h1>
+            <h1 id="tcc-expert-title" class="grad-title"><span class="grad-text">{{ tx.hero_before }} <span class="grad-nowrap"><em>{{ tx.hero_accent }}</em><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h1>
             <p>{{ tx.hero_description }}</p>
+            <a class="cta hero-cta tcc-start" href="#observacao-videira">
+                {{ tx.start_assessment }} <span aria-hidden="true">↓</span>
+            </a>
         </div>
     </section>
 
     <section class="tcc-expert-work" aria-label="{{ tx.form_aria }}">
-        <div class="tcc-expert-intro">
+        <div class="tcc-expert-intro" id="observacao-videira">
             <div>
                 <p class="tcc-eyebrow">{{ tx.step1 }}</p>
-                <h2>{{ tx.question_title }}</h2>
+                <h2 class="grad-title grad-on-page">{{ grad_text(tx.question_title) }}</h2>
                 <p>{{ tx.instructions_prefix }} <strong>{{ tx.yes }}</strong>, <strong>{{ tx.no }}</strong> {{ tx.or }} <strong>{{ tx.unknown }}</strong>. {{ tx.instructions_suffix }}</p>
+                <p>{{ tx.certainty_hint }}</p>
             </div>
         </div>
 
         <form id="tcc-diagnose-form" autocomplete="off">
             {% for group in tcc_question_groups %}
             <fieldset class="tcc-question-group">
-                <legend>{{ group.label }} <span>{{ '%02d'|format(loop.index) }}</span></legend>
+                <legend>{{ group.label }}</legend>
                 <div class="tcc-question-list">
                     {% for question in group['items'] %}
                     <div class="tcc-question">
@@ -426,6 +462,11 @@
                             <label><input type="radio" name="{{ question.id }}" value="nao"><span>{{ tx.no }}</span></label>
                             <label><input type="radio" name="{{ question.id }}" value="nao_sei" checked><span>{{ tx.unknown }}</span></label>
                         </div>
+                        <label class="tcc-certainty" hidden>
+                            <span>{{ tx.certainty }}</span>
+                            <input type="range" min="0" max="100" step="10" value="100" data-certainty-for="{{ question.id }}" aria-label="{{ tx.certainty }}: {{ question.pergunta }}">
+                            <output>100%</output>
+                        </label>
                     </div>
                     {% endfor %}
                 </div>
@@ -453,7 +494,7 @@
             <div class="dv-hero-shade"></div>
             <div class="dv-hero-content">
                 <p class="dv-eyebrow" data-i18n="eyebrow">CONHECIMENTO QUE CULTIVA</p>
-                <h1 id="dv-title"><span data-i18n="titleA">Doenças</span> <em>&amp;</em> <span data-i18n="titleB">Pragas</span> <span class="dv-flourish">❧</span></h1>
+                <h1 id="dv-title" class="grad-title"><span class="grad-text"><span data-i18n="titleA">Doenças</span> <em>&amp;</em> <span class="grad-nowrap"><span data-i18n="titleB">Pragas</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h1>
                 <p class="dv-intro" data-i18n="heroIntro">Uma biblioteca visual para identificar sinais, comparar sintomas e conhecer os principais problemas que afetam a videira em todo o Brasil.</p>
             </div>
         </section>
@@ -462,7 +503,7 @@
             <div class="dv-headline">
                 <div>
                     <p class="dv-overline" data-i18n="library">GUIA VISUAL DA VIDEIRA</p>
-                    <h2><span data-i18n="catalog">Catálogo de identificação</span><span class="dv-leaf"> ❧</span></h2>
+                    <h2 class="grad-title grad-on-page"><span class="grad-text"><span class="grad-nowrap"><span data-i18n="catalog">Catálogo de identificação</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h2>
                     <p class="dv-subtitle" data-i18n="catalogIntro">Explore imagens de referência e compare sintomas nas folhas, cachos, ramos e raízes.</p>
                 </div>
 
@@ -548,7 +589,7 @@
             <div class="climate-content">
                 <div class="climate-heading">
                     <div class="climate-eyebrow" data-w-i18n="top_eyebrow">CLIMA E CONDIÇÕES EM TEMPO REAL</div>
-                    <h1 class="climate-title"><span id="climate-title-text">Clima</span><span>❧</span></h1>
+                    <h1 class="climate-title grad-title"><span class="grad-text" id="climate-title-text">Clima</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></h1>
                     <p data-w-i18n="intro_body">Condições meteorológicas em tempo real para<br> apoiar o manejo do seu vinhedo.</p>
                 </div>
 
@@ -633,6 +674,13 @@
 
 
     <!-- =====================================================
+         ÁREA DA CONTA (templates/account_pages.html)
+         ===================================================== -->
+
+    {% elif page in ('login', 'register', 'verify', 'account', 'settings') %}
+        {% include 'account_pages.html' %}
+
+    <!-- =====================================================
          6. PÁGINA PADRÃO / PRIVACIDADE
          ===================================================== -->
 
@@ -642,14 +690,32 @@
 
             <div class="inner-heading">
 
-                <h1>
-                    {{ t.privacy }}
-                </h1>
+                <div class="section-label">VITIEXPERT</div>
+                <h1 class="grad-title">{{ grad_text(t.privacy) }}</h1>
+                <p class="lead">{{ t.terms_lead }}</p>
 
-                <p class="lead">{{ t.privacy_intro }}</p>
-                <p>{{ t.privacy_preferences }}</p>
-                <p>{{ t.privacy_external }}</p>
+            </div>
 
+            <!-- Termos de uso e segurança em seções. -->
+            <div class="terms-sections">
+                <section class="terms-section">
+                    <h2>{{ t.terms_use_title }}</h2>
+                    <p>{{ t.terms_use }}</p>
+                </section>
+                <section class="terms-section">
+                    <h2>{{ t.terms_data_title }}</h2>
+                    <p><strong>🔒 {{ t.privacy_box }}</strong></p>
+                    <p>{{ t.privacy_intro }}</p>
+                </section>
+                <section class="terms-section">
+                    <h2>{{ t.terms_security_title }}</h2>
+                    <p>{{ t.terms_security }}</p>
+                </section>
+                <section class="terms-section">
+                    <h2>{{ t.terms_external_title }}</h2>
+                    <p>{{ t.privacy_preferences }}</p>
+                    <p>{{ t.privacy_external }}</p>
+                </section>
             </div>
 
         </main>
@@ -671,10 +737,10 @@
 
             <!-- Nome do projeto. -->
             <a
-                class="footer-brand notranslate" translate="no"
+                class="footer-brand grad-title grad-on-page notranslate" translate="no"
                 href="/?lang={{ lang }}"
             >
-                Viti<span>Expert</span> ❧
+                <span class="grad-text">VitiExpert</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
             </a>
 
 
@@ -692,9 +758,10 @@
                 {{ t.warning }}
             </p>
 
-            <!-- Direitos e identificação. -->
+            <!-- Direitos, identificação e termos. -->
             <small>
-                © 2026 VitiExpert · {{ t.all }}
+                © 2026 VitiExpert · {{ t.all }} ·
+                <a class="footer-terms" href="/privacy?lang={{ lang }}">{{ t.privacy }}</a>
             </small>
 
         </div>
@@ -714,6 +781,15 @@
         O arquivo config.js lê essas informações e
         disponibiliza window.VITI_LANG e window.VITI_LABELS.
     -->
+
+    <!-- Janela de confirmação usada em Sair, Excluir dados e Excluir conta. -->
+    <dialog class="viti-confirm" id="viti-confirm" aria-labelledby="viti-confirm-text">
+        <p id="viti-confirm-text"></p>
+        <div class="viti-confirm-actions">
+            <button type="button" class="viti-confirm-no" value="cancel">{{ t.cancel if t.cancel else 'Cancelar' }}</button>
+            <button type="button" class="viti-confirm-yes" value="ok">{{ t.confirm_yes if t.confirm_yes else 'OK' }}</button>
+        </div>
+    </dialog>
 
     <div
         id="viti-config"
@@ -738,12 +814,15 @@
         src="{{ url_for('static', filename='app.js') }}"
     ></script>
 
-    <!-- Rotação das cinco fotos da página inicial (a cada 3 minutos). -->
+    <!-- Rotação das cinco fotos da página inicial (a cada 2 minutos). -->
     {% if page == 'home' %}
     <script defer src="{{ url_for('static', filename='home-slideshow.js') }}"></script>
     {% endif %}
     {% if page == 'expert' %}
     <script defer src="{{ url_for('static', filename='expert.js') }}"></script>
+    {% endif %}
+    {% if page in ('login', 'register', 'verify', 'account', 'settings') %}
+    <script defer src="{{ url_for('static', filename='account.js') }}"></script>
     {% endif %}
     <!-- Código isolado da previsão do tempo, somente na página /climate. -->
     {% if page == 'climate' %}

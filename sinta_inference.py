@@ -4,11 +4,17 @@ A fonte original permanece em knowledge/Teste.bcm e seu equivalente JSON
 fiel em knowledge/sinta_teste_export.json. As regras são interpretadas sem
 pesos inventados, e cada conclusão mantém o CNF gravado pelo SINTA.
 
-Este cálculo reproduz o modelo possibilista descrito no manual do Expert
-SINTA: E = produto dos fatores; conclusão = premissa * CNF da regra;
-conclusões repetidas da mesma hipótese = a + b - a*b.
-As respostas do formulário são fatos certos para Sim/Não e desconhecidos
-para Não sei. Não constitui um diagnóstico agronômico validado.
+Este cálculo reproduz as funções PADRÃO do manual do Expert SINTA
+(seção 1.4 "Fatores de confiança" e seção 2.8 "Opções"):
+- c1 = confiança do usuário na resposta (0% a 100%; padrão 100%);
+- conectivo E  = produto: c1 * c2              (manual, caso 2);
+- conectivo OU = c1 + c2 - c1 * c2             (manual, caso 3);
+- conclusão    = CNF da premissa * CNF da regra (manual, caso 1);
+- mesma hipótese obtida por várias regras = x + y - x*y (manual, caso 4);
+- a regra só é aceita se a confiança da premissa atingir o valor
+  mínimo do SINTA, 50% por padrão (CONFIANCA_MINIMA).
+"Não sei" deixa o fato desconhecido: a regra não dispara.
+Não constitui um diagnóstico agronômico validado.
 """
 from __future__ import annotations
 from functools import lru_cache
@@ -20,6 +26,9 @@ from complementary_inference import evaluate_extension, get_extension
 
 SOURCE = Path(__file__).resolve().parent / 'knowledge' / 'sinta_teste_export.json'
 ALLOWED = {'sim','nao','nao_sei'}
+# Valor mínimo de confiança para uma regra ser aceita (padrão do Expert SINTA,
+# configurável no SINTA em Exibir > Opções > Fatores de confiança).
+CONFIANCA_MINIMA = 0.5
 
 @lru_cache(maxsize=1)
 def knowledge():
@@ -42,19 +51,60 @@ def sanitize_answers(raw):
     return {key:raw.get(key,'nao_sei') for key in valid}
 
 
+def sanitize_certainties(raw, answers):
+    """Confiança do usuário (c1) por pergunta, em 0..100 -> 0..1.
+
+    Ausente = 100% (compatível com respostas só Sim/Não). Só vale para
+    perguntas respondidas com Sim ou Não.
+    """
+    result={key:1.0 for key,value in answers.items() if value!='nao_sei'}
+    if raw is None:
+        return result
+    if not isinstance(raw, dict):
+        raise ValueError("O campo 'certainties' deve ser um objeto")
+    for key,value in raw.items():
+        if key not in answers or type(value) not in (int,float) or not (0 <= value <= 100):
+            raise ValueError('Grau de certeza inválido (use 0 a 100)')
+        if key in result:
+            result[key]=value/100
+    return result
+
+
+def premise_and(values):
+    """Conectivo E do SINTA (padrão do manual): produto das confianças."""
+    result=1.0
+    for value in values:
+        result*=value
+    return result
+
+
+def premise_or(values):
+    """Conectivo OU do SINTA (padrão do manual): c1 + c2 - c1*c2."""
+    result=0.0
+    for value in values:
+        result=result+value-result*value
+    return result
+
+
+def rule_accepted(premise):
+    """A regra é aceita quando a premissa atinge a confiança mínima."""
+    return premise >= CONFIANCA_MINIMA - 1e-9
+
+
 def combine_certainties(a,b):
     if not (0 <= a <= 1 and 0 <= b <= 1):
         raise ValueError('Fatores de certeza fora de [0, 1]')
     return a+b-a*b
 
 
-def infer(raw, locale='pt'):
+def infer(raw, locale='pt', certainties=None):
     if locale not in UI: locale='pt'
     answers=sanitize_answers(raw)
+    trust=sanitize_certainties(certainties, answers)
     kb=knowledge()
     hits={}
     partial=[]
-    examined=[]
+    rejected=[]  # regras completas recusadas por ficarem abaixo da confiança mínima
     for rule in kb['regras']:
         clauses=rule['se_todas']
         yes=[]
@@ -69,8 +119,9 @@ def infer(raw, locale='pt'):
             if answer=='nao_sei':unknown.append(key)
             elif answer==required:yes.append(key)
             else:no.append(key)
-        if not no and not unknown:
-            # Todas as condições atendidas com certeza =1 (Sim ou Não)
+        premise=premise_and([trust[key] for key in yes]) if yes and not no and not unknown else 0.0
+        if not no and not unknown and rule_accepted(premise):
+            # CNF da premissa (E = produto) multiplicado pelo CNF de cada conclusão
             hypothesis=rule['entao'][0]['valor']
             entry=hits.setdefault(hypothesis,{'id':hypothesis,'confidence':0.0,'evidence':[], 'fired_rules':[]})
             rule_result=0.0
@@ -80,7 +131,7 @@ def infer(raw, locale='pt'):
                     raise ValueError('Conclusões distintas exigem análise')
                 factor=conclusion['cnf']
                 raw_factors.append(round(factor*100,1))
-                rule_result=combine_certainties(rule_result,factor)
+                rule_result=combine_certainties(rule_result,premise*factor)
             entry['confidence']=combine_certainties(entry['confidence'],rule_result)
             for key in yes:
                 if key not in entry['evidence']:entry['evidence'].append(key)
@@ -90,33 +141,34 @@ def infer(raw, locale='pt'):
                     'value':cl['valor']
                 } for cl in clauses],
                 'conclusion_factors_percent':raw_factors,
+                'premise_percent':round(premise*100,1),
                 'confidence_percent':round(rule_result*100,1),
             })
-            examined.append(rule['id'])
+        elif not no and not unknown and yes:
+            rejected.append({'id':rule['id'],'premise_percent':round(premise*100,1)})
         elif not no and yes and unknown:
             partial.append({'id':rule['id'], 'missing':unknown,'matched':len(yes)})
 
     results=sorted(hits.values(),key=lambda r:(-r['confidence'],r['id']))
     for item in results:
         item['name']=disease_name(item['id'],locale)
-        item['confidence_percent']=round(item['confidence']*100,1)
-        item['certainty_factor']=round(item['confidence'],6)
         item['evidence']=[label(k,locale) for k in item['evidence']]
-        del item['confidence']
-    # Regras originais são imutáveis. A extensão não fabrica a combinação
-    # a+b-a*b em evidências sobrepostas: adota o MAIOR fator por hipótese.
-    extra, extra_questions=evaluate_extension(answers,locale)
+    # Regras originais e complementares que concluem a mesma hipótese
+    # acumulam evidência como no SINTA: x + y - x*y.
+    extra, extra_questions=evaluate_extension(answers,locale,trust,rejected)
     indexed={item['id']:item for item in results}
     for disease, candidate in extra.items():
         if disease not in indexed:
             indexed[disease]=candidate
             continue
         entry=indexed[disease]
-        if candidate['confidence_percent']>entry['confidence_percent']:
-            entry['confidence_percent']=candidate['confidence_percent']
-            entry['certainty_factor']=candidate['certainty_factor']
+        entry['confidence']=combine_certainties(entry['confidence'],candidate['confidence'])
         entry['fired_rules'].extend(candidate['fired_rules'])
         entry['evidence'].extend(t for t in candidate['evidence'] if t not in entry['evidence'])
+    for item in indexed.values():
+        item['confidence_percent']=round(item['confidence']*100,1)
+        item['certainty_factor']=round(item['confidence'],6)
+        del item['confidence']
     results=sorted(indexed.values(),key=lambda item:(-item['confidence_percent'],item['id']))
     todo=[]
     for item in sorted(partial,key=lambda x:(-x['matched'],len(x['missing']))):
@@ -130,12 +182,14 @@ def infer(raw, locale='pt'):
         'analyzed_hypotheses':len(set(kb['hipoteses']) | set(get_extension()['doencas_previstas'])),
         'diseases_assessed':len(get_extension()['doencas_previstas']),
         'complementary_rule_count':len(get_extension()['regras']),
-        'fired_rule_count':len(examined),
+        'fired_rule_count':sum(len(item['fired_rules']) for item in results),
         'suggested_questions':suggestions,
         'engine':'sinta_cf_python',
         'source_file':kb['arquivo_origem'],'source_sha256':kb['sha256'],
-        'method':'Original SINTA CF rules plus documented heuristic alternatives; max across overlapping paths',
-        'message':None if results else UI[locale]['no_results'],
+        'method':'SINTA CF (manual defaults): AND=product, conclusion=premise*CNF, same hypothesis x+y-x*y, minimum premise 50%',
+        'rejected_rules':rejected,
+        'minimum_confidence_percent':round(CONFIANCA_MINIMA*100,1),
+        'message':None if results else UI[locale]['below_minimum' if rejected else 'no_results'],
         'disclaimer':UI[locale]['warning'],
     }
     return report

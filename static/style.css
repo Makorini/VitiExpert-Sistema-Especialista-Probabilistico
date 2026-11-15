@@ -27,10 +27,26 @@ html {
 }
 
 body {
+    cursor: default;
+    caret-color: transparent;
     margin: 0;
     background: var(--paper);
     color: var(--text);
     font-family: "Times New Roman", Times, serif;
+}
+
+a[href], button {
+    cursor: pointer;
+}
+
+.header a, .header button {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input[type="search"], input[type="text"], textarea, [contenteditable="true"] {
+    cursor: text;
+    caret-color: auto;
 }
 
 /* ============================================================
@@ -236,7 +252,7 @@ html[data-theme="light"] .theme-toggle { color: #e7f1cf; background: rgba(129,17
 .eyebrow, .section-label { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .hero .eyebrow { color: #cce5a9; margin-bottom: 25px; }
 .hero-logo { margin-bottom: 19px; font-size: clamp(64px, 8vw, 116px); font-weight: 500; line-height: 1; letter-spacing: -.065em; white-space: nowrap; }
-.hero-logo > span { color: #e4c9ed; }
+.hero-logo > span:not(.grad-text) { color: #e4c9ed; }
 .hero-logo > i { display: inline-block; margin-left: 7px; color: #cde0a4; font-size: .55em; font-style: normal; transform: rotate(-20deg) translateY(-5px); }
 .hero-content > h2 { max-width: 640px; margin-bottom: 18px; font-size: clamp(29px, 3.1vw, 43px); letter-spacing: -.025em; }
 .hero-content > p { max-width: 530px; margin-bottom: 30px; font-size: clamp(15px, 1.5vw, 17px); line-height: 1.75; color: #f6eaf2; }
@@ -536,7 +552,7 @@ footer { padding: 25px clamp(22px, 6vw, 90px) 23px; background: #1a1027; color: 
       Mesmo formato dos controles superiores: película bem leve,
       borda lilás e foto do vinhedo visível por baixo.
       A seta já foi removida somente no site.html. */
-.hero .hero-cta {
+.cta.hero-cta {
     background-color: rgba(124, 65, 165, 0.12);
     border: 1px solid rgba(220, 181, 241, 0.48);
     border-radius: 999px;
@@ -547,8 +563,8 @@ footer { padding: 25px clamp(22px, 6vw, 90px) 23px; background: #1a1027; color: 
     transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
-.hero .hero-cta:hover,
-.hero .hero-cta:focus-visible {
+.cta.hero-cta:hover,
+.cta.hero-cta:focus-visible {
     background-color: rgba(124, 65, 165, 0.23);
     border-color: rgba(235, 202, 250, 0.80);
     transform: translateY(-2px);
@@ -567,5 +583,121 @@ footer { padding: 25px clamp(22px, 6vw, 90px) 23px; background: #1a1027; color: 
 /* Rodapé em modo claro nas demais páginas. */
 html[data-theme="light"] footer {background:#efe5f0;color:#32213b;}
 html[data-theme="light"] footer .footer-brand {color:#32213b;}
+html[data-theme="light"] footer .footer-brand > span {color:#7a4b98;}
 html[data-theme="light"] footer .footer-bottom p,
 html[data-theme="light"] footer .footer-bottom small {color:#4f3c5a;}
+
+/* ============================================================
+   BOTÃO DA CONTA NO CABEÇALHO ("Entrar" / "Minha conta")
+   O cabeçalho é sempre escuro, nos dois temas.
+   ============================================================ */
+.account-action {
+    display: inline-flex; align-items: center; gap: 7px;
+    min-height: 40px; padding: 8px 15px;
+    border: 1px solid rgba(255,255,255,0.16); border-radius: 22px;
+    background: rgba(255,255,255,0.06); color: #f7f1fa;
+    font-size: 12px; font-weight: 650; white-space: nowrap;
+    transition: background .2s, border-color .2s;
+}
+.account-action:hover, .account-action.active { background: rgba(255,255,255,0.14); border-color: rgba(202,229,171,0.7); }
+.account-action > svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+@media (max-width: 590px) {
+    .account-action { min-height: 36px; padding: 7px 9px; }
+    .account-action > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+/* ============================================================
+   TERMOS DE USO E SEGURANÇA (link no rodapé + página /privacy)
+   ============================================================ */
+.footer-terms { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.footer-terms:hover { color: #c5e5a5; }
+html[data-theme="light"] .footer-terms:hover { color: #416c46; }
+.terms-sections { display: grid; gap: 16px; max-width: 900px; }
+.terms-section { padding: clamp(20px, 3vw, 30px); border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.terms-section h2 { margin: 0 0 10px; font-size: clamp(21px, 2.3vw, 27px); }
+.terms-section p { margin: 0 0 10px; color: var(--muted); line-height: 1.75; }
+.terms-section p:last-child { margin-bottom: 0; }
+.terms-section strong { color: var(--text); font-weight: 650; }
+
+/* ============================================================
+   TÍTULOS DAS PÁGINAS: degradê roxo → verde no texto + marca
+   de uva com lupa (static/marca-uva-lupa.svg, a partir do ícone).
+   Os títulos ficam sobre fotos escuras nos dois temas, então
+   usamos tons claros de lilás e verde para manter a leitura.
+   ============================================================ */
+.grad-title .grad-text {
+    background: linear-gradient(90deg, #cf96f2 0%, #bb7ee6 30%, #a9d873 70%, #97cf5c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    -webkit-box-decoration-break: slice;
+    box-decoration-break: slice;
+    padding-bottom: .06em; /* não corta letras como g e ç */
+}
+.grad-title .grad-text * { color: inherit; -webkit-text-fill-color: transparent; }
+.title-mark {
+    display: inline-block;
+    width: .82em;
+    height: auto;
+    margin-left: .14em;
+    vertical-align: -.02em;
+    transform: rotate(-8deg);
+    filter: drop-shadow(0 4px 10px rgba(10, 5, 16, .35));
+}
+
+/* Títulos de seção sobre o fundo da página (não sobre foto): no tema
+   claro o fundo é lavanda, então o degradê usa roxo e verde escuros. */
+html[data-theme="light"] .grad-on-page .grad-text {
+    background: linear-gradient(90deg, #8a4bb8 0%, #7440a3 30%, #4f8a2e 70%, #3f7a22 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+.grad-on-page .title-mark { filter: drop-shadow(0 3px 6px rgba(10, 5, 16, .22)); }
+
+/* O ícone fica junto da última palavra do título (não quebra sozinho). */
+.grad-nowrap { white-space: nowrap; }
+
+/* ============================================================
+   MENU "MINHA CONTA" (cabeçalho) E JANELA DE CONFIRMAÇÃO
+   ============================================================ */
+.account-control { position: relative; }
+button.account-action { cursor: pointer; font-family: inherit; }
+.account-action .chevron { width: 12px; height: 12px; }
+.account-menu {
+    position: absolute; top: calc(100% + 12px); right: 0; z-index: 60;
+    min-width: 230px; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+}
+.account-menu[hidden] { display: none; }
+.account-menu-user { margin: 0; padding: 12px 15px 10px; border-bottom: 1px solid var(--line); font-size: 13px; font-weight: 700; line-height: 1.4; }
+.account-menu-user small { display: block; color: var(--muted); font-weight: 500; font-size: 11px; overflow: hidden; text-overflow: ellipsis; }
+.account-menu a, .account-menu-logout {
+    display: block; width: 100%; padding: 10px 15px; border: 0; background: transparent;
+    color: var(--text); font: 600 13px var(--body-font); text-align: left; cursor: pointer;
+}
+.account-menu a:hover, .account-menu a[aria-current="page"], .account-menu-logout:hover { background: var(--surface-soft); }
+.account-menu form { margin: 0; border-top: 1px solid var(--line); }
+.account-menu-logout { color: #e99a8f; }
+html[data-theme="light"] .account-menu-logout { color: #a13a2c; }
+
+.viti-confirm {
+    width: min(420px, calc(100vw - 32px)); padding: 26px 24px 20px;
+    border: 1px solid var(--line); border-radius: 18px;
+    background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+}
+.viti-confirm::backdrop { background: rgba(14, 7, 20, .62); backdrop-filter: blur(3px); }
+.viti-confirm p { margin: 0 0 20px; font-size: 16px; line-height: 1.6; }
+.viti-confirm-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+.viti-confirm-actions button {
+    min-height: 42px; padding: 9px 18px; border-radius: 999px; cursor: pointer;
+    font: 700 14px var(--body-font);
+}
+.viti-confirm-no { border: 1px solid var(--line); background: transparent; color: var(--text); }
+.viti-confirm-no:hover { background: var(--surface-soft); }
+.viti-confirm-yes { border: 1px solid transparent; background: var(--button); color: #fff; }
+.viti-confirm-yes:hover { background: var(--button-hover); }
+.viti-confirm-yes.is-danger { background: #b3473a; }
+.viti-confirm-yes.is-danger:hover { background: #9a3b30; }
+.viti-confirm button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
