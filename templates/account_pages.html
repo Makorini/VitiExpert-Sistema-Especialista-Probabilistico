@@ -86,6 +86,7 @@
                 <p class="acc-switch">{{ t.no_code }}</p>
                 <button class="acc-button acc-secondary" type="submit">{{ t.btn_resend }}</button>
             </form>
+            <p class="acc-switch">{{ t.remembered_password }} <a href="/login?lang={{ lang }}">← {{ t.back_to_login }}</a></p>
 
             {% elif page == 'verify' %}
             {# Confirmação do e-mail pelo código de 6 dígitos. #}

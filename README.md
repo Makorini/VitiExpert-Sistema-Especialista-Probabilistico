@@ -38,7 +38,7 @@ O Clima, as Notícias, o envio de e-mail e as fotos do catálogo (vindas da Embr
 ## Como funciona
 
 - **Início:** apresentação do VitiExpert e notícias ligadas à viticultura.
-- **Sistema Especialista:** responda às 31 perguntas com **Sim**, **Não** ou **Não sei** (em Sim/Não, ajuste também o seu grau de certeza) e clique em **Analisar sintomas**. O sistema apresenta até três hipóteses, percentuais de confiança, sinais considerados e regras acionadas. É possível limpar as respostas e realizar nova análise.
+- **Sistema Especialista:** responda às 31 perguntas com **Sim**, **Não** ou **Não sei** (em Sim/Não, ajuste também o seu grau de certeza) e clique em **Analisar sintomas**. O sistema apresenta até três hipóteses, com o percentual de confiança e os sinais que levaram a cada uma. Clicando no nome da doença, abre-se a ficha dela (foto, como reconhecer e **como tratar**). É possível limpar as respostas e realizar nova análise.
 - **Doenças e Pragas:** catálogo com descrição de sinais e informações de referência, com pesquisa e filtros.
 - **Clima:** condições atuais e previsão para a semana, com fundos que mudam de acordo com horário e tempo; a cidade inicial é Videira (SC) e pode ser alterada.
 - **Interface:** oferece português, inglês e espanhol, além de temas claro e escuro.

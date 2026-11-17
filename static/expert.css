@@ -106,10 +106,6 @@ html[data-theme="light"] .page-expert .tcc-suggestions ul { color:#59425f; }
 .tcc-result-card .tcc-status { margin:0 0 15px; color:#f0dcab; font:600 12px/1.5 var(--body-font,Arial),sans-serif; }
 .tcc-result-card p { color:#e6d9e9;font:13px/1.6 var(--body-font,Arial),sans-serif; }
 .tcc-result-card ul { margin:9px 0;padding-left:18px; color:#e3d8e9;font:13px/1.65 var(--body-font,Arial),sans-serif; }
-.tcc-rule-detail { margin:10px 0; border-top:1px solid rgba(214,188,224,.22);padding-top:12px;font:13px/1.65 var(--body-font,Arial),sans-serif; }
-.tcc-rule-detail strong {color:#bbdb95;}
-.tcc-rules-summary { margin-top:18px; }
-.tcc-rules-summary summary {cursor:pointer;color:#c8e79b;font:700 13px var(--body-font,Arial),sans-serif;}
 .tcc-suggestions {padding:15px 18px;border-left:3px solid #b9d888;background:rgba(167,200,132,.09);margin-top:18px;border-radius:0 12px 12px 0; }
 .tcc-suggestions h3 { margin:0 0 10px;font-size:16px; }
 .tcc-suggestions ul { margin:0;padding-left:18px;color:#e5d9e9;font:13px/1.6 var(--body-font,Arial),sans-serif; }
@@ -185,7 +181,6 @@ html[data-theme="light"] .page-expert .tcc-results-note,
 html[data-theme="light"] .page-expert .tcc-probability-more,
 html[data-theme="light"] .page-expert .tcc-probability-disclaimer {color:#59425f;}
 html[data-theme="light"] .page-expert .tcc-results .tcc-result-tag,
-html[data-theme="light"] .page-expert .tcc-rule-detail strong,
 html[data-theme="light"] .page-expert .tcc-results summary,
 html[data-theme="light"] .page-expert .tcc-probability-value {color:#3d7930;}
 html[data-theme="light"] .page-expert .tcc-warning {color:#563c5a;background:#f7ecf4;}
@@ -220,3 +215,13 @@ html[data-theme="light"] .page-expert .tcc-sinta-confidence {color:#377530;}
 .tcc-saved-note { margin:16px 0 0; font:13px/1.6 var(--body-font,Arial),sans-serif; color:#d2f4aa; }
 .tcc-saved-note a { color:#c8e79b; font-weight:700; }
 html[data-theme="light"] .page-expert .tcc-saved-note, html[data-theme="light"] .page-expert .tcc-saved-note a { color:#35602f; }
+
+/* Nome da doença no resultado: abre a ficha (foto, sinais e "Como tratar"). */
+.tcc-disease-link { display:inline-flex; align-items:baseline; flex-wrap:wrap; gap:4px 12px; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }
+.tcc-disease-link > span:first-child { text-decoration:underline; text-decoration-color:rgba(185,220,136,.45); text-decoration-thickness:2px; text-underline-offset:6px; transition:text-decoration-color .2s, color .2s; }
+.tcc-disease-link:hover > span:first-child, .tcc-disease-link:focus-visible > span:first-child { color:#d9efbd; text-decoration-color:#b9dc88; }
+.tcc-disease-link:focus-visible { outline:2px solid #b9dc88; outline-offset:4px; border-radius:6px; }
+.tcc-disease-hint { padding:3px 10px; border:1px solid rgba(185,220,136,.55); border-radius:999px; color:#c8e79b; font:700 11px/1.4 var(--body-font,Arial),sans-serif; letter-spacing:.02em; transition:background .2s; }
+.tcc-disease-link:hover .tcc-disease-hint { background:rgba(150,190,100,.18); }
+html[data-theme="light"] .page-expert .tcc-disease-link:hover > span:first-child { color:#3d7930; }
+html[data-theme="light"] .page-expert .tcc-disease-hint { color:#3d7930; border-color:rgba(61,121,48,.5); }

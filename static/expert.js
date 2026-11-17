@@ -1,4 +1,4 @@
-/* VitiExpert — interface para regras originais e complementares em Python.
+/* VitiExpert — interface do Sistema Especialista (regras do Expert SINTA executadas em Python).
  * O browser apenas apresenta dados retornados pelo motor Python.
  * Executa exclusivamente na página /expert.
  */
@@ -21,6 +21,23 @@
   };
   const percent = value => Number(value).toLocaleString(format, {maximumFractionDigits:1}) + '%';
 
+  // Códigos da base do SINTA → fichas do catálogo Doenças e Pragas (disease-sheet.js).
+  const SHEET_ID = {podridao_cinzenta:'pod_cinzenta', podridao_madura:'pod_uva_madura',
+                    podridao_acida:'pod_acida', podridao_amarga:'pod_amarga'};
+  const diseaseTitle = item => {
+    const title = make('h3','');
+    const sheetId = SHEET_ID[item.id] || item.id;
+    if (!window.VitiSheet?.has(sheetId)) { title.textContent = item.name; return title; }
+    const button = make('button','tcc-disease-link');
+    button.type = 'button';
+    button.setAttribute('aria-haspopup','dialog');
+    button.title = tr('view_sheet','Ver ficha da doença');
+    button.append(make('span','',item.name), make('span','tcc-disease-hint',tr('view_sheet','Ver ficha da doença') + ' ↗'));
+    button.addEventListener('click', () => window.VitiSheet.open(sheetId, button));
+    title.append(button);
+    return title;
+  };
+
   const formatCondition = condition => {
     const answer = condition.value === 'sim' ? tr('yes','Sim') : tr('no','Não');
     return condition.description + ' — ' + answer;
@@ -29,7 +46,6 @@
   const showResult = data => {
     output.replaceChildren();
     output.hidden = false;
-    output.append(make('p','tcc-eyebrow',tr('result_step','02 / RESULTADO')));
     output.append(make('h2','',tr('result_title','Hipóteses identificadas')));
     output.append(make('p','tcc-results-note',tr('result_intro','A análise considera os sintomas informados e apresenta hipóteses compatíveis.')));
 
@@ -48,7 +64,7 @@
           card.append(make('div','tcc-result-tag',badge));
         }
         const head = make('div','tcc-sinta-head');
-        head.append(make('h3','',item.name));
+        head.append(diseaseTitle(item));
         head.append(make('strong','tcc-sinta-confidence',percent(item.confidence_percent)));
         card.append(head);
         const track = make('div','tcc-probability-track');
@@ -67,22 +83,6 @@
           }
         }
         card.append(ul);
-        const detail = make('details','tcc-rules-summary');
-        detail.append(make('summary','',tr('show_rules','Ver regras e fatores considerados')));
-        (item.fired_rules || []).forEach(rule => {
-          const segment=make('div','tcc-rule-detail');
-          segment.append(make('strong','',rule.id + ' · ' + tr('rule_confidences','Fatores da regra') + ': ' + (rule.conclusion_factors_percent || []).map(percent).join(' + ')));
-          if (rule.premise_percent !== undefined) {
-            segment.append(make('p','',tr('premise','Certeza combinada das respostas (produto)') + ': ' + percent(rule.premise_percent) + ' → ' + percent(rule.confidence_percent)));
-          }
-          const conditions = make('ul','');
-          (rule.conditions || []).forEach(c => {
-            conditions.append(make('li','',formatCondition(c)));
-          });
-          segment.append(conditions);
-          detail.append(segment);
-        });
-        card.append(detail);
         list.append(card);
       });
       output.append(list);

@@ -5,7 +5,7 @@
 (() => {
   'use strict';
 
-  /* ---------- 1. Mostrar / ocultar senha ---------- */
+  // Mostrar / ocultar senha
   document.querySelectorAll('.acc-eye').forEach(button => {
     const input = document.getElementById(button.getAttribute('aria-controls'));
     if (!input) return;
@@ -29,7 +29,7 @@
     });
   });
 
-  /* ---------- 2. Tamanho das barras dos gráficos ----------
+  /* Tamanho das barras dos gráficos.
    * O servidor envia a porcentagem em data-width / data-height (sem CSS
    * inline no template); aqui ela vira a largura ou a altura da barra. */
   const percent = value => {
@@ -39,7 +39,7 @@
   document.querySelectorAll('[data-width]').forEach(bar => { bar.style.width = percent(bar.dataset.width); });
   document.querySelectorAll('[data-height]').forEach(bar => { bar.style.height = percent(bar.dataset.height); });
 
-  /* ---------- 3. Tooltip dos gráficos ---------- */
+  // Tooltip dos gráficos
   const tip = document.getElementById('acc-tooltip');
   if (!tip) return;
   const marks = document.querySelectorAll('[data-tip]');

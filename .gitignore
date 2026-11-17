@@ -14,3 +14,5 @@ instance/
 
 # O modelo de configuração deve ir para o git (o .env real não).
 !.env.example
+
+.ruff_cache/

@@ -1,39 +1,16 @@
-
-/**
- * ============================================================
- * VITIEXPERT — COMPORTAMENTO DA INTERFACE
- * ============================================================
- *
- * Projeto: Sistema Especialista Probabilístico para
- *          Diagnóstico de Doenças em Videiras
- *
- * Responsabilidades:
- * 1. Controlar o menu de navegação.
- * 2. Gerenciar o seletor de idiomas.
- * 3. Carregar notícias relacionadas à viticultura.
- * 4. Alternar o tema claro e escuro.
- *
- * ============================================================
- */
+// Interface geral: menu, idiomas, notícias e tema.
 
 
-/* ============================================================
-   1. MENU DE NAVEGAÇÃO
-   ============================================================ */
+// Menu de navegação
 
-// Localiza o botão responsável pelo menu.
 const menuButton = document.getElementById("menu-button");
 
-// Localiza o elemento de navegação.
 const navigation = document.getElementById("navigation");
 
-// Adiciona o evento de clique ao botão, caso ele exista.
 menuButton?.addEventListener("click", () => {
 
-    // Alterna a classe responsável por abrir ou fechar o menu.
     const isOpen = navigation.classList.toggle("open");
 
-    // Atualiza o estado de acessibilidade do botão.
     menuButton.setAttribute(
         "aria-expanded",
         String(isOpen)
@@ -42,26 +19,19 @@ menuButton?.addEventListener("click", () => {
 });
 
 
-/* ============================================================
-   2. SELETOR DE IDIOMAS
-   ============================================================ */
+// Seletor de idiomas
 
-// Localiza o botão que abre a seleção de idiomas.
 const languageToggle = document.getElementById("lang-toggle");
 
-// Localiza o menu que contém os idiomas disponíveis.
 const languageMenu = document.getElementById("lang-menu");
 
-// Controla a abertura e o fechamento do seletor.
 languageToggle?.addEventListener("click", (event) => {
 
     // Impede que o clique seja propagado para o documento.
     event.stopPropagation();
 
-    // Alterna a visibilidade do menu.
     languageMenu.hidden = !languageMenu.hidden;
 
-    // Atualiza o atributo de acessibilidade.
     languageToggle.setAttribute(
         "aria-expanded",
         String(!languageMenu.hidden)
@@ -73,13 +43,10 @@ languageToggle?.addEventListener("click", (event) => {
 // Fecha o seletor quando o usuário clica fora dele.
 document.addEventListener("click", (event) => {
 
-    // Verifica se o menu está aberto.
     const isMenuOpen = languageMenu && !languageMenu.hidden;
 
-    // Verifica se o clique ocorreu fora do seletor.
     const clickedOutside = !event.target.closest(".lang-control");
 
-    // Fecha o menu quando as duas condições são verdadeiras.
     if (isMenuOpen && clickedOutside) {
 
         languageMenu.hidden = true;
@@ -111,10 +78,8 @@ document.addEventListener("keydown", (event) => {
 });
 
 
-// Configura os links dos idiomas disponíveis.
 for (const link of document.querySelectorAll(".lang-menu a")) {
 
-    // Destaca o idioma atualmente selecionado.
     if (link.dataset.lang === window.VITI_LANG) {
 
         link.setAttribute("aria-current", "true");
@@ -129,9 +94,7 @@ for (const link of document.querySelectorAll(".lang-menu a")) {
 }
 
 
-/* ============================================================
-   3. NOTÍCIAS DA VITICULTURA — FOTOS REAIS OU ILUSTRAÇÕES
-   ============================================================ */
+// Notícias (foto da matéria ou ilustração)
 const newsGrid = document.getElementById("news-grid");
 
 if (newsGrid) {
@@ -292,13 +255,10 @@ if (newsGrid) {
 }
 
 
-/* ============================================================
-   4. TEMA CLARO E ESCURO
-   ============================================================ */
+// Tema claro/escuro
 
 const themeToggle = document.getElementById("theme-toggle");
 
-// Atualiza o texto acessível para indicar a próxima ação.
 function updateThemeButton() {
     if (!themeToggle) return;
 
@@ -320,10 +280,8 @@ function updateThemeButton() {
     themeToggle.title = isLight ? labels[0] : labels[1];
 }
 
-// Sincroniza o botão com o tema carregado no início da página.
 updateThemeButton();
 
-// Alterna exclusivamente as cores, sem alterar os dados do sistema.
 themeToggle?.addEventListener("click", () => {
     const nextTheme = document.documentElement.dataset.theme === "light"
         ? "dark"
@@ -341,9 +299,7 @@ themeToggle?.addEventListener("click", () => {
 });
 
 
-/* ============================================================
-   5. MENU "MINHA CONTA" NO CABEÇALHO
-   ============================================================ */
+// Menu "Minha conta" no cabeçalho
 const accountToggle = document.getElementById("account-toggle");
 const accountMenu = document.getElementById("account-menu");
 

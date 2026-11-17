@@ -77,8 +77,8 @@
     {% if page == 'climate' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='climate.css') }}">
     {% endif %}
-    <!-- CSS EXCLUSIVO da biblioteca Doenças e Pragas. -->
-    {% if page == 'diseases' %}
+    <!-- CSS da biblioteca Doenças e Pragas; no Sistema Especialista, usado só pela ficha da doença. -->
+    {% if page in ('diseases', 'expert') %}
     <link rel="stylesheet" href="{{ url_for('static', filename='diseases.css') }}">
     {% endif %}
 
@@ -442,7 +442,6 @@
     <section class="tcc-expert-work" aria-label="{{ tx.form_aria }}">
         <div class="tcc-expert-intro" id="observacao-videira">
             <div>
-                <p class="tcc-eyebrow">{{ tx.step1 }}</p>
                 <h2 class="grad-title grad-on-page">{{ grad_text(tx.question_title) }}</h2>
                 <p>{{ tx.instructions_prefix }} <strong>{{ tx.yes }}</strong>, <strong>{{ tx.no }}</strong> {{ tx.or }} <strong>{{ tx.unknown }}</strong>. {{ tx.instructions_suffix }}</p>
                 <p>{{ tx.certainty_hint }}</p>
@@ -557,16 +556,6 @@
             <p class="dv-credits" data-i18n="credits">Conteúdo educacional baseado no UZUM-Uva da Embrapa. Fotos de referência externas, sujeitas à disponibilidade e às condições de uso da fonte. A galeria original está vinculada em cada ficha.</p>
         </main>
 
-        <!-- Ficha interativa; preenchida exclusivamente pelo script da página. -->
-        <dialog class="dv-dialog" id="dv-dialog" aria-labelledby="dv-modal-title">
-            <div class="dv-modal-shell">
-                <div class="dv-modal-top">
-                    <span class="dv-modal-brand">Viti<span>Expert</span> <i>❧</i></span>
-                    <button type="button" class="dv-close" id="dv-close" aria-label="Fechar ficha">×</button>
-                </div>
-                <div class="dv-modal-scroll" id="dv-modal-body"></div>
-            </div>
-        </dialog>
 
     <!-- =====================================================
          5. PÁGINA DE CLIMA — VINHEDO EM TELA INTEIRA
@@ -733,6 +722,22 @@
 
     {% endif %}
 
+    <!-- Ficha da doença (Doenças e Pragas e resultado do Sistema Especialista);
+         preenchida por static/disease-sheet.js. -->
+    {% if page in ('diseases', 'expert') %}
+    <div class="dv-sheet-host">
+        <dialog class="dv-dialog" id="dv-dialog" aria-labelledby="dv-modal-title">
+            <div class="dv-modal-shell">
+                <div class="dv-modal-top">
+                    <span class="dv-modal-brand">Viti<span>Expert</span> <i>❧</i></span>
+                    <button type="button" class="dv-close" id="dv-close" aria-label="Fechar ficha">×</button>
+                </div>
+                <div class="dv-modal-scroll" id="dv-modal-body"></div>
+            </div>
+        </dialog>
+    </div>
+    {% endif %}
+
 
     <!-- =====================================================
          8. RODAPÉ
@@ -829,6 +834,13 @@
     {% if page == 'home' %}
     <script defer src="{{ url_for('static', filename='home-slideshow.js') }}"></script>
     {% endif %}
+    <!-- Ficha da doença: catálogo, "Como tratar" e o painel, usados nas duas páginas. -->
+    {% if page in ('diseases', 'expert') %}
+    <script defer src="{{ url_for('static', filename='diseases-data.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='catalog-i18n.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='disease-treatments.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='disease-sheet.js') }}"></script>
+    {% endif %}
     {% if page == 'expert' %}
     <script defer src="{{ url_for('static', filename='expert.js') }}"></script>
     {% endif %}
@@ -840,8 +852,6 @@
     <script defer src="{{ url_for('static', filename='climate.js') }}"></script>
     {% endif %}
     {% if page == 'diseases' %}
-    <script defer src="{{ url_for('static', filename='diseases-data.js') }}"></script>
-    <script defer src="{{ url_for('static', filename='catalog-i18n.js') }}"></script>
     <script defer src="{{ url_for('static', filename='diseases.js') }}"></script>
     {% endif %}
 

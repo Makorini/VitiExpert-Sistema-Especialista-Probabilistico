@@ -1,14 +1,9 @@
-
 """VitiExpert — aplicação web Flask para apoio à identificação de doenças da videira.
 
 Motor de regras SE/ENTÃO com Fatores de Certeza e base de conhecimento
-proveniente do Expert SINTA, ampliada com regras complementares documentadas.
+proveniente do Expert SINTA (knowledge/VitiExpert10.bcm: 10 doenças, 17 regras).
 """
 
-
-# ============================================================
-# 1. IMPORTAÇÕES
-# ============================================================
 
 import os
 import threading
@@ -36,14 +31,18 @@ from flask import (
     session,
 )
 
-from sinta_inference import infer as infer_sinta, sanitize_answers as sanitize_sinta_answers, sanitize_certainties, knowledge as get_sinta_knowledge
+from sinta_inference import (
+    infer as infer_sinta,
+    sanitize_answers as sanitize_sinta_answers,
+    sanitize_certainties,
+    knowledge as get_sinta_knowledge,
+)
 from sinta_i18n import UI as SINTA_UI, question_groups as get_sinta_question_groups
 from accounts import init_accounts, record_consultation
 
 
-# ============================================================
-# 2. CONFIGURAÇÃO DA APLICAÇÃO FLASK
-# ============================================================
+# Configuração do Flask
+
 
 def _load_dotenv(path):
     """Lê VARIAVEL=valor do arquivo .env (sem sobrescrever o ambiente)."""
@@ -96,124 +95,123 @@ app.config.update(
 )
 
 
-# ============================================================
-# 3. TRADUÇÕES DA INTERFACE
-# ============================================================
+# Traduções da interface (pt, en, es)
 
-# Idiomas disponíveis:
-# pt = Português
-# en = Inglês
-# es = Espanhol
+TRANSLATIONS = {
+    "pt": {
+        "home": "Início",
+        "expert": "Sistema Especialista",
+        "climate": "Clima",
+        "diseases": "Doenças e Pragas",
+        "navopen": "Abrir menu",
+        "eyebrow": "CONHECIMENTO QUE CULTIVA",
+        "headline": "Ciência e tecnologia para a saúde das videiras.",
+        "subtitle": "Conhecimento agrícola e apoio inteligente para um cultivo mais saudável "
+        "e sustentável.",
+        "explore": "Explorar o sistema",
+        "news_eyebrow": "ATUALIDADES DO VINHEDO",
+        "news_title": "Notícias da Viticultura",
+        "news_intro": "Notícias de todo o Brasil sobre uvas, videiras e vinhedos, com fotos "
+        "das matérias e imagens ilustrativas quando necessário.",
+        "news_loading": "Consultando notícias recentes…",
+        "news_unavailable": "Não foi possível carregar notícias de viticultura agora. Tente "
+        "novamente mais tarde.",
+        "news_source": "Notícias de veículos externos · Atualização periódica · Fotos: fontes "
+        "originais · Ilustrações: IA",
+        "privacy": "Termos de uso e segurança",
+        "notfound": "Página não encontrada",
+        "notfound_lead": "O endereço que você abriu não existe ou foi alterado. Confira o link ou volte para o início.",
+        "notfound_home": "Voltar para o início",
+        "warning": "Ferramenta educativa. Não substitui avaliação de engenheiro agrônomo ou "
+        "diagnóstico laboratorial.",
+        "all": "Todos os direitos reservados",
+        "privacy_intro": "O VitiExpert pode ser usado sem cadastro; nesse caso as respostas do "
+        "questionário não são guardadas. Com uma conta, cada consulta fica salva "
+        "no seu histórico privado, que só você vê e pode excluir a qualquer momento "
+        "em Minha conta. A senha é guardada apenas de forma criptografada (hash).",
+        "privacy_preferences": "A preferência de idioma é mantida durante a sessão. O tema "
+        "visual e a cidade escolhida no clima podem ficar salvos no "
+        "navegador.",
+        "privacy_external": "A previsão do tempo e as notícias dependem de serviços externos, "
+        "que possuem suas próprias políticas de privacidade.",
+    },
+    "en": {
+        "home": "Home",
+        "expert": "Expert System",
+        "climate": "Weather",
+        "diseases": "Diseases & Pests",
+        "navopen": "Open menu",
+        "eyebrow": "KNOWLEDGE THAT GROWS",
+        "headline": "Science and technology for healthier grapevines.",
+        "subtitle": "Agricultural knowledge and intelligent support for healthier, "
+        "sustainable vineyards.",
+        "explore": "Explore the system",
+        "news_eyebrow": "VINEYARD UPDATES",
+        "news_title": "Viticulture News",
+        "news_intro": "News about grapes, grapevines and vineyards across Brazil, with "
+        "original photographs or illustrative images when needed.",
+        "news_loading": "Loading recent news…",
+        "news_unavailable": "News is temporarily unavailable. Please try again later.",
+        "news_source": "News from external publishers · Periodically updated · Original "
+        "photos: publishers · Illustrations: AI · Titles machine-translated "
+        "from Portuguese",
+        "privacy": "Terms of use and security",
+        "notfound": "Page not found",
+        "notfound_lead": "The address you opened does not exist or has changed. Check the link or go back to the home page.",
+        "notfound_home": "Back to home",
+        "warning": "Educational tool. Not a substitute for professional agronomic or "
+        "laboratory diagnosis.",
+        "all": "All rights reserved",
+        "privacy_intro": "VitiExpert can be used without an account; in that case questionnaire "
+        "answers are not stored. With an account, each consultation is saved in "
+        "your private history, which only you can see and delete at any time in "
+        "My account. Passwords are stored only as a cryptographic hash.",
+        "privacy_preferences": "Language preference is kept for the session. Your chosen "
+        "theme and weather city may be saved in the browser.",
+        "privacy_external": "Weather forecasts and news use external services with their own "
+        "privacy policies.",
+    },
+    "es": {
+        "home": "Inicio",
+        "expert": "Sistema Experto",
+        "climate": "Clima",
+        "diseases": "Enfermedades y Plagas",
+        "navopen": "Abrir menú",
+        "eyebrow": "CONOCIMIENTO QUE CULTIVA",
+        "headline": "Ciencia y tecnología para la salud de las vides.",
+        "subtitle": "Conocimiento agrícola y apoyo inteligente para un cultivo más saludable "
+        "y sostenible.",
+        "explore": "Explorar el sistema",
+        "news_eyebrow": "ACTUALIDAD DEL VIÑEDO",
+        "news_title": "Noticias de Viticultura",
+        "news_intro": "Noticias de todo Brasil sobre uvas, vides y viñedos, con fotografías "
+        "originales o imágenes ilustrativas cuando sea necesario.",
+        "news_loading": "Consultando noticias recientes…",
+        "news_unavailable": "No hay noticias de viticultura disponibles en este momento. "
+        "Inténtelo más tarde.",
+        "news_source": "Noticias de medios externos · Actualización periódica · Fotos: "
+        "publicaciones originales · Ilustraciones: IA · Títulos traducidos "
+        "automáticamente del portugués",
+        "privacy": "Términos de uso y seguridad",
+        "notfound": "Página no encontrada",
+        "notfound_lead": "La dirección que abrió no existe o cambió. Revise el enlace o vuelva al inicio.",
+        "notfound_home": "Volver al inicio",
+        "warning": "Herramienta educativa. No sustituye una evaluación agronómica " "profesional.",
+        "all": "Todos los derechos reservados",
+        "privacy_intro": "VitiExpert puede usarse sin registro; en ese caso las respuestas del "
+        "cuestionario no se guardan. Con una cuenta, cada consulta queda en su "
+        "historial privado, que solo usted ve y puede eliminar en cualquier momento "
+        "en Mi cuenta. La contraseña se guarda solo como hash criptográfico.",
+        "privacy_preferences": "El idioma se mantiene durante la sesión. El tema visual y la "
+        "ciudad del clima pueden guardarse en el navegador.",
+        "privacy_external": "El pronóstico del tiempo y las noticias utilizan servicios "
+        "externos con sus propias políticas de privacidad.",
+    },
+}
 
-TRANSLATIONS = {'pt': {'home': 'Início',
-        'expert': 'Sistema Especialista',
-        'climate': 'Clima',
-        'diseases': 'Doenças e Pragas',
-        'navopen': 'Abrir menu',
-        'eyebrow': 'CONHECIMENTO QUE CULTIVA',
-        'headline': 'Ciência e tecnologia para a saúde das videiras.',
-        'subtitle': 'Conhecimento agrícola e apoio inteligente para um cultivo mais saudável '
-                    'e sustentável.',
-        'explore': 'Explorar o sistema',
-        'news_eyebrow': 'ATUALIDADES DO VINHEDO',
-        'news_title': 'Notícias da Viticultura',
-        'news_intro': 'Notícias de todo o Brasil sobre uvas, videiras e vinhedos, com fotos '
-                      'das matérias e imagens ilustrativas quando necessário.',
-        'news_loading': 'Consultando notícias recentes…',
-        'news_unavailable': 'Não foi possível carregar notícias de viticultura agora. Tente '
-                            'novamente mais tarde.',
-        'news_source': 'Notícias de veículos externos · Atualização periódica · Fotos: fontes '
-                       'originais · Ilustrações: IA',
-        'privacy': 'Termos de uso e segurança',
-        'notfound': 'Página não encontrada',
-        'notfound_lead': 'O endereço que você abriu não existe ou foi alterado. Confira o link ou volte para o início.',
-        'notfound_home': 'Voltar para o início',
-        'warning': 'Ferramenta educativa. Não substitui avaliação de engenheiro agrônomo ou '
-                   'diagnóstico laboratorial.',
-        'all': 'Todos os direitos reservados',
-        'privacy_intro': 'O VitiExpert pode ser usado sem cadastro; nesse caso as respostas do '
-                         'questionário não são guardadas. Com uma conta, cada consulta fica salva '
-                         'no seu histórico privado, que só você vê e pode excluir a qualquer momento '
-                         'em Minha conta. A senha é guardada apenas de forma criptografada (hash).',
-        'privacy_preferences': 'A preferência de idioma é mantida durante a sessão. O tema '
-                               'visual e a cidade escolhida no clima podem ficar salvos no '
-                               'navegador.',
-        'privacy_external': 'A previsão do tempo e as notícias dependem de serviços externos, '
-                            'que possuem suas próprias políticas de privacidade.'},
- 'en': {'home': 'Home',
-        'expert': 'Expert System',
-        'climate': 'Weather',
-        'diseases': 'Diseases & Pests',
-        'navopen': 'Open menu',
-        'eyebrow': 'KNOWLEDGE THAT GROWS',
-        'headline': 'Science and technology for healthier grapevines.',
-        'subtitle': 'Agricultural knowledge and intelligent support for healthier, '
-                    'sustainable vineyards.',
-        'explore': 'Explore the system',
-        'news_eyebrow': 'VINEYARD UPDATES',
-        'news_title': 'Viticulture News',
-        'news_intro': 'News about grapes, grapevines and vineyards across Brazil, with '
-                      'original photographs or illustrative images when needed.',
-        'news_loading': 'Loading recent news…',
-        'news_unavailable': 'News is temporarily unavailable. Please try again later.',
-        'news_source': 'News from external publishers · Periodically updated · Original '
-                       'photos: publishers · Illustrations: AI · Titles machine-translated '
-                       'from Portuguese',
-        'privacy': 'Terms of use and security',
-        'notfound': 'Page not found',
-        'notfound_lead': 'The address you opened does not exist or has changed. Check the link or go back to the home page.',
-        'notfound_home': 'Back to home',
-        'warning': 'Educational tool. Not a substitute for professional agronomic or '
-                   'laboratory diagnosis.',
-        'all': 'All rights reserved',
-        'privacy_intro': 'VitiExpert can be used without an account; in that case questionnaire '
-                         'answers are not stored. With an account, each consultation is saved in '
-                         'your private history, which only you can see and delete at any time in '
-                         'My account. Passwords are stored only as a cryptographic hash.',
-        'privacy_preferences': 'Language preference is kept for the session. Your chosen '
-                               'theme and weather city may be saved in the browser.',
-        'privacy_external': 'Weather forecasts and news use external services with their own '
-                            'privacy policies.'},
- 'es': {'home': 'Inicio',
-        'expert': 'Sistema Experto',
-        'climate': 'Clima',
-        'diseases': 'Enfermedades y Plagas',
-        'navopen': 'Abrir menú',
-        'eyebrow': 'CONOCIMIENTO QUE CULTIVA',
-        'headline': 'Ciencia y tecnología para la salud de las vides.',
-        'subtitle': 'Conocimiento agrícola y apoyo inteligente para un cultivo más saludable '
-                    'y sostenible.',
-        'explore': 'Explorar el sistema',
-        'news_eyebrow': 'ACTUALIDAD DEL VIÑEDO',
-        'news_title': 'Noticias de Viticultura',
-        'news_intro': 'Noticias de todo Brasil sobre uvas, vides y viñedos, con fotografías '
-                      'originales o imágenes ilustrativas cuando sea necesario.',
-        'news_loading': 'Consultando noticias recientes…',
-        'news_unavailable': 'No hay noticias de viticultura disponibles en este momento. '
-                            'Inténtelo más tarde.',
-        'news_source': 'Noticias de medios externos · Actualización periódica · Fotos: '
-                       'publicaciones originales · Ilustraciones: IA · Títulos traducidos '
-                       'automáticamente del portugués',
-        'privacy': 'Términos de uso y seguridad',
-        'notfound': 'Página no encontrada',
-        'notfound_lead': 'La dirección que abrió no existe o cambió. Revise el enlace o vuelva al inicio.',
-        'notfound_home': 'Volver al inicio',
-        'warning': 'Herramienta educativa. No sustituye una evaluación agronómica '
-                   'profesional.',
-        'all': 'Todos los derechos reservados',
-        'privacy_intro': 'VitiExpert puede usarse sin registro; en ese caso las respuestas del '
-                         'cuestionario no se guardan. Con una cuenta, cada consulta queda en su '
-                         'historial privado, que solo usted ve y puede eliminar en cualquier momento '
-                         'en Mi cuenta. La contraseña se guarda solo como hash criptográfico.',
-        'privacy_preferences': 'El idioma se mantiene durante la sesión. El tema visual y la '
-                               'ciudad del clima pueden guardarse en el navegador.',
-        'privacy_external': 'El pronóstico del tiempo y las noticias utilizan servicios '
-                            'externos con sus propias políticas de privacidad.'}}
 
+# Idioma da página
 
-# ============================================================
-# CONTROLE DE IDIOMA
-# ============================================================
 
 def lang():
     """
@@ -228,10 +226,7 @@ def lang():
         Código do idioma: pt, en ou es.
     """
 
-    code = (
-        request.args.get("lang")
-        or session.get("lang", "pt")
-    )
+    code = request.args.get("lang") or session.get("lang", "pt")
 
     # Impede o uso de idiomas não cadastrados.
     if code not in TRANSLATIONS:
@@ -243,12 +238,9 @@ def lang():
     return code
 
 
-# ============================================================
-# 7. CONFIGURAÇÃO DO CACHE DE NOTÍCIAS
-# ============================================================
+# Cache das notícias
 
-# O cache reduz a quantidade de consultas externas.
-# Nenhuma notícia é fabricada ou armazenada permanentemente.
+# Cache em memória para não consultar os feeds a cada acesso.
 
 _news_cache = {
     "until": datetime.min.replace(tzinfo=timezone.utc),
@@ -259,22 +251,21 @@ _news_cache = {
 _news_lock = threading.Lock()
 
 
-# ============================================================
-# 8. NOTÍCIAS DE UVA E VITICULTURA (SOMENTE A PÁGINA INÍCIO)
-# ============================================================
+# Notícias de viticultura (página Início)
 
-# Fontes externas: somente matérias relacionadas a videiras/uvas.
-# Notícias Agrícolas costuma disponibilizar imagens nos elementos RSS;
-# o Google Notícias amplia a cobertura temática, mas frequentemente
-# não fornece fotografias no RSS. Nunca associar imagem de outra matéria.
+# Notícias Agrícolas costuma mandar a foto no RSS; o Google Notícias tem mais
+# matérias, mas quase sempre sem foto.
 _NEWS_FEEDS = (
     ("https://www.noticiasagricolas.com.br/conteudo.rss", "Notícias Agrícolas"),
     ("https://www.noticiasagricolas.com.br/noticias.rss", "Notícias Agrícolas"),
     ("https://www.agrolink.com.br/rss/noticias.rss", "Agrolink"),
     (
-        "https://news.google.com/rss/search?q=" + quote(
-            '(uva OR videira OR vinhedos OR viticultura OR vitivinicultura OR vinícola) when:30d'
-        ) + "&hl=pt-BR&gl=BR&ceid=BR:pt-419", "Google Notícias"
+        "https://news.google.com/rss/search?q="
+        + quote(
+            "(uva OR videira OR vinhedos OR viticultura OR vitivinicultura OR vinícola) when:30d"
+        )
+        + "&hl=pt-BR&gl=BR&ceid=BR:pt-419",
+        "Google Notícias",
     ),
 )
 _MEDIA_NS = "{http://search.yahoo.com/mrss/}"
@@ -316,8 +307,7 @@ def _is_grape_news(title, description=""):
         return False
     # Evita tratar 'Vinhedo' (município de SP) como referência à cultura.
     without_town = re.sub(r"\bVinhedo\s*\(SP\)\b", "", title, flags=re.I)
-    if (_GRAPE_TITLE_RE.search(without_town)
-            or re.search(r"\b(?:videira|vinhedo)\b", without_town)):
+    if _GRAPE_TITLE_RE.search(without_town) or re.search(r"\b(?:videira|vinhedo)\b", without_town):
         return True
     if _WINE_TITLE_RE.search(title):
         return bool(_WINE_PRODUCTION_RE.search(title + " " + description))
@@ -350,7 +340,7 @@ class _NewsImageHTMLParser(HTMLParser):
 
 
 def _news_image(item):
-    """Foto real fornecida no próprio RSS; nunca foto genérica inventada."""
+    """Foto que veio no próprio item do RSS, se houver."""
     candidates = []
     for tag in (_MEDIA_NS + "thumbnail", _MEDIA_NS + "content", "enclosure"):
         for element in item.iter(tag):
@@ -372,8 +362,11 @@ def _news_image(item):
 
     for candidate in candidates:
         candidate = unescape(candidate.strip())
-        if (candidate.startswith("https://") and len(candidate) < 1800
-                and not re.search(r"(?:favicon|sprite|tracking|pixel|logo)[._/-]", candidate, re.I)):
+        if (
+            candidate.startswith("https://")
+            and len(candidate) < 1800
+            and not re.search(r"(?:favicon|sprite|tracking|pixel|logo)[._/-]", candidate, re.I)
+        ):
             return candidate
     return ""
 
@@ -400,18 +393,18 @@ def _parse_news_feed(data, publisher):
         if not _is_grape_news(title, description):
             continue
         source = item.find("source")
-        source_name = (
-            source.text.strip() if source is not None and source.text
-            else publisher
+        source_name = source.text.strip() if source is not None and source.text else publisher
+        articles.append(
+            {
+                "title": title[:220],
+                "url": link,
+                "source": source_name[:100],
+                "published": (item.findtext("pubDate") or "").strip(),
+                "image": _news_image(item),
+                "description": description,
+                "feed": publisher,
+            }
         )
-        articles.append({
-            "title": title[:220], "url": link,
-            "source": source_name[:100],
-            "published": (item.findtext("pubDate") or "").strip(),
-            "image": _news_image(item),
-            "description": description,
-            "feed": publisher,
-        })
     return articles
 
 
@@ -478,9 +471,11 @@ def _safe_news_url(url):
 def _valid_photo_url(url, page_url=""):
     """Seleciona imagens HTTPS da mesma matéria, excluindo logotipos e pixels."""
     result = urljoin(page_url, unescape(url.strip())) if url else ""
-    if (not _safe_news_url(result)
+    if (
+        not _safe_news_url(result)
         or re.search(r"(?:favicon|logo|sprite|tracking|1x1|pixel|default-avatar)", result, re.I)
-        or re.search(r"\.(?:svg|ico)(?:[?#]|$)", result, re.I)):
+        or re.search(r"\.(?:svg|ico)(?:[?#]|$)", result, re.I)
+    ):
         return ""
     return result
 
@@ -488,10 +483,13 @@ def _valid_photo_url(url, page_url=""):
 def _read_feed(feed):
     url, publisher = feed
     try:
-        req = Request(url, headers={
-            "User-Agent": "Mozilla/5.0 (compatible; VitiExpert/0.3; educational news reader)",
-            "Accept": "application/rss+xml, application/xml, text/xml;q=0.9,*/*;q=0.7",
-        })
+        req = Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (compatible; VitiExpert/0.3; educational news reader)",
+                "Accept": "application/rss+xml, application/xml, text/xml;q=0.9,*/*;q=0.7",
+            },
+        )
         with urlopen(req, timeout=4) as response:
             payload = response.read(850_000)
         return _parse_news_feed(payload, publisher)
@@ -516,11 +514,14 @@ def _lookup_article_photo(article):
         return {**article, "image": ""}
 
     try:
-        req = Request(link, headers={
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml",
-            "Accept-Language": "pt-BR,pt;q=0.9",
-        })
+        req = Request(
+            link,
+            headers={
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "pt-BR,pt;q=0.9",
+            },
+        )
         with urlopen(req, timeout=4) as response:
             resolved = response.geturl()
             if not _safe_news_url(resolved):
@@ -540,14 +541,15 @@ def _lookup_article_photo(article):
     return {**article, "image": ""}
 
 
-# As imagens são vinculadas a tokens criados pelo servidor, nunca a uma URL
-# fornecida diretamente pelo visitante. O navegador não depende de hotlinking.
+# A foto é servida por um token gerado aqui, e não pela URL que vem do navegador.
 _news_photo_sources = {}
 _news_photo_cache = {}
 _news_photo_lock = threading.Lock()
 _NEWS_IMAGE_TYPES = {
-    "image/jpeg": "image/jpeg", "image/png": "image/png",
-    "image/webp": "image/webp", "image/avif": "image/avif",
+    "image/jpeg": "image/jpeg",
+    "image/png": "image/png",
+    "image/webp": "image/webp",
+    "image/avif": "image/avif",
     "image/gif": "image/gif",
 }
 
@@ -561,24 +563,25 @@ def _prepare_photo_news(articles):
 
     A interface primeiro tenta a foto publicada pela fonte. Sem foto, ou quando
     o carregamento falha, usa imagens locais ilustrativas em sequência.
-    Nunca atribui uma fotografia de outra reportagem à matéria.
     """
     selected = [dict(item) for item in articles[:8]]
     # Só consultamos páginas originais de publicações; links intermediários
     # do Google Notícias continuam válidos, mas não fornecem foto.
     pending_indices = [
-        index for index, item in enumerate(selected)
+        index
+        for index, item in enumerate(selected)
         if not _valid_photo_url(item.get("image", ""))
-        and urlsplit(item["url"]).hostname not in {
-            "news.google.com", "google.com", "www.google.com"
-        }
+        and urlsplit(item["url"]).hostname
+        not in {"news.google.com", "google.com", "www.google.com"}
     ]
     if pending_indices:
         with ThreadPoolExecutor(max_workers=min(7, len(pending_indices))) as executor:
-            augmented = list(executor.map(
-                _lookup_article_photo,
-                [selected[index] for index in pending_indices],
-            ))
+            augmented = list(
+                executor.map(
+                    _lookup_article_photo,
+                    [selected[index] for index in pending_indices],
+                )
+            )
         for index, updated in zip(pending_indices, augmented):
             selected[index] = updated
 
@@ -588,8 +591,9 @@ def _prepare_photo_news(articles):
         if photo_url:
             token = _image_token(photo_url, item["url"])
             _news_photo_sources[token] = (photo_url, item["url"])
-            results.append({**item, "image": "/api/news/photo/" + token,
-                            "image_original": photo_url})
+            results.append(
+                {**item, "image": "/api/news/photo/" + token, "image_original": photo_url}
+            )
         else:
             # O app.js mostra a próxima das cinco imagens locais.
             results.append({**item, "image": "", "image_original": ""})
@@ -613,11 +617,14 @@ def grape_news_photo(token):
         if not _safe_news_url(photo_url) or not _safe_news_url(article_url):
             return ("Not found", 404)
         try:
-            req = Request(photo_url, headers={
-                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
-                "Accept": "image/avif,image/webp,image/png,image/jpeg,image/*;q=0.8",
-                "Referer": article_url,
-            })
+            req = Request(
+                photo_url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
+                    "Accept": "image/avif,image/webp,image/png,image/jpeg,image/*;q=0.8",
+                    "Referer": article_url,
+                },
+            )
             with urlopen(req, timeout=5) as response:
                 mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
                 if mime not in _NEWS_IMAGE_TYPES:
@@ -647,9 +654,7 @@ def grape_news_photo(token):
     return response
 
 
-# ------------------------------------------------------------
-# TRADUÇÃO AUTOMÁTICA DAS NOTÍCIAS (EN / ES)
-# ------------------------------------------------------------
+# Tradução automática das notícias (EN/ES)
 # As fontes são brasileiras e publicam em português. Para os idiomas
 # inglês e espanhol, título e resumo passam por tradução automática
 # (MyMemory, serviço gratuito sem chave). Cada texto é traduzido uma
@@ -668,16 +673,24 @@ def _translate_text(text, target):
     with _translation_lock:
         if key in _translation_cache:
             return _translation_cache[key]
-    url = (_TRANSLATE_URL + "?q=" + quote(text[:450])
-           + "&langpair=" + quote("pt-BR|" + _TRANSLATE_TARGETS[target]))
+    url = (
+        _TRANSLATE_URL
+        + "?q="
+        + quote(text[:450])
+        + "&langpair="
+        + quote("pt-BR|" + _TRANSLATE_TARGETS[target])
+    )
     try:
         req = Request(url, headers={"User-Agent": "VitiExpert/0.3 (educational news reader)"})
         with urlopen(req, timeout=4) as response:
             data = json.loads(response.read(200_000).decode("utf-8"))
         translated = unescape(str(data["responseData"]["translatedText"] or "")).strip()
-        if (data.get("responseStatus") not in (200, "200") or not translated
-                or "MYMEMORY WARNING" in translated.upper()
-                or "QUERY LENGTH LIMIT" in translated.upper()):
+        if (
+            data.get("responseStatus") not in (200, "200")
+            or not translated
+            or "MYMEMORY WARNING" in translated.upper()
+            or "QUERY LENGTH LIMIT" in translated.upper()
+        ):
             return None
     except (OSError, ValueError, KeyError, TypeError):
         return None
@@ -695,7 +708,9 @@ def _translate_news(items, code):
 
     def translate_item(item):
         title = _translate_text(item.get("title", ""), code)
-        description = _translate_text(item.get("description", ""), code) if item.get("description") else ""
+        description = (
+            _translate_text(item.get("description", ""), code) if item.get("description") else ""
+        )
         if not title:
             return {**item, "translated": False}
         return {
@@ -731,17 +746,18 @@ def grape_news():
         items = _news_cache["items"]
         updated_at = _news_cache.get("updated_at")
     items = _translate_news(items, code)
-    return jsonify({
-        "items": items,
-        "updated_at": updated_at,
-        "available": bool(items),
-        "lang": code,
-    })
+    return jsonify(
+        {
+            "items": items,
+            "updated_at": updated_at,
+            "available": bool(items),
+            "lang": code,
+        }
+    )
 
 
-# ============================================================
-# 9. ROTAS DAS PÁGINAS
-# ============================================================
+# Rotas das páginas
+
 
 @app.get("/favicon.ico")
 def favicon():
@@ -755,8 +771,9 @@ def page_not_found(_error):
     if request.path.startswith(("/api/", "/static/")):
         return ("Not found", 404)
     code = lang()
-    return render_template("site.html", page="notfound", lang=code, t=TRANSLATIONS[code],
-                           tcc_question_groups=[], tx={}), 404
+    return render_template(
+        "site.html", page="notfound", lang=code, t=TRANSLATIONS[code], tcc_question_groups=[], tx={}
+    ), 404
 
 
 @app.route("/")
@@ -795,54 +812,45 @@ def pages(page="home"):
         page=page,
         lang=code,
         t=TRANSLATIONS[code],
-        tcc_question_groups=get_sinta_question_groups(get_sinta_knowledge()["variaveis"],code) if page == "expert" else [],
+        tcc_question_groups=get_sinta_question_groups(get_sinta_knowledge()["variaveis"], code)
+        if page == "expert"
+        else [],
         tx=SINTA_UI[code] if page == "expert" else {},
     )
 
 
+# API de diagnóstico
 
-# ============================================================
-# API DE DIAGNÓSTICO — BASE DE CONHECIMENTO E INFERÊNCIA
-# ============================================================
 
 @app.post("/api/diagnose")
 def diagnose():
-    """Inferência em Python utilizando regras originais e complementares.
+    """Inferência em Python com as regras da base do Expert SINTA (VitiExpert10.bcm).
 
-    O campo answers aceita as 19 perguntas originais e 15 complementares.
-    Fatos não informados recebem 'nao_sei', nunca 'nao'. O campo opcional
-    certainties traz a confiança do usuário (0 a 100) em cada resposta;
-    sem ele, Sim/Não valem 100%. Os CNFs provêm
-    do arquivo original e seguem as fórmulas possibilistas do manual SINTA.
+    answers: respostas das 31 perguntas (o que faltar vira 'nao_sei').
+    certainties (opcional): certeza do usuário em cada resposta, de 0 a 100.
     """
     payload = request.get_json(silent=True)
-    if not isinstance(payload, dict) or 'answers' not in payload:
-        return jsonify({'error':'Envie um objeto JSON com o campo answers.'}), 400
+    if not isinstance(payload, dict) or "answers" not in payload:
+        return jsonify({"error": "Envie um objeto JSON com o campo answers."}), 400
     try:
-        answers = sanitize_sinta_answers(payload['answers'])
-        result = infer_sinta(answers, lang(), payload.get('certainties'))
-        certainties = sanitize_certainties(payload.get('certainties'), answers)
+        answers = sanitize_sinta_answers(payload["answers"])
+        result = infer_sinta(answers, lang(), payload.get("certainties"))
+        certainties = sanitize_certainties(payload.get("certainties"), answers)
     except (ValueError, TypeError) as exc:
-        return jsonify({'error':str(exc)}), 400
+        return jsonify({"error": str(exc)}), 400
     # Com login, a consulta entra no histórico privado do usuário.
-    result['saved'] = record_consultation(
-        answers, {k: round(v * 100) for k, v in certainties.items()}, result)
+    result["saved"] = record_consultation(
+        answers, {k: round(v * 100) for k, v in certainties.items()}, result
+    )
     return jsonify(result)
 
 
-# ============================================================
-# CONTAS DE USUÁRIO (cadastro, e-mail, login e histórico)
-# ============================================================
+# Contas de usuário
 init_accounts(app, TRANSLATIONS, lang)
 
-
-# ============================================================
-# 11. INICIALIZAÇÃO DO SERVIDOR
-# ============================================================
 
 # Executa o servidor local somente quando app.py
 # é iniciado diretamente.
 
 if __name__ == "__main__":
-
     app.run(debug=False)

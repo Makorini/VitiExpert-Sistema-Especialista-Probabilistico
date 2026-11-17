@@ -2,7 +2,7 @@
 
 ## Objetivo e escopo
 
-Sistema especialista por regras SE/ENTÃO com Fatores de Confiança, construído no **Expert SINTA** e executado por um motor em **Python**, para indicar hipóteses de doenças da videira a partir de sinais observados. O usuário responde a 31 perguntas com Sim, Não ou Não sei e, em Sim/Não, informa o quanto tem certeza (0–100%). O resultado mostra até três hipóteses, o nível de confiança e as regras acionadas.
+Sistema especialista por regras SE/ENTÃO com Fatores de Confiança, construído no **Expert SINTA** e executado por um motor em **Python**, para indicar hipóteses de doenças da videira a partir de sinais observados. O usuário responde a 31 perguntas com Sim, Não ou Não sei e, em Sim/Não, informa o quanto tem certeza (0–100%). O resultado mostra até três hipóteses, o nível de confiança e os sinais que levaram a cada uma; o nome da doença abre a ficha do catálogo, com a área "Como tratar" (resumo das recomendações da Embrapa Uva e Vinho). As regras acionadas e os CNFs continuam no retorno da API (`/api/diagnose`), mas não são exibidos ao usuário final.
 
 ### As dez doenças
 
@@ -28,6 +28,8 @@ Míldio, oídio, antracnose, podridão-cinzenta, podridão-da-uva-madura, podrid
 | Aceitação da regra | premissa ≥ 50% (valor mínimo padrão) | seções 1.4 e 2.8 |
 
 A confiança de cada resposta é a certeza informada pelo usuário (padrão 100%). "Não sei" deixa o fato desconhecido: a regra não dispara e o sistema sugere perguntas que poderiam completá-la. Esses valores são **fatores de confiança**, não probabilidades estatísticas.
+
+**Por que "probabilístico":** no título do projeto, o termo indica o tratamento da incerteza, em oposição à versão determinística anterior (sintoma só verdadeiro ou falso). O modelo usado é o de fatores de certeza do MYCIN (Shortliffe e Buchanan, 1975), criado como aproximação do raciocínio probabilístico quando não há dados estatísticos suficientes, e adotado pelo Expert SINTA. Por isso os percentuais são graus de confiança, e não a chance estatística de a videira ter a doença.
 
 ## Contas e dados
 

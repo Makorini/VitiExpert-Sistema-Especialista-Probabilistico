@@ -90,53 +90,19 @@
   document.querySelectorAll('.page-diseases [data-i18n]').forEach(node=>{let key=node.dataset.i18n;if(typeof t[key]==='string')node.textContent=t[key];});
   ui.search.placeholder=t.search;
   ui.search.setAttribute('aria-label',t.search);
-  ui.close.setAttribute('aria-label',t.close);
 
-  function makePhoto(item,large=false) {
-    const wrap=el('div',large?'dv-modal-photo':'dv-card-photo');
-    const fallback=el('div','dv-fallback');
-    const official=el('a','dv-fallback-link',t.gallery); official.href=item.source;official.target='_blank';official.rel='noopener noreferrer';
-    fallback.append(el('b','','❧'),el('span','',t.noPhoto),official);
-    wrap.append(fallback);
-    if (item.photo) {
-      const img=el('img');img.src=item.photo;img.alt=`${item.name} — ${t.imageCredit}`;
-      img.loading=large?'eager':'lazy';img.referrerPolicy='no-referrer';
-      img.onerror=()=>{img.hidden=true;fallback.style.display='flex';const credit=wrap.querySelector('.dv-photo-credit');if(credit)credit.hidden=true;};
-      wrap.append(img);
-      const credit=el('span','dv-photo-credit',t.imageCredit);wrap.append(credit);
-      // Some browsers do not support :has; manually hide fallback when image actually loads.
-      img.addEventListener('load',()=>{fallback.style.display='none'});
-    }
-    return wrap;
-  }
+  // A foto do cartão e a ficha completa vêm de disease-sheet.js (também usada no Sistema Especialista).
   function createCard(item) {
     const card=el('article','dv-card');
-    card.append(makePhoto(item));
+    card.append(window.VitiSheet.photo(item));
     const body=el('div','dv-card-body');
     const meta=el('div','dv-meta');
     const tag=el('span','dv-tag'+(item.group==='Pragas'?' pest':'')+(item.quarantine?' quarantine':''),groupLabel(item));
     meta.append(tag,el('span','dv-part',item.organs));
     body.append(meta,el('h3','',item.name),el('p','dv-card-text',item.signs));
-    const button=el('button','dv-card-btn',t.view+'  ↗');button.type='button';button.addEventListener('click',()=>showDetails(item));
+    const button=el('button','dv-card-btn',t.view+'  ↗');button.type='button';button.addEventListener('click',()=>window.VitiSheet.open(item.id,button));
     body.append(button); card.append(body);
     return card;
-  }
-  function info(title,content,wide=false){const section=el('section','dv-info'+(wide?' dv-info-wide':''));section.append(el('h3','',title),el('p','',content));return section;}
-  function showDetails(item) {
-    ui.modal.replaceChildren();
-    ui.modal.append(makePhoto(item,true));
-    const inner=el('div','dv-modal-inner');
-    inner.append(el('span','dv-tag'+(item.quarantine?' quarantine':''),groupLabel(item)),el('h2','',item.name),el('p','dv-agent',`${t.scientific}: ${item.agent}`));
-    if(item.quarantine)inner.append(el('p','dv-alert',t.quarantineAlert));
-    const columns=el('div','dv-modal-columns');
-    columns.append(info(t.symptoms,item.signs),info(t.differential,item.differential),info(t.observation,item.monitoring),info(t.affected,item.organs));
-    inner.append(columns);
-    const row=el('div','dv-source-row');
-    const link=el('a','',t.gallery);link.href=item.source;link.target='_blank';link.rel='noopener noreferrer';
-    row.append(link,el('span','dv-source-note',t.notice));inner.append(row);
-    ui.modal.append(inner);
-    if(typeof ui.dialog.showModal==='function')ui.dialog.showModal();else ui.dialog.setAttribute('open','');
-    ui.close.focus();
   }
   function filterItems() {
     const text=normal(state.text.trim());
@@ -165,7 +131,5 @@
   ui.reset.addEventListener('click',reset);
   document.querySelectorAll('.dv-chip').forEach(button=>button.addEventListener('click',()=>{state.group=button.dataset.group;updateButtons();render()}));
   document.querySelectorAll('.dv-organ').forEach(button=>button.addEventListener('click',()=>{state.organ=button.dataset.organ;updateButtons();render()}));
-  ui.close.addEventListener('click',()=>ui.dialog.close());
-  ui.dialog.addEventListener('click',event=>{if(event.target===ui.dialog)ui.dialog.close()});
   render();
 })();
