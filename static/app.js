@@ -98,8 +98,10 @@ for (const link of document.querySelectorAll(".lang-menu a")) {
 const newsGrid = document.getElementById("news-grid");
 
 if (newsGrid) {
+    // Prefixo do site (ex.: /VitiExpert quando publicado em makorini.com.br/VitiExpert).
+    const BASE = document.getElementById("viti-config")?.dataset.base || "";
     const fallbackImages = [1, 2, 3, 4, 5].map(number =>
-        `/static/news-fallback/vitiexpert-noticia-${number}.webp`
+        `${BASE}/static/news-fallback/vitiexpert-noticia-${number}.webp`
     );
     const lang = (document.documentElement.lang || "pt").toLowerCase();
     const illustrationText = lang.startsWith("en")
@@ -107,6 +109,10 @@ if (newsGrid) {
         : lang.startsWith("es")
             ? "Imagen ilustrativa generada por IA"
             : "Imagem ilustrativa gerada por IA";
+    // Versão curta do aviso, usada no celular (a miniatura é pequena).
+    const illustrationShort = lang.startsWith("en")
+        ? "AI image"
+        : lang.startsWith("es") ? "Generada por IA" : "Gerada por IA";
 
     const showNewsError = () => {
         newsGrid.replaceChildren();
@@ -139,13 +145,20 @@ if (newsGrid) {
         photo.alt = illustrationText;
         const label = document.createElement("span");
         label.className = "news-illustrative-label";
-        label.textContent = illustrationText;
+        label.title = illustrationText;
+        const full = document.createElement("span");
+        full.className = "news-label-full";
+        full.textContent = illustrationText;
+        const short = document.createElement("span");
+        short.className = "news-label-short";
+        short.textContent = illustrationShort;
+        label.append(full, short);
         media.append(label);
         sequenceIllustrations();
     };
 
     const newsLang = ["pt", "en", "es"].includes(lang.slice(0, 2)) ? lang.slice(0, 2) : "pt";
-    fetch("/api/news?lang=" + newsLang, { signal: AbortSignal.timeout(30000) })
+    fetch(BASE + "/api/news?lang=" + newsLang, { signal: AbortSignal.timeout(30000) })
         .then(response => {
             if (!response.ok) throw new Error("News unavailable");
             return response.json();
@@ -244,7 +257,7 @@ if (newsGrid) {
 
                 if (typeof item.image === "string"
                     && item.image.startsWith("/api/news/photo/")) {
-                    photo.src = item.image;
+                    photo.src = BASE + item.image;
                 } else {
                     useIllustration(article, photo, media);
                 }

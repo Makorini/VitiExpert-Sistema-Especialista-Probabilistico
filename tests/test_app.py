@@ -23,7 +23,7 @@ def test_diagnosis():
     r = c.post(
         "/api/diagnose",
         json={
-            "answers": {"manchas_amarelas": "sim", "folhas_murchas": "sim", "chuva_continua": "sim"}
+            "answers": {"manchas_amarelas": "sim", "chuva_continua": "sim"}
         },
     )
     assert r.status_code == 200

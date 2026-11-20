@@ -9,6 +9,8 @@
   if (!form || !output) return;
   const locale = (document.documentElement.lang || 'pt').slice(0, 2);
   const meta = document.getElementById('viti-config');
+  // Prefixo do site (ex.: /VitiExpert); vazio quando roda na raiz.
+  const BASE = meta?.dataset.base || '';
   let dict = {};
   try { dict = JSON.parse(meta?.dataset.expertTranslations || '{}'); } catch (_) {}
   const tr = (key, fallback) => dict[key] || fallback;
@@ -32,7 +34,7 @@
     button.type = 'button';
     button.setAttribute('aria-haspopup','dialog');
     button.title = tr('view_sheet','Ver ficha da doença');
-    button.append(make('span','',item.name), make('span','tcc-disease-hint',tr('view_sheet','Ver ficha da doença') + ' ↗'));
+    button.append(make('span','',item.name), make('span','tcc-disease-hint',tr('view_sheet','Ver ficha da doença') + ' ↗︎'));
     button.addEventListener('click', () => window.VitiSheet.open(sheetId, button));
     title.append(button);
     return title;
@@ -100,12 +102,12 @@
     if (data.saved) {
       saved.textContent = tr('saved_note','Consulta salva no seu histórico.');
       saved.append(' ');
-      const link = make('a','',tr('account_link','↗'));
-      link.href = '/account?lang=' + encodeURIComponent(locale);
+      const link = make('a','',tr('account_link','↗︎'));
+      link.href = BASE + '/account?lang=' + encodeURIComponent(locale);
       saved.append(link);
     } else {
       const link = make('a','',tr('login_to_save','Entre na sua conta para salvar as consultas.'));
-      link.href = '/login?lang=' + encodeURIComponent(locale) + '&next=' + encodeURIComponent('/expert?lang=' + locale);
+      link.href = BASE + '/login?lang=' + encodeURIComponent(locale) + '&next=' + encodeURIComponent('/expert?lang=' + locale);
       saved.append(link);
     }
     output.append(saved);
@@ -141,7 +143,7 @@
     output.hidden = false;
     output.replaceChildren(make('p','tcc-results-note',tr('loading','Analisando respostas...')));
     try {
-      const response = await fetch('/api/diagnose?lang=' + encodeURIComponent(locale),{
+      const response = await fetch(BASE + '/api/diagnose?lang=' + encodeURIComponent(locale),{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers, certainties})
       });
       const data=await response.json();

@@ -30,7 +30,7 @@ def test_expert_question_ids_are_hidden_in_all_languages():
         questions = [
             q for group in question_groups(knowledge()["variaveis"], lang) for q in group["items"]
         ]
-        assert len(questions) == 31
+        assert len(questions) == 28
         for question in questions:
             rendered = markup.render(question=question)
             p = re.fullmatch(r'<p id="([^"]+)">(.*?)</p>', rendered, flags=re.DOTALL)

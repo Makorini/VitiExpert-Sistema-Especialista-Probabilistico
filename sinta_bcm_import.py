@@ -1,6 +1,6 @@
 """Importador verificável de bases do Expert SINTA (.bcm).
 
-Base em uso: knowledge/VitiExpert10.bcm (10 doenças da videira, 17 regras).
+Base em uso: knowledge/VitiExpert10.bcm (10 doenças da videira, 16 regras).
 O arquivo .BCM usa registros Pascal (strings com comprimento, registros de
 variáveis/valores de tamanho fixo) e REAL48 para os CNFs. Este parser valida
 o formato efetivamente encontrado nas bases deste projeto (VitiExpert10.bcm e

@@ -97,7 +97,8 @@ def _valid_password(password):
 
 def _safe_next(target):
     if target and target.startswith("/") and not target.startswith("//") and "\\" not in target:
-        return target
+        # O "next" é relativo ao app; com o site publicado em /VitiExpert, o prefixo entra aqui.
+        return request.script_root + target
     return None
 
 

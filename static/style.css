@@ -342,6 +342,7 @@ html[data-theme="light"] .theme-toggle { color: #e7f1cf; background: rgba(129,17
     font-size: 10px; line-height: 1.25; letter-spacing: .01em;
     pointer-events: none;
 }
+.news-label-short { display: none; }
 
 .news-content { display: flex; min-width: 0; flex-direction: column; align-self: stretch; padding: 1px 0; }
 .news-meta { display: flex; gap: 8px 17px; flex-wrap: wrap; align-items: baseline; margin: 0 0 9px; color: var(--accent); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
@@ -360,6 +361,10 @@ html[data-theme="light"] .theme-toggle { color: #e7f1cf; background: rgba(129,17
     .news-meta { font-size: 10px; margin-bottom: 6px; }
     .news-excerpt { display: none; }
     .news-arrow { display: none; }
+    /* No celular, o aviso de imagem gerada por IA fica curto e discreto. */
+    .news-illustrative-label { left: 4px; bottom: 4px; right: auto; max-width: calc(100% - 8px); padding: 2px 5px; font-size: 9px; line-height: 1.3; white-space: nowrap; }
+    .news-label-full { display: none; }
+    .news-label-short { display: inline; }
 }
 .about-band { padding: clamp(74px, 8vw, 115px) clamp(26px, 7vw, 130px); background: #372343; color: #f5ecf7; }
 .about-band .section-label { color: #c2dca6; }
@@ -382,7 +387,7 @@ html[data-theme="light"] .theme-toggle { color: #e7f1cf; background: rgba(129,17
     background:
         linear-gradient(180deg, rgba(18,8,28,.82), rgba(18,8,28,.95)),
         linear-gradient(90deg, rgba(18,8,28,.94) 0%, rgba(18,8,28,.78) 35%, rgba(18,8,28,.58) 100%),
-        url("/static/vinhedo-secoes.jpg") center/cover no-repeat;
+        url("vinhedo-secoes.jpg") center/cover no-repeat;
     box-shadow: var(--shadow);
 }
 .expert-page .inner-heading,

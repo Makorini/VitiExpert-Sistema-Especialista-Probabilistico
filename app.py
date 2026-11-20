@@ -1,7 +1,7 @@
 """VitiExpert — aplicação web Flask para apoio à identificação de doenças da videira.
 
 Motor de regras SE/ENTÃO com Fatores de Certeza e base de conhecimento
-proveniente do Expert SINTA (knowledge/VitiExpert10.bcm: 10 doenças, 17 regras).
+proveniente do Expert SINTA (knowledge/VitiExpert10.bcm: 10 doenças, 16 regras).
 """
 
 
@@ -826,7 +826,7 @@ def pages(page="home"):
 def diagnose():
     """Inferência em Python com as regras da base do Expert SINTA (VitiExpert10.bcm).
 
-    answers: respostas das 31 perguntas (o que faltar vira 'nao_sei').
+    answers: respostas das 28 perguntas (o que faltar vira 'nao_sei').
     certainties (opcional): certeza do usuário em cada resposta, de 0 a 100.
     """
     payload = request.get_json(silent=True)

@@ -45,7 +45,7 @@ def test_sinta_base_export_matches_bcm_file():
     data = (ROOT / "knowledge/VitiExpert10.bcm").read_bytes()
     export = json.loads((ROOT / "knowledge/sinta_base_export.json").read_text(encoding="utf-8"))
     assert hashlib.sha256(data).hexdigest() == export["sha256"]
-    assert len(export["hipoteses"]) == 10 and len(export["regras"]) == 17
+    assert len(export["hipoteses"]) == 10 and len(export["regras"]) == 16
 
 
 def test_tab_icon_is_original_and_favicon_route_works():

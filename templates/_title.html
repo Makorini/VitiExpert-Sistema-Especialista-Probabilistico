@@ -3,5 +3,5 @@
    cai sozinho para a linha de baixo quando o título quebra. #}
 {% macro grad_text(text) -%}
 {%- set words = (text|string).split(' ') -%}
-<span class="grad-text">{{ words[:-1]|join(' ') }}{{ ' ' if words|length > 1 }}<span class="grad-nowrap">{{ words[-1] }}<img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span>
+<span class="grad-text">{{ words[:-1]|join(' ') }}{{ ' ' if words|length > 1 }}<span class="grad-nowrap">{{ words[-1] }}<img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span>
 {%- endmacro %}

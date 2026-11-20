@@ -1,20 +1,19 @@
 {
   "formato": "Expert SINTA BCM / extração específica verificada",
   "arquivo_origem": "VitiExpert10.bcm",
-  "sha256": "a5f535008cdeeba5ce7822dd574fff0d8a1c1f491c1fc0be1a38d70bcda72623",
+  "sha256": "c08d295ec14ba7cab5c988b6c22ae17ac5a437a1615ad1c02c106721cefb34ab",
   "quantidades": {
-    "variaveis": 32,
-    "valores": 72,
-    "regras": 17,
-    "premissas": 32,
-    "conclusoes": 17,
+    "variaveis": 29,
+    "valores": 66,
+    "regras": 16,
+    "premissas": 29,
+    "conclusoes": 16,
     "hipoteses": 10
   },
   "variaveis": [
     "manchas_oleosas",
     "mofo_branco_inferior",
     "manchas_amarelas",
-    "folhas_murchas",
     "chuva_continua",
     "poeira_branca",
     "bagas_rachadas",
@@ -34,8 +33,6 @@
     "frutos_moles",
     "bagas_vazando_suco",
     "escoriacoes_ramos_base",
-    "galhos_quebradicos",
-    "brotacao_fraca",
     "pustulas_amarelas_inferiores",
     "manchas_angulares_superiores",
     "folhas_maduras_afetadas",
@@ -45,12 +42,6 @@
     "diagnostico"
   ],
   "valores": [
-    "sim",
-    "não",
-    "sim",
-    "não",
-    "sim",
-    "não",
     "sim",
     "não",
     "sim",
@@ -169,12 +160,6 @@
           "fim": false
         },
         {
-          "variavel": "folhas_murchas",
-          "operador": "=",
-          "valor": "sim",
-          "fim": false
-        },
-        {
           "variavel": "chuva_continua",
           "operador": "=",
           "valor": "sim",
@@ -257,7 +242,7 @@
         {
           "variavel": "diagnostico",
           "valor": "antracnose",
-          "cnf": 0.85
+          "cnf": 0.7
         }
       ]
     },
@@ -443,32 +428,6 @@
       "nome_original": "Regra 13",
       "se_todas": [
         {
-          "variavel": "galhos_quebradicos",
-          "operador": "=",
-          "valor": "sim",
-          "fim": false
-        },
-        {
-          "variavel": "brotacao_fraca",
-          "operador": "=",
-          "valor": "sim",
-          "fim": true
-        }
-      ],
-      "entao": [
-        {
-          "variavel": "diagnostico",
-          "valor": "escoriose",
-          "cnf": 0.55
-        }
-      ]
-    },
-    {
-      "id": "SINTA-R14",
-      "numero_original": 14,
-      "nome_original": "Regra 14",
-      "se_todas": [
-        {
           "variavel": "pustulas_amarelas_inferiores",
           "operador": "=",
           "valor": "sim",
@@ -484,9 +443,9 @@
       ]
     },
     {
-      "id": "SINTA-R15",
-      "numero_original": 15,
-      "nome_original": "Regra 15",
+      "id": "SINTA-R14",
+      "numero_original": 14,
+      "nome_original": "Regra 14",
       "se_todas": [
         {
           "variavel": "manchas_angulares_superiores",
@@ -510,9 +469,9 @@
       ]
     },
     {
-      "id": "SINTA-R16",
-      "numero_original": 16,
-      "nome_original": "Regra 16",
+      "id": "SINTA-R15",
+      "numero_original": 15,
+      "nome_original": "Regra 15",
       "se_todas": [
         {
           "variavel": "manchas_irregulares_halo_amarelo",
@@ -531,14 +490,14 @@
         {
           "variavel": "diagnostico",
           "valor": "mancha_folhas",
-          "cnf": 0.85
+          "cnf": 0.7
         }
       ]
     },
     {
-      "id": "SINTA-R17",
-      "numero_original": 17,
-      "nome_original": "Regra 17",
+      "id": "SINTA-R16",
+      "numero_original": 16,
+      "nome_original": "Regra 16",
       "se_todas": [
         {
           "variavel": "pustulas_escuras_bagas",

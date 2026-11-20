@@ -13,7 +13,7 @@
     pt: {
       symptoms:'Como reconhecer', differential:'Sinais parecidos e diferenças', observation:'O que observar no vinhedo', affected:'Partes afetadas',
       treatment:'Como tratar', treatmentNote:'Use apenas produtos registrados para a videira, com receituário de engenheiro agrônomo, e respeite o prazo de carência.',
-      gallery:'Ver galeria oficial da Embrapa ↗', noPhoto:'Fotografia disponível na fonte oficial', imageCredit:'Foto: Embrapa Uva e Vinho',
+      gallery:'Ver galeria oficial da Embrapa ↗︎', noPhoto:'Fotografia disponível na fonte oficial', imageCredit:'Foto: Embrapa Uva e Vinho',
       scientific:'Agente ou referência', notice:'A imagem, sozinha, não confirma a causa. Consulte um profissional quando necessário.',
       quarantineAlert:'ATENÇÃO: praga quarentenária ausente no Brasil; suspeitas devem ser comunicadas à defesa agropecuária.', close:'Fechar ficha',
       groups:{'Doenças':'Doenças','Pragas':'Pragas','Viroses':'Viroses','Nutrição':'Nutrição','Distúrbios':'Outros danos','Quarentenárias':'Alerta fitossanitário'}
@@ -21,7 +21,7 @@
     en: {
       symptoms:'How to recognize', differential:'Similar signs and differences', observation:'What to check in the vineyard', affected:'Affected parts',
       treatment:'How to treat', treatmentNote:'Only use products registered for grapevines, prescribed by an agronomist, and respect the pre-harvest interval.',
-      gallery:'See official Embrapa gallery ↗', noPhoto:'Photographs available at the official source', imageCredit:'Photo: Embrapa Uva e Vinho',
+      gallery:'See official Embrapa gallery ↗︎', noPhoto:'Photographs available at the official source', imageCredit:'Photo: Embrapa Uva e Vinho',
       scientific:'Agent / reference', notice:'A photograph alone cannot confirm the cause. Professional assessment may be necessary.',
       quarantineAlert:'WARNING: quarantine pest classified as absent from Brazil; suspected findings should be reported to the official plant-health authority.', close:'Close',
       groups:{'Doenças':'Diseases','Pragas':'Pests','Viroses':'Viruses','Nutrição':'Nutrition','Distúrbios':'Other damage','Quarentenárias':'Quarantine alert'}
@@ -29,7 +29,7 @@
     es: {
       symptoms:'Cómo reconocer', differential:'Signos similares y diferencias', observation:'Qué observar en el viñedo', affected:'Partes afectadas',
       treatment:'Cómo tratar', treatmentNote:'Use solo productos registrados para la vid, con receta de un ingeniero agrónomo, y respete el plazo de seguridad.',
-      gallery:'Ver galería oficial de Embrapa ↗', noPhoto:'Fotografías disponibles en la fuente oficial', imageCredit:'Foto: Embrapa Uva e Vinho',
+      gallery:'Ver galería oficial de Embrapa ↗︎', noPhoto:'Fotografías disponibles en la fuente oficial', imageCredit:'Foto: Embrapa Uva e Vinho',
       scientific:'Agente o referencia', notice:'Una fotografía por sí sola no confirma la causa. Puede ser necesaria una evaluación profesional.',
       quarantineAlert:'ATENCIÓN: plaga cuarentenaria ausente en Brasil; las sospechas deben comunicarse a las autoridades fitosanitarias.', close:'Cerrar',
       groups:{'Doenças':'Enfermedades','Pragas':'Plagas','Viroses':'Virus','Nutrição':'Nutrición','Distúrbios':'Otros daños','Quarentenárias':'Alerta fitosanitario'}

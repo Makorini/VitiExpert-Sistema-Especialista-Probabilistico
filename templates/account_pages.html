@@ -38,7 +38,7 @@
             {{ flash(message) }}
 
             {% if page == 'login' %}
-            <form method="post" action="/login?lang={{ lang }}{% if request.args.get('next') %}&next={{ request.args.get('next')|urlencode }}{% endif %}" class="acc-form" novalidate>
+            <form method="post" action="{{ request.script_root }}/login?lang={{ lang }}{% if request.args.get('next') %}&next={{ request.args.get('next')|urlencode }}{% endif %}" class="acc-form" novalidate>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <label>{{ t.field_email }}
                     <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254">
@@ -48,21 +48,21 @@
                 </label>
                 <button class="acc-button" type="submit">{{ t.btn_login }}</button>
             </form>
-            <p class="acc-switch"><a href="/forgot?lang={{ lang }}">{{ t.forgot_link }}</a></p>
-            <p class="acc-switch">{{ t.no_account }} <a href="/register?lang={{ lang }}">{{ t.register }}</a></p>
+            <p class="acc-switch"><a href="{{ request.script_root }}/forgot?lang={{ lang }}">{{ t.forgot_link }}</a></p>
+            <p class="acc-switch">{{ t.no_account }} <a href="{{ request.script_root }}/register?lang={{ lang }}">{{ t.register }}</a></p>
 
             {% elif page == 'forgot' %}
-            <form method="post" action="/forgot?lang={{ lang }}" class="acc-form" novalidate>
+            <form method="post" action="{{ request.script_root }}/forgot?lang={{ lang }}" class="acc-form" novalidate>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <label>{{ t.field_email }}
                     <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254" autofocus>
                 </label>
                 <button class="acc-button" type="submit">{{ t.btn_send_code }}</button>
             </form>
-            <p class="acc-switch"><a href="/login?lang={{ lang }}">← {{ t.login }}</a></p>
+            <p class="acc-switch"><a href="{{ request.script_root }}/login?lang={{ lang }}">← {{ t.login }}</a></p>
 
             {% elif page == 'reset' %}
-            <form method="post" action="/reset?lang={{ lang }}" class="acc-form" novalidate>
+            <form method="post" action="{{ request.script_root }}/reset?lang={{ lang }}" class="acc-form" novalidate>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <label>{{ t.field_email }}
                     <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254">
@@ -80,17 +80,17 @@
                 </label>
                 <button class="acc-button" type="submit">{{ t.btn_reset }}</button>
             </form>
-            <form method="post" action="/forgot?lang={{ lang }}" class="acc-form acc-resend">
+            <form method="post" action="{{ request.script_root }}/forgot?lang={{ lang }}" class="acc-form acc-resend">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <input type="hidden" name="email" value="{{ form.email }}">
                 <p class="acc-switch">{{ t.no_code }}</p>
                 <button class="acc-button acc-secondary" type="submit">{{ t.btn_resend }}</button>
             </form>
-            <p class="acc-switch">{{ t.remembered_password }} <a href="/login?lang={{ lang }}">← {{ t.back_to_login }}</a></p>
+            <p class="acc-switch">{{ t.remembered_password }} <a href="{{ request.script_root }}/login?lang={{ lang }}">← {{ t.back_to_login }}</a></p>
 
             {% elif page == 'verify' %}
             {# Confirmação do e-mail pelo código de 6 dígitos. #}
-            <form method="post" action="/verify?lang={{ lang }}" class="acc-form" novalidate>
+            <form method="post" action="{{ request.script_root }}/verify?lang={{ lang }}" class="acc-form" novalidate>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <label>{{ t.field_email }}
                     <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required maxlength="254">
@@ -101,7 +101,7 @@
                 </label>
                 <button class="acc-button" type="submit">{{ t.btn_verify }}</button>
             </form>
-            <form method="post" action="/resend?lang={{ lang }}" class="acc-form acc-resend">
+            <form method="post" action="{{ request.script_root }}/resend?lang={{ lang }}" class="acc-form acc-resend">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <input type="hidden" name="email" value="{{ form.email }}">
                 <p class="acc-switch">{{ t.no_code }}</p>
@@ -109,7 +109,7 @@
             </form>
 
             {% else %}
-            <form method="post" action="/register?lang={{ lang }}" class="acc-form" novalidate>
+            <form method="post" action="{{ request.script_root }}/register?lang={{ lang }}" class="acc-form" novalidate>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <label>{{ t.field_name }}
                     <input type="text" name="name" value="{{ form.name }}" autocomplete="name" required maxlength="80">
@@ -126,8 +126,8 @@
                 </label>
                 <button class="acc-button" type="submit">{{ t.btn_register }}</button>
             </form>
-            <p class="acc-switch">{{ t.have_account }} <a href="/login?lang={{ lang }}">{{ t.login }}</a></p>
-            <p class="acc-terms">{{ t.terms_link }} <a href="/privacy?lang={{ lang }}">{{ t.privacy }}</a>.</p>
+            <p class="acc-switch">{{ t.have_account }} <a href="{{ request.script_root }}/login?lang={{ lang }}">{{ t.login }}</a></p>
+            <p class="acc-terms">{{ t.terms_link }} <a href="{{ request.script_root }}/privacy?lang={{ lang }}">{{ t.privacy }}</a>.</p>
             {% endif %}
         </section>
     </div>
@@ -144,7 +144,7 @@
     {{ flash(message) }}
 
     {# Filtros de período em uma linha, acima dos gráficos. #}
-    <form class="acc-filters" method="get" action="/account">
+    <form class="acc-filters" method="get" action="{{ request.script_root }}/account">
         <input type="hidden" name="lang" value="{{ lang }}">
         <label>{{ t.filter_year }}
             <select name="year">
@@ -192,7 +192,7 @@
     {% if hist.total == 0 %}
     <section class="acc-panel acc-empty">
         <p>{{ t.empty }}</p>
-        <a class="acc-button" href="/expert?lang={{ lang }}">{{ t.go_expert }} ↗</a>
+        <a class="acc-button" href="{{ request.script_root }}/expert?lang={{ lang }}">{{ t.go_expert }} ↗︎</a>
     </section>
     {% else %}
 
@@ -277,7 +277,7 @@
         <h1 class="grad-title">{{ grad_text(t.settings) }}</h1>
         <p class="lead">{{ t.settings_note }}</p>
         <div class="acc-userline">
-            <a class="acc-button acc-secondary" href="/account?lang={{ lang }}">← {{ t.account }}</a>
+            <a class="acc-button acc-secondary" href="{{ request.script_root }}/account?lang={{ lang }}">← {{ t.account }}</a>
         </div>
     </div>
 
@@ -290,7 +290,7 @@
             <div class="acc-setting acc-danger">
                 <h3>{{ t.data_title }}</h3>
                 <p class="acc-note">{{ t.data_note }}</p>
-                <form method="post" action="/account/delete-data?lang={{ lang }}" class="acc-delete" data-confirm="{{ t.confirm_data }}" data-confirm-yes="{{ t.btn_delete_data }}" data-confirm-danger>
+                <form method="post" action="{{ request.script_root }}/account/delete-data?lang={{ lang }}" class="acc-delete" data-confirm="{{ t.confirm_data }}" data-confirm-yes="{{ t.btn_delete_data }}" data-confirm-danger>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <label>{{ t.field_password }}
                         <input type="password" name="password" autocomplete="current-password" required maxlength="128">
@@ -302,7 +302,7 @@
             <div class="acc-setting acc-danger">
                 <h3>{{ t.delete_title }}</h3>
                 <p class="acc-note">{{ t.delete_note }}</p>
-                <form method="post" action="/account/delete?lang={{ lang }}" class="acc-delete" data-confirm="{{ t.confirm_account }}" data-confirm-yes="{{ t.btn_delete }}" data-confirm-danger>
+                <form method="post" action="{{ request.script_root }}/account/delete?lang={{ lang }}" class="acc-delete" data-confirm="{{ t.confirm_account }}" data-confirm-yes="{{ t.btn_delete }}" data-confirm-danger>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <label>{{ t.field_password }}
                         <input type="password" name="password" autocomplete="current-password" required maxlength="128">

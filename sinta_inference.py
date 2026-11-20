@@ -1,7 +1,7 @@
 """Motor de Fatores de Certeza do VitiExpert, transposto do Expert SINTA para Python.
 
 A base de conhecimento é o arquivo do SINTA knowledge/VitiExpert10.bcm
-(10 doenças, 31 sintomas, 17 regras), exportado para
+(10 doenças, 28 sintomas, 16 regras), exportado para
 knowledge/sinta_base_export.json por sinta_bcm_import.py. Todas as regras
 vêm desse arquivo; cada conclusão mantém o CNF gravado no SINTA.
 

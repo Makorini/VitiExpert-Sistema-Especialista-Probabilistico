@@ -1,6 +1,6 @@
 """Gera knowledge/VitiExpert10.bcm (base do Expert SINTA com as 10 doenças).
 
-Lê as tabelas de docs/BASE_SINTA_10_DOENCAS.md (variáveis, perguntas e as 17
+Lê as tabelas de docs/BASE_SINTA_10_DOENCAS.md (variáveis, perguntas e as 16
 regras) e grava o arquivo no formato do ExSINTA usando bcm_writer.py. O
 cabeçalho (título "VitiExpert") e o bloco de opções são copiados do Teste.bcm.
 
@@ -49,7 +49,7 @@ def ler_roteiro():
             var, valor = [x.strip() for x in parte.split("=")]
             condicoes.append((var, "sim" if valor.lower() == "sim" else "não"))
         regras.append((int(m.group(1)), condicoes, m.group(3), int(m.group(4)) / 100))
-    if len(variaveis) != 31 or len(regras) != 17:
+    if len(variaveis) != 28 or len(regras) != 16:
         raise SystemExit(f"Roteiro inesperado: {len(variaveis)} variáveis, {len(regras)} regras")
     return variaveis, regras
 
@@ -60,7 +60,7 @@ def gerar():
     cabecalho = modelo[:0x713]
     opcoes = modelo[-11:]
 
-    # Variáveis: 1..31 sintomas (univaloradas) + diagnóstico (multivalorada).
+    # Variáveis: 1..28 sintomas (univaloradas) + diagnóstico (multivalorada).
     var_id = {nome: i for i, (nome, _) in enumerate(variaveis, start=1)}
     diag = len(variaveis) + 1
     vars_bcm = [(var_id[n], n, False) for n, _ in variaveis] + [(diag, "diagnostico", True)]

@@ -51,8 +51,8 @@ def test_base_has_ten_diseases_31_symptoms_17_rules():
     kb = knowledge()
     assert kb["arquivo_origem"] == "VitiExpert10.bcm"
     assert set(kb["hipoteses"]) == DISEASES
-    assert len(set(kb["variaveis"]) - {"diagnostico"}) == 31
-    assert len(kb["regras"]) == 17
+    assert len(set(kb["variaveis"]) - {"diagnostico"}) == 28
+    assert len(kb["regras"]) == 16
 
 
 def test_json_export_is_identical_to_bcm_file():
@@ -167,7 +167,7 @@ def test_invalid_answers_rejected(bad):
 def test_31_questions_translated_in_each_language(locale):
     groups = question_groups(knowledge()["variaveis"], locale)
     questions = [q for g in groups for q in g["items"]]
-    assert len(questions) == 31
+    assert len(questions) == 28
     assert all(q["id"] not in q["pergunta"] for q in questions)
     names = {r["name"] for r in infer({"poeira_branca": "sim"}, locale)["results"]}
     assert names == {{"pt": "Oídio", "en": "Powdery mildew", "es": "Oídio"}[locale]}

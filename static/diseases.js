@@ -21,10 +21,10 @@
       noResults:'Nenhuma condição encontrada', tryAnother:'Experimente outro sintoma ou remova os filtros.', reset:'Limpar filtros',
       guidanceEyebrow:'ORIENTAÇÃO AO PRODUTOR',guidanceTitle:'Fotografias ajudam a reconhecer, mas não confirmam o diagnóstico.',
       guidanceText:'Sinais semelhantes podem ser causados por doenças, insetos, deficiência nutricional ou estresse. Observe mais de uma parte da planta, compare a evolução e procure assistência agronômica quando necessário. Produtos fitossanitários devem ter registro válido para a cultura e recomendação profissional.',
-      expertLink:'Consultar o Sistema Especialista ↗',credits:'Conteúdo educacional baseado no UZUM-Uva da Embrapa. Fotos externas dependem de conexão à internet e das condições de uso da fonte; consulte a galeria original em cada ficha.',
+      expertLink:'Consultar o Sistema Especialista ↗︎',credits:'Conteúdo educacional baseado no UZUM-Uva da Embrapa. Fotos externas dependem de conexão à internet e das condições de uso da fonte; consulte a galeria original em cada ficha.',
       search:'Pesquisar por doença, praga ou sintoma...', view:'Ver ficha completa', results:'resultados', result:'resultado',
       symptoms:'Como reconhecer', differential:'Sinais parecidos e diferenças', observation:'O que observar no vinhedo', affected:'Partes afetadas',
-      gallery:'Ver galeria oficial da Embrapa ↗', noPhoto:'Fotografia disponível na fonte oficial', imageCredit:'Foto: Embrapa Uva e Vinho',
+      gallery:'Ver galeria oficial da Embrapa ↗︎', noPhoto:'Fotografia disponível na fonte oficial', imageCredit:'Foto: Embrapa Uva e Vinho',
       scientific:'Agente ou referência', notice:'A imagem, sozinha, não confirma a causa. Consulte um profissional quando necessário.', quarantineAlert:'ATENÇÃO: praga quarentenária ausente no Brasil; suspeitas devem ser comunicadas à defesa agropecuária.',
       close:'Fechar ficha', tags:{'Quarentenárias':'Alerta fitossanitário'}
     },
@@ -36,10 +36,10 @@
       noResults:'No matching conditions',tryAnother:'Try another term or clear the filters.',reset:'Clear filters',
       guidanceEyebrow:'GROWER GUIDANCE',guidanceTitle:'Photos help identify symptoms but cannot confirm a diagnosis.',
       guidanceText:'Similar symptoms may be caused by infections, insects, nutrition or environmental stress. Examine multiple parts of the plant and seek professional confirmation. Only use plant protection products registered for the crop under professional guidance.',
-      expertLink:'Open Expert System ↗', credits:'Educational content based on Embrapa UZUM-Uva. External reference photos require internet access and are subject to source permissions.',
+      expertLink:'Open Expert System ↗︎', credits:'Educational content based on Embrapa UZUM-Uva. External reference photos require internet access and are subject to source permissions.',
       search:'Search by disease, pest or symptom...',view:'View detailed sheet',results:'results',result:'result',
       symptoms:'How to recognize',differential:'Similar signs and differences',observation:'What to check in the vineyard',affected:'Affected parts',
-      gallery:'See official Embrapa gallery ↗',noPhoto:'Photographs available at the official source',imageCredit:'Photo: Embrapa Uva e Vinho',scientific:'Agent / reference',
+      gallery:'See official Embrapa gallery ↗︎',noPhoto:'Photographs available at the official source',imageCredit:'Photo: Embrapa Uva e Vinho',scientific:'Agent / reference',
       notice:'A photograph alone cannot confirm the cause. Professional assessment may be necessary.',quarantineAlert:'WARNING: quarantine pest classified as absent from Brazil; suspected findings should be reported to the official plant-health authority.',close:'Close',tags:{'Quarentenárias':'Quarantine alert'}
     },
     es: {
@@ -50,10 +50,10 @@
       noResults:'No se encontraron resultados',tryAnother:'Pruebe otro síntoma o borre los filtros.',reset:'Borrar filtros',
       guidanceEyebrow:'ORIENTACIÓN AL PRODUCTOR',guidanceTitle:'Las fotografías orientan, pero no confirman un diagnóstico.',
       guidanceText:'Los síntomas semejantes pueden deberse a enfermedades, insectos, nutrición o estrés. Observe varias partes de la planta y busque asesoramiento profesional. Use solamente productos registrados para el cultivo, con orientación técnica.',
-      expertLink:'Consultar el Sistema Experto ↗',credits:'Contenido educativo basado en Embrapa UZUM-Uva. Las imágenes externas requieren internet y están sujetas a permisos de la fuente.',
+      expertLink:'Consultar el Sistema Experto ↗︎',credits:'Contenido educativo basado en Embrapa UZUM-Uva. Las imágenes externas requieren internet y están sujetas a permisos de la fuente.',
       search:'Buscar enfermedad, plaga o síntoma...',view:'Ver ficha completa',results:'resultados',result:'resultado',
       symptoms:'Cómo reconocer',differential:'Signos similares y diferencias',observation:'Qué observar en el viñedo',affected:'Partes afectadas',
-      gallery:'Ver galería oficial de Embrapa ↗',noPhoto:'Fotografías disponibles en la fuente oficial',imageCredit:'Foto: Embrapa Uva e Vinho',scientific:'Agente o referencia',
+      gallery:'Ver galería oficial de Embrapa ↗︎',noPhoto:'Fotografías disponibles en la fuente oficial',imageCredit:'Foto: Embrapa Uva e Vinho',scientific:'Agente o referencia',
       notice:'Una fotografía por sí sola no confirma la causa. Puede ser necesaria una evaluación profesional.',quarantineAlert:'ATENCIÓN: plaga cuarentenaria ausente en Brasil; las sospechas deben comunicarse a las autoridades fitosanitarias.',close:'Cerrar',tags:{'Quarentenárias':'Alerta fitosanitario'}
     }
   };
@@ -100,7 +100,7 @@
     const tag=el('span','dv-tag'+(item.group==='Pragas'?' pest':'')+(item.quarantine?' quarantine':''),groupLabel(item));
     meta.append(tag,el('span','dv-part',item.organs));
     body.append(meta,el('h3','',item.name),el('p','dv-card-text',item.signs));
-    const button=el('button','dv-card-btn',t.view+'  ↗');button.type='button';button.addEventListener('click',()=>window.VitiSheet.open(item.id,button));
+    const button=el('button','dv-card-btn',t.view+'  ↗︎');button.type='button';button.addEventListener('click',()=>window.VitiSheet.open(item.id,button));
     body.append(button); card.append(body);
     return card;
   }

@@ -2,7 +2,7 @@
 
 ## Objetivo e escopo
 
-Sistema especialista por regras SE/ENTÃO com Fatores de Confiança, construído no **Expert SINTA** e executado por um motor em **Python**, para indicar hipóteses de doenças da videira a partir de sinais observados. O usuário responde a 31 perguntas com Sim, Não ou Não sei e, em Sim/Não, informa o quanto tem certeza (0–100%). O resultado mostra até três hipóteses, o nível de confiança e os sinais que levaram a cada uma; o nome da doença abre a ficha do catálogo, com a área "Como tratar" (resumo das recomendações da Embrapa Uva e Vinho). As regras acionadas e os CNFs continuam no retorno da API (`/api/diagnose`), mas não são exibidos ao usuário final.
+Sistema especialista por regras SE/ENTÃO com Fatores de Confiança, construído no **Expert SINTA** e executado por um motor em **Python**, para indicar hipóteses de doenças da videira a partir de sinais observados. O usuário responde a 28 perguntas com Sim, Não ou Não sei e, em Sim/Não, informa o quanto tem certeza (0–100%). O resultado mostra até três hipóteses, o nível de confiança e os sinais que levaram a cada uma; o nome da doença abre a ficha do catálogo, com a área "Como tratar" (resumo das recomendações da Embrapa Uva e Vinho). As regras acionadas e os CNFs continuam no retorno da API (`/api/diagnose`), mas não são exibidos ao usuário final.
 
 ### As dez doenças
 
@@ -10,7 +10,7 @@ Míldio, oídio, antracnose, podridão-cinzenta, podridão-da-uva-madura, podrid
 
 ## Base de conhecimento (Expert SINTA)
 
-- **Arquivo:** `knowledge/VitiExpert10.bcm` — 31 variáveis de sintomas (Sim/Não), a variável objetivo `diagnostico` (multivalorada, com as 10 doenças) e **17 regras**, cada uma com **uma** conclusão e um CNF.
+- **Arquivo:** `knowledge/VitiExpert10.bcm` — 28 variáveis de sintomas (Sim/Não), a variável objetivo `diagnostico` (multivalorada, com as 10 doenças) e **16 regras**, cada uma com **uma** conclusão e um CNF.
 - **Projeto da base:** `docs/BASE_SINTA_10_DOENCAS.md` (variáveis, perguntas, regras e consultas de teste).
 - **Critérios de modelagem:** regras da mesma doença não compartilham sintomas e nenhuma regra está contida em outra, para que o acúmulo de evidências (x + y − xy) não conte o mesmo sintoma duas vezes.
 - **Geração e importação:** o `.bcm` é gerado por `knowledge/gerar_vitiexpert10_bcm.py` (gravador `knowledge/bcm_writer.py`, verificado regravando o `Teste.bcm` original de forma idêntica) e exportado para `knowledge/sinta_base_export.json` por `sinta_bcm_import.py`, com SHA-256 para detectar alterações. O motor recusa iniciar se o `.bcm` e o JSON divergirem.
@@ -50,5 +50,6 @@ Esses testes **não** medem acurácia agronômica: os cenários são sintéticos
 ## Pendências para uma validação conclusiva
 
 - Abrir `VitiExpert10.bcm` no ExSINTA e repetir as consultas T01–T14, registrando os resultados do programa ao lado dos do Python.
-- Revisão das regras e dos CNFs por agrônomo ou fitopatologista (avaliação externa, por exemplo pela EPAGRI), com data e identificação.
+- ~~Revisão das regras e dos CNFs por especialista~~ **feita em 18/11/2026** por Camilla Castellar Leme (engenheira agrônoma, pesquisadora da EPAGRI): 11 regras aprovadas, 5 com ajustes, 1 retirada. Mudanças em `docs/BASE_SINTA_10_DOENCAS.md`.
+- Simplificar a redação das perguntas (pedido da especialista) e avaliar a inclusão do declínio e morte de videiras.
 - Casos independentes com diagnóstico de referência, para calcular acerto (acurácia, acerto no top-3, matriz de confusão) em dados não usados para criar as regras.

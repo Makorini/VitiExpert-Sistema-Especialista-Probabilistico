@@ -99,10 +99,10 @@
         <a
             class="brand grad-title notranslate"
             translate="no"
-            href="/?lang={{ lang }}"
+            href="{{ request.script_root }}/?lang={{ lang }}"
             aria-label="VitiExpert — {{ t.home }}"
         >
-            <span class="grad-text">VitiExpert</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
+            <span class="grad-text">VitiExpert</span><img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
         </a>
 
         <!-- Menu principal. -->
@@ -114,28 +114,28 @@
 
             <a
                 class="{{ 'active' if page == 'home' else '' }}"
-                href="/?lang={{ lang }}"
+                href="{{ request.script_root }}/?lang={{ lang }}"
             >
                 {{ t.home }}
             </a>
 
             <a
                 class="{{ 'active' if page == 'expert' else '' }}"
-                href="/expert?lang={{ lang }}"
+                href="{{ request.script_root }}/expert?lang={{ lang }}"
             >
                 {{ t.expert }}
             </a>
 
             <a
                 class="{{ 'active' if page == 'climate' else '' }}"
-                href="/climate?lang={{ lang }}"
+                href="{{ request.script_root }}/climate?lang={{ lang }}"
             >
                 {{ t.climate }}
             </a>
 
             <a
                 class="{{ 'active' if page == 'diseases' else '' }}"
-                href="/diseases?lang={{ lang }}"
+                href="{{ request.script_root }}/diseases?lang={{ lang }}"
             >
                 {{ t.diseases }}
             </a>
@@ -200,7 +200,7 @@
                 >
 
                     <a
-                        href="{{ '/' if page == 'home' else '/' ~ page }}?lang=pt"
+                        href="{{ request.script_root }}{{ '/' if page in ('home', 'notfound') else '/' ~ page }}?lang=pt"
                         data-lang="pt"
                         lang="pt"
                     >
@@ -209,7 +209,7 @@
                     </a>
 
                     <a
-                        href="{{ '/' if page == 'home' else '/' ~ page }}?lang=en"
+                        href="{{ request.script_root }}{{ '/' if page in ('home', 'notfound') else '/' ~ page }}?lang=en"
                         data-lang="en"
                         lang="en"
                     >
@@ -218,7 +218,7 @@
                     </a>
 
                     <a
-                        href="{{ '/' if page == 'home' else '/' ~ page }}?lang=es"
+                        href="{{ request.script_root }}{{ '/' if page in ('home', 'notfound') else '/' ~ page }}?lang=es"
                         data-lang="es"
                         lang="es"
                     >
@@ -269,16 +269,16 @@
                 </button>
                 <div class="account-menu" id="account-menu" hidden>
                     <p class="account-menu-user">{{ current_user['name'] }}<small>{{ current_user['email'] }}</small></p>
-                    <a href="/account?lang={{ lang }}" {{ 'aria-current=page' if page == 'account' }}>{{ t.account }}</a>
-                    <a href="/settings?lang={{ lang }}" {{ 'aria-current=page' if page == 'settings' }}>⚙ {{ t.settings }}</a>
-                    <form method="post" action="/logout?lang={{ lang }}" data-confirm="{{ t.confirm_logout }}" data-confirm-yes="{{ t.logout }}">
+                    <a href="{{ request.script_root }}/account?lang={{ lang }}" {{ 'aria-current=page' if page == 'account' }}>{{ t.account }}</a>
+                    <a href="{{ request.script_root }}/settings?lang={{ lang }}" {{ 'aria-current=page' if page == 'settings' }}>⚙ {{ t.settings }}</a>
+                    <form method="post" action="{{ request.script_root }}/logout?lang={{ lang }}" data-confirm="{{ t.confirm_logout }}" data-confirm-yes="{{ t.logout }}">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <button type="submit" class="account-menu-logout">{{ t.logout }}</button>
                     </form>
                 </div>
             </div>
             {% else %}
-            <a class="account-action {{ 'active' if page in ('login', 'register', 'verify', 'forgot', 'reset') }}" href="/login?lang={{ lang }}" title="{{ t.login }}">
+            <a class="account-action {{ 'active' if page in ('login', 'register', 'verify', 'forgot', 'reset') }}" href="{{ request.script_root }}/login?lang={{ lang }}" title="{{ t.login }}">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg>
                 <span>{{ t.login }}</span>
             </a>
@@ -332,7 +332,7 @@
 
                 <!-- Nome do sistema. -->
                 <h1 class="hero-logo grad-title notranslate" translate="no">
-                    <span class="grad-text">VitiExpert</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
+                    <span class="grad-text">VitiExpert</span><img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
                 </h1>
 
                 <!-- Apresentação principal. -->
@@ -347,7 +347,7 @@
                 <!-- Acesso ao Sistema Especialista, mantido como na página inicial original. -->
                 <a
                     class="cta hero-cta"
-                    href="/expert?lang={{ lang }}"
+                    href="{{ request.script_root }}/expert?lang={{ lang }}"
                 >
                     {{ t.explore }}
                 </a>
@@ -431,7 +431,7 @@
     <section class="tcc-expert-hero" aria-labelledby="tcc-expert-title">
         <div class="tcc-expert-hero-inner">
             <p class="tcc-eyebrow">{{ tx.hero_kicker }}</p>
-            <h1 id="tcc-expert-title" class="grad-title"><span class="grad-text">{{ tx.hero_before }} <span class="grad-nowrap"><em>{{ tx.hero_accent }}</em><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h1>
+            <h1 id="tcc-expert-title" class="grad-title"><span class="grad-text">{{ tx.hero_before }} <span class="grad-nowrap"><em>{{ tx.hero_accent }}</em><img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h1>
             <p>{{ tx.hero_description }}</p>
             <a class="cta hero-cta tcc-start" href="#observacao-videira">
                 {{ tx.start_assessment }} <span aria-hidden="true">↓</span>
@@ -473,7 +473,7 @@
             {% endfor %}
 
             <div class="tcc-expert-actions">
-                <button class="tcc-submit" type="submit">{{ tx.analyze }} <span aria-hidden="true">↗</span></button>
+                <button class="tcc-submit" type="submit">{{ tx.analyze }} <span aria-hidden="true">↗︎</span></button>
                 <button class="tcc-reset" type="reset">{{ tx['clear'] }} </button>
             </div>
         </form>
@@ -493,7 +493,7 @@
             <div class="dv-hero-shade"></div>
             <div class="dv-hero-content">
                 <p class="dv-eyebrow" data-i18n="eyebrow">CONHECIMENTO QUE CULTIVA</p>
-                <h1 id="dv-title" class="grad-title"><span class="grad-text"><span data-i18n="titleA">Doenças</span> <em>&amp;</em> <span class="grad-nowrap"><span data-i18n="titleB">Pragas</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h1>
+                <h1 id="dv-title" class="grad-title"><span class="grad-text"><span data-i18n="titleA">Doenças</span> <em>&amp;</em> <span class="grad-nowrap"><span data-i18n="titleB">Pragas</span><img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h1>
                 <p class="dv-intro" data-i18n="heroIntro">Uma biblioteca visual para identificar sinais, comparar sintomas e conhecer os principais problemas que afetam a videira em todo o Brasil.</p>
             </div>
         </section>
@@ -502,7 +502,7 @@
             <div class="dv-headline">
                 <div>
                     <p class="dv-overline" data-i18n="library">GUIA VISUAL DA VIDEIRA</p>
-                    <h2 class="grad-title grad-on-page"><span class="grad-text"><span class="grad-nowrap"><span data-i18n="catalog">Catálogo de identificação</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h2>
+                    <h2 class="grad-title grad-on-page"><span class="grad-text"><span class="grad-nowrap"><span data-i18n="catalog">Catálogo de identificação</span><img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></span></span></h2>
                     <p class="dv-subtitle" data-i18n="catalogIntro">Explore imagens de referência e compare sintomas nas folhas, cachos, ramos e raízes.</p>
                 </div>
 
@@ -550,7 +550,7 @@
                     <p class="dv-overline" data-i18n="guidanceEyebrow">ORIENTAÇÃO AO PRODUTOR</p>
                     <h2 id="dv-guidance-title" data-i18n="guidanceTitle">Fotografias ajudam a reconhecer, mas não confirmam o diagnóstico.</h2>
                     <p data-i18n="guidanceText">Sinais semelhantes podem ser causados por doenças, insetos, deficiência nutricional ou estresse. Observe mais de uma parte da planta, compare a evolução e procure assistência agronômica quando necessário. Produtos fitossanitários devem ter registro válido para a cultura e recomendação profissional.</p>
-                    <div class="dv-guidance-links"><a href="/expert?lang={{ lang }}" data-i18n="expertLink">Consultar o Sistema Especialista ↗</a><a href="https://agrofit.agricultura.gov.br/" target="_blank" rel="noopener noreferrer">AGROFIT (MAPA) ↗</a></div>
+                    <div class="dv-guidance-links"><a href="{{ request.script_root }}/expert?lang={{ lang }}" data-i18n="expertLink">Consultar o Sistema Especialista ↗︎</a><a href="https://agrofit.agricultura.gov.br/" target="_blank" rel="noopener noreferrer">AGROFIT (MAPA) ↗︎</a></div>
                 </div>
             </section>
             <p class="dv-credits" data-i18n="credits">Conteúdo educacional baseado no UZUM-Uva da Embrapa. Fotos de referência externas, sujeitas à disponibilidade e às condições de uso da fonte. A galeria original está vinculada em cada ficha.</p>
@@ -578,7 +578,7 @@
             <div class="climate-content">
                 <div class="climate-heading">
                     <div class="climate-eyebrow" data-w-i18n="top_eyebrow">CLIMA E CONDIÇÕES EM TEMPO REAL</div>
-                    <h1 class="climate-title grad-title"><span class="grad-text" id="climate-title-text">Clima</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></h1>
+                    <h1 class="climate-title grad-title"><span class="grad-text" id="climate-title-text">Clima</span><img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true"></h1>
                     <p data-w-i18n="intro_body">Condições meteorológicas em tempo real para<br> apoiar o manejo do seu vinhedo.</p>
                 </div>
 
@@ -672,7 +672,7 @@
                 <div class="section-label">VITIEXPERT · 404</div>
                 <h1 class="grad-title">{{ grad_text(t.notfound) }}</h1>
                 <p class="lead">{{ t.notfound_lead }}</p>
-                <p><a class="cta" href="/?lang={{ lang }}">{{ t.notfound_home }} ↗</a></p>
+                <p><a class="cta" href="{{ request.script_root }}/?lang={{ lang }}">{{ t.notfound_home }} ↗︎</a></p>
             </div>
         </main>
 
@@ -754,9 +754,9 @@
             <!-- Nome do projeto. -->
             <a
                 class="footer-brand grad-title grad-on-page notranslate" translate="no"
-                href="/?lang={{ lang }}"
+                href="{{ request.script_root }}/?lang={{ lang }}"
             >
-                <span class="grad-text">VitiExpert</span><img class="title-mark" src="/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
+                <span class="grad-text">VitiExpert</span><img class="title-mark" src="{{ request.script_root }}/static/marca-uva-lupa.webp" alt="" aria-hidden="true">
             </a>
 
 
@@ -777,7 +777,7 @@
             <!-- Direitos, identificação e termos. -->
             <small>
                 © 2026 VitiExpert · {{ t.all }} ·
-                <a class="footer-terms" href="/privacy?lang={{ lang }}">{{ t.privacy }}</a>
+                <a class="footer-terms" href="{{ request.script_root }}/privacy?lang={{ lang }}">{{ t.privacy }}</a>
             </small>
 
         </div>
@@ -811,6 +811,7 @@
         id="viti-config"
         hidden
         data-lang="{{ lang }}"
+        data-base="{{ request.script_root }}"
         data-news-unavailable="{{ t.news_unavailable }}"
         data-expert-translations="{{ tx|tojson|forceescape if page == 'expert' else '{}' }}"
     ></div>

@@ -14,7 +14,7 @@ def test_expert_page_and_scripts():
     html = response.get_data(as_text=True)
     assert 'id="tcc-diagnose-form"' in html
     assert "expert.css" in html and "expert.js" in html
-    assert html.count('type="radio"') == 31 * 3
+    assert html.count('type="radio"') == 28 * 3
     assert "Teste.bcm" not in html
     assert "dataset_note" not in html
     assert "tcc-source-note" not in html
@@ -28,7 +28,7 @@ def test_sinta_mildio_and_negative_rule():
     result = client.post(
         "/api/diagnose?lang=pt",
         json={
-            "answers": {"manchas_amarelas": "sim", "folhas_murchas": "sim", "chuva_continua": "sim"}
+            "answers": {"manchas_amarelas": "sim", "chuva_continua": "sim"}
         },
     )
     assert result.status_code == 200
@@ -38,7 +38,7 @@ def test_sinta_mildio_and_negative_rule():
     assert data["results"][0]["confidence_percent"] == 70  # R02: CNF 70
     assert data["analyzed_hypotheses"] == 10
     assert data["diseases_assessed"] == 10
-    assert data["rule_count"] == 17
+    assert data["rule_count"] == 16
     assert data["source_file"] == "VitiExpert10.bcm"
 
     o = client.post(
